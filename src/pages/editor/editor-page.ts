@@ -41,13 +41,17 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         });
     }
 
+    private setCursor(type:"auto"|"hand"|"grabbing"){
+        const canvas = this.querySelector(".js-canvas");
+        canvas.setAttribute("cursor", type);
+    }
+
     private handleKeyDown:EventListener = (e:KeyboardEvent) => {
         if (e instanceof KeyboardEvent){
             const key = e.key;
             if (key === " "){
                 this.canMove = true;
-                const canvas = this.querySelector(".js-canvas");
-                canvas.setAttribute("cursor", "hand");
+                this.setCursor("hand");
             }
         }
     }
@@ -57,8 +61,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
             const key = e.key;
             if (key === " "){
                 this.canMove = false;
-                const canvas = this.querySelector(".js-canvas");
-                canvas.setAttribute("cursor", "auto");
+                this.setCursor("auto");
             }
         }
     }
@@ -90,8 +93,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
             this.isMoving = true;
             this.startX = e.clientX;
             this.startY = e.clientY;
-            const canvas = this.querySelector(".js-canvas");
-            canvas.setAttribute("cursor", "grabbing");
+            this.setCursor("grabbing");
         }
     }
 
