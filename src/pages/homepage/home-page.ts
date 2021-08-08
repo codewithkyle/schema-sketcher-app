@@ -45,7 +45,7 @@ export default class Homepage extends SuperComponent<IHomepage>{
             case "all":
                 return html`${this.renderNewDiagramButton()}`;
             case "cloud":
-                return html`<p class="py-1 block text-center font-grey-700 font-sm">Cloud saving is not currently available.</p>`;
+                return html`<p class="py-2 block text-center font-grey-700 font-sm">Sign in to view or create cloud documents.</p>`;
             case "local":
                 return html`${this.renderNewDiagramButton()}`;
         }
@@ -55,8 +55,8 @@ export default class Homepage extends SuperComponent<IHomepage>{
         const view = html`
             ${new BasicHeader()}
             <div class="px-2 py-4">
-                <div id="diagram-table" class="bg-white shadow-md radius-0.5 border-1 border-solid border-grey-200 p-1 mx-auto max-w-1024">
-                    <div class="border-r-1 border-r-solid border-r-grey-200 pr-1">
+                <div id="diagram-table" class="bg-white shadow-md radius-0.5 border-1 border-solid border-grey-200 mx-auto max-w-1024">
+                    <div class="border-r-1 border-r-solid border-r-grey-200 p-1">
                         <button data-tab="all" @click=${this.switchTabClick} class="bttn w-full ${this.model.activeTab === "all" ? "is-active-tab" : ""}" kind="text" color="grey" icon="left" flex="justify-start">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -76,8 +76,8 @@ export default class Homepage extends SuperComponent<IHomepage>{
                             Local
                         </button>
                     </div>
-                    <div class="px-1">
-                        <h2 class="block w-full mb-1 pb-0.5 border-b-1 border-b-solid border-b-grey-200 font-md font-medium font-grey-700 text-capitalize">${this.model.activeTab} Diagrams</h2>
+                    <div>
+                        <h2 class="block w-full mt-1 px-1 pb-1 border-b-1 border-b-solid border-b-grey-200 font-md font-medium font-grey-700 text-capitalize">${this.model.activeTab} Diagrams</h2>
                         ${this.renderDiagrams()}
                     </div>
                 </div>

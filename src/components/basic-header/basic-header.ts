@@ -15,7 +15,7 @@ export default class BasicHeader extends SuperComponent<IBasicHeader>{
 
     override render(){
         const view = html`
-            <a id="logo" class="font-xl font-bold" href="/">Scheme Sketcher</a>
+            <a id="logo" class="font-xl font-bold" href="/">Schema Sketcher</a>
             <div flex="row nowrap items-center">
                 <button class="bttn ml-1" kind="outline" color="white" icon="left">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

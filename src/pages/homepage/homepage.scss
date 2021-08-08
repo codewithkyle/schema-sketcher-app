@@ -9,7 +9,6 @@ home-page{
     #diagram-table{
         display: grid;
         grid-template-columns: 150px 1fr;
-        gap: 1rem;
 
         .is-active-tab{
             &::before{
@@ -21,6 +20,7 @@ home-page{
             display: grid;
             grid-template-columns: repeat(auto-fill, 200px);
             gap: 1rem;
+            padding: 1rem;
 
             button{
                 width: 200px;
