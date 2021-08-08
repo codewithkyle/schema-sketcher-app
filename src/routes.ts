@@ -6,6 +6,7 @@ import { configure, mount } from "@codewithkyle/router";
 
     configure({
         "/": "home-page",
+        "/diagram/{UID}": "editor-page",
         "404": "missing-page",
     });
 })();

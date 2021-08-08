@@ -14,7 +14,32 @@
                     "key": "name"
                 },
                 {
+                    "key": "timestamp"
+                }
+            ]
+        },
+        {
+            "name": "oplog",
+            "keyPath": "uid",
+            "columns": [
+                {
+                    "key": "uid",
+                    "unique": true
+                },
+                {
+                    "key": "timestamp"
+                },
+                {
+                    "key": "opcode"
+                },
+                {
                     "key": "data"
+                },
+                {
+                    "key": "author"
+                },
+                {
+                    "key": "diagramID"
                 }
             ]
         }

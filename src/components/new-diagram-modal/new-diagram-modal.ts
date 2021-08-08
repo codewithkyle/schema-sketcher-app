@@ -1,5 +1,6 @@
 import { css, mount } from "~controllers/env";
 import { html, render } from "lit-html";
+import diagramController from "~controllers/diagram-controller";
 
 export default class NewDiagramModal extends HTMLElement {
     constructor(){
@@ -14,18 +15,25 @@ export default class NewDiagramModal extends HTMLElement {
     }
 
     private newLocalDiagram:EventListener = (e:Event) => {
-
+        diagramController.createDiagram("local");
+        this.remove();
     }
 
     private newCloudDiagram:EventListener = (e:Event) => {
-        
+        diagramController.createDiagram("cloud");
+        this.remove();
     }
 
     private render(){
         const view = html`
             <div class="backdrop" @click=${this.closeClick}></div>
             <div class="modal">
-                <h3 class="block font-md font-bold mb-1 pb-1 border-b-1 border-b-solid border-b-grey-200">New Diagram</h3>
+                <button style="z-index:10;" @click=${this.closeClick} class="js-close bttn absolute t-0 r-0" shape="round" icon="center" kind="text" color="grey">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <h3 class="block font-md font-bold mb-1 pb-1 border-b-1 border-b-solid border-b-grey-200 font-grey-700">New Diagram</h3>
                 <p class="block line-normal font-sm font-grey-700 mb-1">
                     <a class="link" href="/login">Log in</a> or <a class="link" href="/register">sign up</a> to create cloud diagrams. You can always upload a diagram to the cloud at any time.
                 </p>
@@ -45,14 +53,15 @@ export default class NewDiagramModal extends HTMLElement {
                         <p class="block w-full font-xs font-grey-700">Cloud diagrams will be saved to the cloud and can be accessed by your account at any time on any device.</p>
                     </button>
                 </div>
-                <button @click=${this.closeClick} class="bttn absolute t-0 r-0" shape="round" icon="center" kind="text" color="grey">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
             </div>
         `;
         render(view, this);
+        setTimeout(()=>{
+            // @ts-ignore
+            document?.activeElement?.blur();
+            // @ts-ignore
+            this.querySelector(".js-close").focus();
+        }, 150);
     }
 }
 mount("new-diagram-modal", NewDiagramModal);
