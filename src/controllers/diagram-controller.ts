@@ -26,7 +26,22 @@ class DiagramController {
         const ops = await db.query("SELECT * FROM oplog WHERE diagramID = $uid", {
             uid: uid,
         });
-        return ops;
+        // @ts-ignore
+        const diagram = await db.query("SELECT * FROM diagrams WHERE uid = $uid", {
+            uid: uid,
+        });
+        return {
+            ops: ops,
+            diagram: diagram[0],
+        };
+    }
+
+    public async renameDiagram(uid:string, newName:string){
+        // @ts-ignore
+        await db.query("UPDATE diagrams SET name = $name WHERE uid = $uid", {
+            uid: uid,
+            name: newName,
+        });
     }
 }
 const diagramController = new DiagramController();

@@ -6,13 +6,10 @@ import NewDiagramModal from "~components/new-diagram-modal/new-diagram-modal";
 import db from "@codewithkyle/jsql";
 import dayjs_min from "~lib/dayjs";
 import { navigateTo } from "@codewithkyle/router";
+import { Diagram } from "~types/app";
 
 type Tabs = "all" | "cloud" | "local";
-interface Diagram{
-    name: string,
-    timestamp: number,
-    uid: string,
-}
+
 interface IHomepage{
     activeTab: Tabs,
     diagrams: Array<Diagram>
