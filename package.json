@@ -5,7 +5,10 @@
     "build": "run-p build:*",
     "build:js": "twist --src=./src --outDir=./public/js",
     "build:css": "cssmonster",
-    "production": "npm run build && asset-manager"
+    "production": "npm run build && asset-manager",
+    "watch": "run-p watch:*",
+    "watch:src": "npm-watch",
+    "watch:server": "node ./server/index.js"
   },
   "dependencies": {
     "dotenv": "^10.0.0",
@@ -18,7 +21,7 @@
   },
   "devDependencies": {
     "@codewithkyle/asset-manager": "^1.0.1",
-    "@codewithkyle/jsql": "^1.0.4",
+    "@codewithkyle/jsql": "^1.0.5",
     "@codewithkyle/pubsub": "^1.1.1",
     "@codewithkyle/router": "^1.1.0",
     "@codewithkyle/supercomponent": "^1.1.0",
@@ -35,5 +38,14 @@
     "@codewithkyle/router",
     "@codewithkyle/supercomponent",
     "lit-html"
-  ]
+  ],
+  "watch": {
+    "build": {
+      "patterns": [
+        "src"
+      ],
+      "extensions": "ts,js,scss,css,tsx,jsx,mjs,cjs",
+      "quiet": false
+    }
+  }
 }
