@@ -1,9 +1,8 @@
 import SuperComponent from "@codewithkyle/supercomponent";
 import { render, html } from "lit-html";
 import { css, mount } from "../../controllers/env";
-
 import BasicHeader from "~components/basic-header/basic-header";
-mount("basic-header", BasicHeader);
+import NewDiagramModal from "~components/new-diagram-modal/new-diagram-modal";
 
 type Tabs = "all" | "cloud" | "local";
 interface IHomepage{
@@ -27,10 +26,15 @@ export default class Homepage extends SuperComponent<IHomepage>{
         });
     }
 
+    private openNewDiagramModal:EventListener = (e:Event) => {
+        const modal = new NewDiagramModal();
+        document.body.appendChild(modal);
+    }
+
     private renderNewDiagramButton() {
         return html`
             <div id="diagram-grid">
-                <button class="new-diagram">
+                <button class="new-diagram" @click=${this.openNewDiagramModal}>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -55,7 +59,7 @@ export default class Homepage extends SuperComponent<IHomepage>{
         const view = html`
             ${new BasicHeader()}
             <div class="px-2 py-4">
-                <div id="diagram-table" class="bg-white shadow-md radius-0.5 border-1 border-solid border-grey-200 mx-auto max-w-1024">
+                <div id="diagram-table" class="bg-white shadow-md radius-0.5 border-1 border-solid border-grey-300 mx-auto max-w-1024">
                     <div class="border-r-1 border-r-solid border-r-grey-200 p-1">
                         <button data-tab="all" @click=${this.switchTabClick} class="bttn w-full ${this.model.activeTab === "all" ? "is-active-tab" : ""}" kind="text" color="grey" icon="left" flex="justify-start">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

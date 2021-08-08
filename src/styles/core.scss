@@ -15,6 +15,30 @@ body{
 
 button{
     padding: 0;
+    text-align: left;
+}
+
+.link{
+    color: var(--primary-700);
+    transition: color 80ms var(--ease-in-out);
+    border-radius: 0.125rem;
+    text-decoration: none;
+
+    &:hover{
+        color: var(--primary-600);
+        text-decoration: underline;  
+    }
+
+    &:active{
+        color: var(--primary-700);
+        text-decoration: underline;
+    }
+
+    &:focus-visible{
+        color: var(--primary-600);
+        text-decoration: none;
+        box-shadow: var(--focus-ring);
+    }
 }
 
 *{

@@ -1,6 +1,6 @@
 import SuperComponent from "@codewithkyle/supercomponent";
 import { render, html } from "lit-html";
-import { css } from "~controllers/env";
+import { css, mount } from "~controllers/env";
 
 interface IBasicHeader {
 
@@ -31,3 +31,4 @@ export default class BasicHeader extends SuperComponent<IBasicHeader>{
         render(view, this);
     }
 }
+mount("basic-header", BasicHeader);

@@ -1,9 +1,9 @@
 {
-    "name": "demo",
+    "name": "app",
     "version": 1,
     "tables": [
         {
-            "name": "users",
+            "name": "diagrams",
             "keyPath": "uid",
             "columns": [
                 {
@@ -14,24 +14,7 @@
                     "key": "name"
                 },
                 {
-                    "key": "customerId"
-                }
-            ]
-        },
-        {
-            "name": "orders",
-            "keyPath": "id",
-            "columns": [
-                {
-                    "key": "id",
-                    "unique": true,
-                    "autoIncrement": true
-                },
-                {
-                    "key": "name"
-                },
-                {
-                    "key": "products"
+                    "key": "data"
                 }
             ]
         }
