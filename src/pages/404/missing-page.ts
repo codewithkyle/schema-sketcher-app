@@ -1,20 +1,20 @@
 import SuperComponent from "@codewithkyle/supercomponent";
 import { render, html } from "lit-html";
-import { css } from "../controllers/env";
+import { css } from "../../controllers/env";
 
-interface IHomepage{
+interface IMissingPage{
 
 }
-export default class Homepage extends SuperComponent<IHomepage>{
+export default class MissingPage extends SuperComponent<IMissingPage>{
     constructor(){
         super();
-        css(["homepage"]).then(() => {
+        css(["404"]).then(() => {
             this.render();
         });
     }
 
     override render(){
-        const view = html`Homepage`;
+        const view = html`404 | Page not found.`;
         render(view, this);
     }
 }
