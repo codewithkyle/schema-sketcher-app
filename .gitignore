@@ -1,0 +1,5 @@
+node_modules
+public/js
+public/css
+src/lib
+service-worker-assets.js
