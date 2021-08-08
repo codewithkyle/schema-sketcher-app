@@ -1,6 +1,21 @@
 editor-page{
-    display: block;
-    position: absolute;
+    display: grid;
+    grid-template-rows: 64px 1fr;
+    gap: 0;
     width: 100%;
     height: 100%;
+    position: relative;
+
+    .canvas{
+        height: calc(100vh - 64px);
+        overflow: hidden;
+
+        .diagram{
+            position: relative;
+            width: 0;
+            height: 0;
+            display: inline-block;
+            overflow: visible;
+        }
+    }
 }

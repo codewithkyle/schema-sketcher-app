@@ -9,7 +9,6 @@ interface IEditorHeader {
 export default class EditorHeader extends SuperComponent<IEditorHeader>{
     constructor(name:string, callback:Function){
         super();
-        console.log(name);
         this.model = {
             name: name,
             callback: callback,

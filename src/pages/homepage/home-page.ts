@@ -21,10 +21,9 @@ export default class Homepage extends SuperComponent<IHomepage>{
             activeTab: "all",
             diagrams: []
         };
-        this.init();
     }
 
-    private async init(){
+    override async connected(){
         await css(["homepage", "overflow-menu"]);
         // @ts-ignore
         this.model.diagrams = await db.query("SELECT * FROM diagrams ORDER BY timestamp DESC");
