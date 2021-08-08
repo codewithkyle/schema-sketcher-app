@@ -14,6 +14,7 @@ interface IEditorPage {
 export default class EditorPage extends SuperComponent<IEditorPage>{
     private uid:string;
     private isMoving: boolean;
+    private canMove: boolean;
     private startX: number;
     private startY: number;
 
@@ -30,12 +31,36 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
 
     override async connected(){
-        window.addEventListener("mousewheel", this.handleScroll.bind(this), {capture: true});
+        window.addEventListener("mousewheel", this.handleScroll.bind(this), {capture: true, passive: true});
+        window.addEventListener("keydown", this.handleKeyDown);
+        window.addEventListener("keyup", this.handleKeyUp);
         await css(["editor-page"]);
         const { ops, diagram } = await diagramController.loadDiagram(this.uid);
         this.update({
             diagram: diagram,
         });
+    }
+
+    private handleKeyDown:EventListener = (e:KeyboardEvent) => {
+        if (e instanceof KeyboardEvent){
+            const key = e.key;
+            if (key === " "){
+                this.canMove = true;
+                const canvas = this.querySelector(".js-canvas");
+                canvas.setAttribute("cursor", "hand");
+            }
+        }
+    }
+
+    private handleKeyUp:EventListener = (e:KeyboardEvent) => {
+        if (e instanceof KeyboardEvent){
+            const key = e.key;
+            if (key === " "){
+                this.canMove = false;
+                const canvas = this.querySelector(".js-canvas");
+                canvas.setAttribute("cursor", "auto");
+            }
+        }
     }
 
     private handleScroll:EventListener = (e:WheelEvent) => {
@@ -61,10 +86,12 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
 
     private handleMouseDown:EventListener = (e:MouseEvent) => {
-        if (e instanceof MouseEvent){
+        if (e instanceof MouseEvent && this.canMove){
             this.isMoving = true;
             this.startX = e.clientX;
             this.startY = e.clientY;
+            const canvas = this.querySelector(".js-canvas");
+            canvas.setAttribute("cursor", "grabbing");
         }
     }
 
@@ -80,7 +107,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
 
     private handleMouseMove:EventListener = (e:MouseEvent) => {
-        if (e instanceof MouseEvent && this.isMoving){
+        if (e instanceof MouseEvent && this.isMoving && this.canMove){
             const anchor = this.querySelector(".js-anchor") as HTMLElement;
             const moveX = this.startX - e.clientX;
             const moveY = this.startY - e.clientY;
@@ -105,7 +132,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     override render(){
         const view = html`
             ${new EditorHeader(this.model.diagram.name, this.updateName.bind(this))}
-            <div class="canvas" @mousedown=${this.handleMouseDown} @mouseup=${this.handleMouseUp} @mousemove=${this.handleMouseMove} @contextmenu=${this.handleContextMenu}>
+            <div class="canvas js-canvas" @mousedown=${this.handleMouseDown} @mouseup=${this.handleMouseUp} @mousemove=${this.handleMouseMove} @contextmenu=${this.handleContextMenu}>
                 <div data-scale="${this.model.scale}" data-top="${this.model.y}" data-left="${this.model.x}" style="transform: translate(${this.model.x}px, ${this.model.y}px) scale(${this.model.scale});" class="diagram js-anchor">
                     <div class="bg-white shadow-md" style="width:100px;height:100px;"></div>
                 </div>

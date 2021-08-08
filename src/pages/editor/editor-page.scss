@@ -10,6 +10,14 @@ editor-page{
         height: calc(100vh - 64px);
         overflow: hidden;
 
+        &[cursor="hand"]{
+            cursor: grab;
+        }
+
+        &[cursor="grabbing"]{
+            cursor: grabbing;
+        }
+
         .diagram{
             position: relative;
             width: 0;
