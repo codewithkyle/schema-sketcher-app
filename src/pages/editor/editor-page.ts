@@ -3,13 +3,16 @@ import { html, render } from "lit-html";
 import EditorHeader from "~components/editor-header/editor-header";
 import diagramController from "~controllers/diagram-controller";
 import { css, mount } from "~controllers/env";
-import { Diagram } from "~types/app";
+import { Diagram } from "~types/diagram";
+import ContextMenu from "~components/context-menu/context-menu";
+import { v4 as uuid} from "uuid";
+import TableComponent from "~components/table-component/table-component";
+
+const COLORS = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "light-blue", "indigo", "violet", "purple", "pink", "rose"];
+const SHADES = ["200", "300", "400", "500", "600"];
 
 interface IEditorPage {
     diagram: Diagram,
-    x: number,
-    y: number,
-    scale: number,
 }
 export default class EditorPage extends SuperComponent<IEditorPage>{
     private uid:string;
@@ -17,15 +20,20 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     private canMove: boolean;
     private startX: number;
     private startY: number;
+    private placeX: number;
+    private placeY: number;
+    private x: number;
+    private y: number;
+    private scale: number;
 
     constructor(tokens, params){
         super();
         this.model = {
             diagram: null,
-            x: window.innerWidth / 2,
-            y: (window.innerHeight - 64) / 2,
-            scale: 1,
         };
+        this.x = window.innerWidth / 2;
+        this.y = (window.innerHeight - 64) / 2;
+        this.scale = 1;
         this.uid = tokens.UID;
         this.isMoving = false;
     }
@@ -39,6 +47,18 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         this.update({
             diagram: diagram,
         });
+    }
+
+    private getRandomColor():string{
+        const color = this.getRandomInt(0, COLORS.length - 1);
+        const shade = this.getRandomInt(0, SHADES.length - 1);
+        return `var(--${COLORS[color]}-${SHADES[shade]})`;
+    }
+
+    private getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     private setCursor(type:"auto"|"hand"|"grabbing"){
@@ -77,15 +97,16 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         } else if (scale > 2){
             scale = 2;
         }
-        anchor.style.transform = `translate(${this.model.x}px, ${this.model.y}px) scale(${scale})`;
+        anchor.style.transform = `translate(${this.x}px, ${this.y}px) scale(${scale})`;
         anchor.dataset.scale = `${scale}`;
-        this.update({
-            scale: scale,
-        });
+        this.scale = scale;
     }
 
     private updateName(newName:string){
         diagramController.renameDiagram(this.uid, newName);
+        const updatedModel = {...this.model};
+        updatedModel.diagram.name = newName;
+        this.update(updatedModel);
     }
 
     private handleMouseDown:EventListener = (e:MouseEvent) => {
@@ -101,10 +122,8 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         if (e instanceof MouseEvent){
             this.isMoving = false;
             const anchor = this.querySelector(".js-anchor") as HTMLElement;
-            this.update({
-                x: parseInt(anchor.dataset.left),
-                y: parseInt(anchor.dataset.top),
-            });
+            this.x = parseInt(anchor.dataset.left);
+            this.y = parseInt(anchor.dataset.top);
         }
     }
 
@@ -115,7 +134,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
             const moveY = this.startY - e.clientY;
             const x = parseInt(anchor.dataset.left) - moveX;
             const y = parseInt(anchor.dataset.top) - moveY;
-            anchor.style.transform = `translate(${x}px, ${y}px) scale(${this.model.scale})`;
+            anchor.style.transform = `translate(${x}px, ${y}px) scale(${this.scale})`;
             anchor.dataset.top = `${y}`;
             anchor.dataset.left = `${x}`;
             this.startX = e.clientX;
@@ -123,11 +142,47 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         }
     }
 
+    private spawn(type:"table"|"node"){
+        const uid = uuid();
+        const updatedModel = {...this.model};
+        switch(type){
+            case "table":
+                const tableCount = Object.keys(updatedModel.diagram.tables).length + 1;
+                const columnUid = uuid();
+                updatedModel.diagram.tables[uid] = {
+                    name: `table_${tableCount}`,
+                    color: this.getRandomColor(),
+                    x: this.placeX,
+                    y: this.placeY,
+                    columns: {
+                        [columnUid]: {
+                            name: "id",
+                            type: "int",
+                            isNullable: false,
+                            isUnique: false,
+                            isIndex: false,
+                            isPrimaryKey: true,
+                        }
+                    },
+                };
+                break;
+            default:
+                break;
+        }
+        this.update(updatedModel);
+    }
+
     private handleContextMenu:EventListener = (e:MouseEvent) => {
         e.preventDefault();
         if (e instanceof MouseEvent){
             const x = e.clientX;
             const y = e.clientY;
+            const anchor = this.querySelector(".js-anchor");
+            const bounds = anchor.getBoundingClientRect();
+            this.placeX = x - bounds.x;
+            this.placeY = y - bounds.y;
+            const menu = new ContextMenu(x, y, this.spawn.bind(this));
+            document.body.appendChild(menu);
         }
     }
     
@@ -135,8 +190,10 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         const view = html`
             ${new EditorHeader(this.model.diagram.name, this.updateName.bind(this))}
             <div class="canvas js-canvas" @mousedown=${this.handleMouseDown} @mouseup=${this.handleMouseUp} @mousemove=${this.handleMouseMove} @contextmenu=${this.handleContextMenu}>
-                <div data-scale="${this.model.scale}" data-top="${this.model.y}" data-left="${this.model.x}" style="transform: translate(${this.model.x}px, ${this.model.y}px) scale(${this.model.scale});" class="diagram js-anchor">
-                    <div class="bg-white shadow-md" style="width:100px;height:100px;"></div>
+                <div data-scale="${this.scale}" data-top="${this.y}" data-left="${this.x}" style="transform: translate(${this.x}px, ${this.y}px) scale(${this.scale});" class="diagram js-anchor">
+                    ${Object.keys(this.model.diagram.tables).map((key:string, index:number) => {
+                        return new TableComponent(this.model.diagram.tables[key]);
+                    })}
                 </div>
             </div>
         `;

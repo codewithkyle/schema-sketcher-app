@@ -10,7 +10,10 @@ class DiagramController {
             diagram: {
                 uid: uid,
                 name: "UNTITLED",
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                tables: {},
+                type: {},
+                connections: {},
             },
         });
         navigateTo(`/diagram/${uid}`);

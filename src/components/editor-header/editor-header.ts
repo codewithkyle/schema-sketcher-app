@@ -18,28 +18,18 @@ export default class EditorHeader extends SuperComponent<IEditorHeader>{
         });
     }
 
-    private updateName(value:string) {
-        if (value.length){
-            this.model.callback(value);
-        }
-    }
-    private inputDebounce = this.debounce(this.updateName.bind(this), 600);
-    // @ts-ignore
-    private handleInput:EventListener = (e) => {
+    private handleBlur:EventListener = (e:Event) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
         const target = e.currentTarget as HTMLInputElement;
         let value = target.value.trim();
-        this.inputDebounce(value);
-    }
-
-    private handleBlur:EventListener = (e:Event) => {
-        const target = e.currentTarget as HTMLInputElement;
-        if (!target.value.trim().length){
-            const value = "UNTITLED";
-            this.update({
-                name: value,
-            });
-            this.model.callback(value);
+        if (!value.length){
+            value = "UNTITLED";
         }
+        this.model.callback(value);
+        this.update({
+            name: value,
+        });
     }
 
     override render(){
@@ -50,7 +40,7 @@ export default class EditorHeader extends SuperComponent<IEditorHeader>{
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
                     </svg>
                 </a>
-                <input @blur=${this.handleBlur} @input=${this.handleInput} type="text" value="${this.model.name}">
+                <input @blur=${this.handleBlur} type="text" .value=${this.model.name}>
             </div>
             <div flex="row nowrap items-center">
                 <button class="bttn ml-1" kind="outline" color="white" icon="left">
