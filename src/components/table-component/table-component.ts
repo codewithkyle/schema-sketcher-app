@@ -21,6 +21,8 @@ export default class TableComponent extends SuperComponent<Table>{
         this.style.transform = `translate(${this.model.x}px, ${this.model.y}px)`;
         this.dataset.top = `${this.model.y}`;
         this.dataset.left = `${this.model.x}`;
+        this.tabIndex = 0;
+        this.setAttribute("aria-label", `use arrow keys to nudge table ${this.model.name}`);
         const view = html`
             <header style="border-top-color: ${this.model.color};">
                 <h4 title="${this.model.name}">${this.model.name}</h4>

@@ -25,6 +25,10 @@ column-component{
         }
     }
 
+    &:last-of-type{
+        border-radius: 0 0 0.25rem 0.25rem;
+    }
+
     input {
         width: 100%;
         flex: 1;
