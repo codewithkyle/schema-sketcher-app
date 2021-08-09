@@ -31,6 +31,7 @@
     "esinstall": "^1.1.7",
     "glob": "^7.1.7",
     "lit-html": "^1.4.1",
+    "tooltipper": "^1.0.0",
     "uuid": "^8.3.2"
   },
   "bundle": [
@@ -40,7 +41,8 @@
     "@codewithkyle/supercomponent",
     "lit-html",
     "uuid",
-    "dayjs"
+    "dayjs",
+    "tooltipper"
   ],
   "watch": {
     "build": {
