@@ -23,11 +23,11 @@ table-component{
         justify-content: space-between;
         flex-flow: row nowrap;
         height: 48px;
-        padding: 0 0.5rem 0 1rem;
-        background-color: var(--grey-100);
+        padding: 0 0 0 1rem;
+        background-color: var(--grey-50);
         border-radius: 0.25rem 0.25rem 0 0;
         border-top: 0.5rem solid var(--pink-400);
-        border-bottom: 1px solid var(--grey-200);
+        border-bottom: 1px solid var(--grey-300);
         cursor: move;
 
         h4{
@@ -40,55 +40,6 @@ table-component{
             white-space: nowrap;
             text-overflow: ellipsis;
             padding-right: 0.5rem;
-        }
-
-        button{
-            width: 24px;
-            height: 24px;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            position: relative;
-
-            &::before{
-                content: "";
-                display: inline-block;
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: var(--black);
-                border-radius: 50%;
-                opacity: 0;
-                transition: all 80ms var(--ease-in-out);
-            }
-
-            &:hover{
-                &::before{
-                    opacity: 0.05;
-                }
-            }
-
-            &:active{
-                &::before{
-                    opacity: 0.1;
-                }
-            }
-
-            &:focus-visible{
-                box-shadow: var(--focus-ring);
-
-                &::before{
-                    opacity: 0.05;
-                }
-            }
-
-            svg{
-                width: 16px;
-                height: 16px;
-            }
         }
     }
 }

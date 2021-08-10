@@ -3,18 +3,183 @@ import { html, render } from "lit-html";
 import { v4 as uuid } from "uuid";
 import ColumnComponent from "~components/column-component/column-component";
 import { css, mount } from "~controllers/env";
-import type { Table } from "~types/diagram";
+import type { Column, Table } from "~types/diagram";
 
 
 export default class TableComponent extends SuperComponent<Table>{
+    private prevX: number;
+    private prevY: number;
+    private isMoving: boolean;
+    private movingColumnUID: string;
+
     constructor(data:Table){
         super();
         this.model = data;
     }
 
     override async connected(){
-        await css(["table-component"]);
+        document.addEventListener("keydown", this.handleKeyboard);
+        await css(["table-component", "overflow-menu"]);
         this.render();
+    }
+
+    private mouseDown:EventListener = (e:MouseEvent) => {
+        if (e instanceof MouseEvent){
+            this.isMoving = true;
+            this.prevX = e.clientX;
+            this.prevY = e.clientY;
+        }
+    }
+
+    private mouseUp:EventListener = (e:MouseEvent) => {
+        if (e instanceof MouseEvent){
+            this.isMoving = false;
+        }
+    }
+
+    private mouseMove:EventListener = (e:MouseEvent) => {
+        if (e instanceof MouseEvent && this.isMoving){
+            const moveX = this.prevX - e.clientX;
+            const moveY = this.prevY - e.clientY;
+            const x = parseInt(this.dataset.left) - moveX;
+            const y = parseInt(this.dataset.top) - moveY;
+            this.style.transform = `translate(${x}px, ${y}px)`;
+            this.dataset.top = `${y}`;
+            this.dataset.left = `${x}`;
+            this.prevX = e.clientX;
+            this.prevY = e.clientY;
+            this.update({
+                x: x,
+                y: y,
+            });
+        }
+    }
+
+    private handleKeyboard:EventListener = (e:KeyboardEvent) => {
+        if (e instanceof KeyboardEvent && document.activeElement === this){
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            let moveX = false;
+            let moveY = false;
+            let direction = 0;
+            switch(e.key){
+                case "ArrowUp":
+                    moveY = true;
+                    direction = -1;
+                    break;
+                case "ArrowDown":
+                    moveY = true;
+                    direction = 1;
+                    break;
+                case "ArrowLeft":
+                    moveX = true;
+                    direction = -1;
+                    break;
+                case "ArrowRight":
+                    moveX = true;
+                    direction = 1;
+                    break;
+                default:
+                    break;
+            }
+            if (e.shiftKey){
+                direction *= 10;
+            }
+            if (moveX){
+                const x = parseInt(this.dataset.left) + direction;
+                const y = parseInt(this.dataset.top);
+                this.style.transform = `translate(${x}px, ${y}px)`;
+                this.style.transform = `translate(${x}px, ${y}px)`;
+                this.dataset.top = `${y}`;
+                this.dataset.left = `${x}`;
+                this.prevX = x;
+                this.prevY = y;
+            }
+            else if (moveY) {
+                const x = parseInt(this.dataset.left);
+                const y = parseInt(this.dataset.top) + direction;
+                this.style.transform = `translate(${x}px, ${y}px)`;
+                this.style.transform = `translate(${x}px, ${y}px)`;
+                this.dataset.top = `${y}`;
+                this.dataset.left = `${x}`;
+                this.prevX = x;
+                this.prevY = y;
+            }
+        }
+    }
+
+    private renameTable:EventListener = (e:Event) => {
+        const newName = prompt(`New name for table ${this.model.name}?`);
+        if (newName.length){
+            this.update({
+                name: newName,
+            });
+        }
+    }
+
+    private deleteTable:EventListener = (e:Event) => {
+        const doDelete = confirm(`Are you sure you want to delete table ${this.model.name}?`);
+        if (doDelete){
+            this.remove();
+        }
+    }
+
+    private addColumn:EventListener = (e:Event) => {
+        const uid = uuid();
+        const updatedModel = {...this.model};
+        updatedModel.columns[uid] = {
+            name: `column_${Object.keys(this.model.columns).length + 1}`,
+            type: "int",
+            isNullable: false,
+            isUnique: false,
+            isIndex: false,
+            isPrimaryKey: true,
+            order: Object.keys(this.model.columns).length,
+            uid: uid,
+        };
+        this.update(updatedModel);
+        // @ts-ignore
+        document.activeElement?.blur();
+    }
+
+    private noop:EventListener = (e:Event) => {
+        e.stopImmediatePropagation();
+    }
+
+    private startMoveCallback(uid:string){
+        this.movingColumnUID = uid;
+    }
+
+    private moveCallback(toUID: string){
+        if (!this.movingColumnUID || !toUID){
+            return;
+        }
+        const updatedModel = {...this.model};
+        let newIndex = updatedModel.columns[toUID].order;
+        if (newIndex >= Object.keys(updatedModel.columns).length - 1){
+            newIndex = Object.keys(updatedModel.columns).length;
+        } else if (newIndex === updatedModel.columns[this.movingColumnUID].order + 1){
+            newIndex = newIndex + 1;
+        } else if (newIndex < 0) {
+            newIndex = 0;
+        }
+        let columns = new Array(Object.keys(updatedModel.columns).length).fill(null);
+        for (const key in updatedModel.columns){
+            if (key !== this.movingColumnUID){
+                columns.splice(updatedModel.columns[key].order, 1, key);
+            }
+        }
+        columns.splice(newIndex, 0, this.movingColumnUID);
+        for (let i = columns.length - 1; i >= 0; i--){
+            if (columns[i] === null){
+                columns.splice(i, 1);
+            }
+        }
+        for (let i = 0; i < columns.length; i++){
+            updatedModel.columns[columns[i]].order = i;
+        }
+        this.movingColumnUID = null;
+        this.update(updatedModel);
     }
 
     override render(){
@@ -23,18 +188,49 @@ export default class TableComponent extends SuperComponent<Table>{
         this.dataset.left = `${this.model.x}`;
         this.tabIndex = 0;
         this.setAttribute("aria-label", `use arrow keys to nudge table ${this.model.name}`);
+        const orderedColumns = new Array(Object.keys(this.model.columns).length).fill(null);
+        Object.keys(this.model.columns).map((key) => {
+            const column = this.model.columns[key];
+            orderedColumns[column.order] = column;
+        });
         const view = html`
-            <header style="border-top-color: ${this.model.color};">
+            <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseup=${this.mouseUp} @mousemove=${this.mouseMove}>
                 <h4 title="${this.model.name}">${this.model.name}</h4>
-                <button>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                    </svg>
-                </button>
+                <overflow-button @mousedown=${this.noop}>
+                    <button>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
+                    </button>
+                    <overflow-menu>
+                        <button @click=${this.renameTable}>
+                            <i>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </i>
+                            Rename table
+                        </button>
+                        <button @click=${this.addColumn}>
+                            <i>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </i>
+                            Add column
+                        </button>
+                        <button color="danger" @click=${this.deleteTable}>
+                            <i>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </i>
+                            Delete table
+                        </button>
+                    </overflow-menu>
+                </overflow-button>
             </header>
             <columns-container>
-                ${Object.keys(this.model.columns).map((key:string, index:number) => {
-                    return new ColumnComponent(this.model.columns[key]);
+                ${orderedColumns.map((column) => {
+                    return new ColumnComponent(column, this.moveCallback.bind(this), this.startMoveCallback.bind(this));
                 })}
             </columns-container>
         `;

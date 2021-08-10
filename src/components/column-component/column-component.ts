@@ -5,19 +5,69 @@ import type { Column } from "~types/diagram";
 
 
 export default class ColumnComponent extends SuperComponent<Column>{
-    constructor(data:Column){
+    private moveCallback:Function;
+    private startMoveCallback:Function;
+
+    constructor(data:Column, moveCallback:Function, startMoveCallback:Function){
         super();
+        this.moveCallback = moveCallback;
+        this.startMoveCallback = startMoveCallback;
         this.model = data;
     }
 
     override async connected(){
+        this.addEventListener("dragover", this.handleDragOver);
+        this.addEventListener("dragleave", this.handleDragLeave);
+        this.addEventListener("drop", this.handleDrop);
+        this.addEventListener("drag", this.handleDragStart);
+        this.addEventListener("dragend", this.handleDragEnd);
         await css(["column-component"]);
         this.render();
     }
 
+    private handleDragStart:EventListener = (e:DragEvent) => {
+        if (e instanceof DragEvent){
+            e.preventDefault();
+            this.classList.add("is-disabled");
+            this.startMoveCallback(this.model.uid);
+        }
+    }
+
+    private handleDragEnd:EventListener = (e:DragEvent) => {
+        if (e instanceof DragEvent){
+            e.preventDefault();
+            this.classList.remove("is-disabled");
+        }
+    }
+
+    private handleDragOver:EventListener = (e:DragEvent) => {
+        if (e instanceof DragEvent){
+            e.preventDefault();
+            this.classList.add("is-drop-target");
+        }
+    }
+
+    private handleDragLeave:EventListener = (e:DragEvent) => {
+        if (e instanceof DragEvent){
+            e.preventDefault();
+            this.classList.remove("is-drop-target");
+        }
+    }
+
+    private handleDrop:EventListener = (e:DragEvent) => {
+        if (e instanceof DragEvent){
+            e.preventDefault();
+            this.moveCallback(this.model.uid);
+        }
+    }
+
     private handleNameInput:EventListener = (e:Event) => {
         const target = e.currentTarget as HTMLInputElement;
-        console.log(target.value);
+        if (target.value){
+            this.update({
+                name: target.value,
+            });
+        }
     }
 
     private renderPrimaryKey(){
@@ -54,6 +104,8 @@ export default class ColumnComponent extends SuperComponent<Column>{
     }
 
     override render(){
+        this.draggable = true;
+        this.tabIndex = 0;
         const view = html`
             <div flex="row nowrap items-center" style="flex:1;width:100%">
                 ${this.renderPrimaryKey()}

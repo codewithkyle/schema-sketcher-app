@@ -5,9 +5,18 @@ column-component{
     justify-content: space-between;
     flex-flow: row nowrap;
     height: 36px;
-    padding: 0 0.5rem;
+    padding: 0 0.5rem 0 1rem;
     transition: background-color 80ms var(--ease-in-out), color 80ms var(--ease-in-out);
     color: var(--grey-700);
+    overflow: visible;
+
+    // &:not(:last-of-type){
+    //     border-bottom: 1px solid var(--grey-300);
+    // }
+
+    &:last-of-type{
+        border-radius: 0 0 0.25rem 0.25rem;
+    }
 
     &:hover{
         background-color: var(--grey-50);
@@ -25,8 +34,29 @@ column-component{
         }
     }
 
-    &:last-of-type{
-        border-radius: 0 0 0.25rem 0.25rem;
+    &:not(.is-disabled).is-drop-target{
+        background-color: var(--primary-50);
+        box-shadow: inset 0 0 0 1px var(--grey-50), inset 0 0 0 3px var(--primary-400);
+        user-select: none;
+        border-radius: 0.25rem;
+        
+        *{
+            color: var(--primary-500);
+        }
+
+        .drag-handle{
+            border-right-color: transparent;
+        }
+    }
+
+    &.is-disabled{
+        background-color: var(--grey-50);
+        user-select: none;
+
+        *{
+            color: var(--grey-300);
+            box-shadow: none !important;
+        }
     }
 
     input {

@@ -162,7 +162,9 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                             isUnique: false,
                             isIndex: false,
                             isPrimaryKey: true,
-                        }
+                            order: 0,
+                            uid: columnUid,
+                        },
                     },
                 };
                 break;

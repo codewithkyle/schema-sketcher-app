@@ -13,6 +13,8 @@ export interface Column {
     isUnique: boolean,
     isIndex: boolean,
     isPrimaryKey: boolean,
+    order: number,
+    uid: string,
 }
 
 export interface ColumnType {
@@ -20,6 +22,7 @@ export interface ColumnType {
 }
 
 export interface Table {
+    uid: string,
     color: string,
     name: string,
     x: number,
