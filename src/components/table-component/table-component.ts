@@ -6,7 +6,10 @@ import { css, mount } from "~controllers/env";
 import type { Column, Table } from "~types/diagram";
 
 
-export default class TableComponent extends SuperComponent<Table>{
+interface ITableComponent extends Table {
+    showAllColumnOptions: boolean;
+}
+export default class TableComponent extends SuperComponent<ITableComponent>{
     private prevX: number;
     private prevY: number;
     private isMoving: boolean;
@@ -14,7 +17,9 @@ export default class TableComponent extends SuperComponent<Table>{
 
     constructor(data:Table){
         super();
-        this.model = data;
+        this.model = {...data, ...{
+            showAllColumnOptions: false,
+        }};
     }
 
     override async connected(){
@@ -109,6 +114,8 @@ export default class TableComponent extends SuperComponent<Table>{
     }
 
     private renameTable:EventListener = (e:Event) => {
+        // @ts-ignore
+        document.activeElement?.blur();
         const newName = prompt(`New name for table ${this.model.name}?`);
         if (newName.length){
             this.update({
@@ -118,6 +125,8 @@ export default class TableComponent extends SuperComponent<Table>{
     }
 
     private deleteTable:EventListener = (e:Event) => {
+        // @ts-ignore
+        document.activeElement?.blur();
         const doDelete = confirm(`Are you sure you want to delete table ${this.model.name}?`);
         if (doDelete){
             this.remove();
@@ -133,7 +142,7 @@ export default class TableComponent extends SuperComponent<Table>{
             isNullable: false,
             isUnique: false,
             isIndex: false,
-            isPrimaryKey: true,
+            isPrimaryKey: false,
             order: Object.keys(this.model.columns).length,
             uid: uid,
         };
@@ -182,6 +191,21 @@ export default class TableComponent extends SuperComponent<Table>{
         this.update(updatedModel);
     }
 
+    private toggleColumnSettings:EventListener = () => {
+        // @ts-ignore
+        document.activeElement?.blur();
+        if (this.model.showAllColumnOptions){
+            this.update({
+                showAllColumnOptions: false,
+            });
+        }
+        else {
+            this.update({
+                showAllColumnOptions: true,
+            });
+        }
+    }
+
     override render(){
         this.style.transform = `translate(${this.model.x}px, ${this.model.y}px)`;
         this.dataset.top = `${this.model.y}`;
@@ -217,6 +241,16 @@ export default class TableComponent extends SuperComponent<Table>{
                             </i>
                             Add column
                         </button>
+                        <button @click=${this.toggleColumnSettings}>
+                            <i>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </i>
+                            Column settings
+                        </button>
+                        <hr>
                         <button color="danger" @click=${this.deleteTable}>
                             <i>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -230,7 +264,7 @@ export default class TableComponent extends SuperComponent<Table>{
             </header>
             <columns-container>
                 ${orderedColumns.map((column) => {
-                    return new ColumnComponent(column, this.moveCallback.bind(this), this.startMoveCallback.bind(this));
+                    return new ColumnComponent(column, this.moveCallback.bind(this), this.startMoveCallback.bind(this), this.model.showAllColumnOptions);
                 })}
             </columns-container>
         `;

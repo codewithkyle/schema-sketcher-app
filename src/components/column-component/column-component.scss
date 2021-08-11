@@ -5,7 +5,7 @@ column-component{
     justify-content: space-between;
     flex-flow: row nowrap;
     height: 36px;
-    padding: 0 0.5rem 0 1rem;
+    padding: 0 0.5rem 0 0.5rem;
     transition: background-color 80ms var(--ease-in-out), color 80ms var(--ease-in-out);
     color: var(--grey-700);
     overflow: visible;
@@ -82,16 +82,58 @@ column-component{
         border-radius: 0.25rem;
         cursor: pointer;
         font-size: var(--font-base);
+        transition: all 80ms var(--ease-in-out);
 
         &:focus{
             box-shadow: var(--focus-ring);
         }
     }
 
-    svg{
-        width: 12px;
-        height: 12px;
-        display: inline-block;
-        margin-right: 0.5rem;
+    button{
+        width: 28px;
+        height: 28px;
+        position: relative;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        transition: all 80ms var(--ease-in-out);
+
+        &:disabled{
+            width: 24px;
+            height: 24px;
+        }
+
+        &::before{
+            content:"";
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 0.25rem;
+            background-color: var(--primary-500);
+            opacity: 0;
+            transition: all 80ms var(--ease-in-out);
+        }
+
+        &.is-active,
+        &:hover{
+            color: var(--primary-500);
+
+            &::before{
+                opacity: 0.07;
+            }
+        }
+
+        &:active{
+            &::before{
+                opacity: 0.15;
+            }
+        }
+
+        svg{
+            width: 12px;
+            height: 12px;
+            display: inline-block;
+            position: absolute;
+        }
     }
 }
