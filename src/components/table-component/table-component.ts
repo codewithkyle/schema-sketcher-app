@@ -14,9 +14,11 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     private prevY: number;
     private isMoving: boolean;
     private movingColumnUID: string;
+    private focusLastColumn: boolean;
 
     constructor(data:Table){
         super();
+        this.focusLastColumn = false;
         this.prevX = data.x;
         this.prevY = data.y;
         this.isMoving = false;
@@ -134,7 +136,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         }
     }
 
-    private addColumn:EventListener = (e:Event) => {
+    private addColumn = (focusColumn) => {
         const uid = uuid();
         const updatedModel = {...this.model};
         updatedModel.columns[uid] = {
@@ -150,6 +152,9 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         this.update(updatedModel);
         // @ts-ignore
         document.activeElement?.blur();
+        if (typeof focusColumn === "boolean" && focusColumn === true){
+            this.focusLastColumn = true;
+        }
     }
 
     private noop:EventListener = (e:Event) => {
@@ -265,11 +270,21 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             </header>
             <columns-container>
                 ${orderedColumns.map((column) => {
-                    return new ColumnComponent(column, this.moveCallback.bind(this), this.startMoveCallback.bind(this), this.model.showAllColumnOptions);
+                    return new ColumnComponent(column, this.moveCallback.bind(this), this.startMoveCallback.bind(this), this.model.showAllColumnOptions, this.addColumn.bind(this));
                 })}
             </columns-container>
         `;
         render(view, this);
+    }
+
+    override updated(){
+        setTimeout(()=>{
+            if (this.focusLastColumn){
+                this.focusLastColumn = false;
+                // @ts-ignore
+                this.querySelector("column-component:last-of-type input")?.focus();
+            }
+        }, 80);
     }
 }
 mount("table-component", TableComponent);

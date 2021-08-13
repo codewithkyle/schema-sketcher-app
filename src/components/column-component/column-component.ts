@@ -10,11 +10,13 @@ interface IColumnComponent extends Column{
 export default class ColumnComponent extends SuperComponent<IColumnComponent>{
     private moveCallback:Function;
     private startMoveCallback:Function;
+    private addColumnCallback:Function;
 
-    constructor(data:Column, moveCallback:Function, startMoveCallback:Function, renderAllOptions:boolean){
+    constructor(data:Column, moveCallback:Function, startMoveCallback:Function, renderAllOptions:boolean, addColumnCallback:Function){
         super();
         this.moveCallback = moveCallback;
         this.startMoveCallback = startMoveCallback;
+        this.addColumnCallback = addColumnCallback;
         this.model = {...data, ...{
             renderAllOptions: renderAllOptions,
         }};
@@ -100,6 +102,41 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         this.remove();
     }
 
+    private handleKeyboard:EventListener = (e:KeyboardEvent) => {
+        if (e instanceof KeyboardEvent && e.metaKey || e.ctrlKey){
+            switch(e.key){
+                case "Enter":
+                    e.preventDefault();
+                    this.addColumnCallback(true);
+                    return false;
+                case "Delete":
+                    e.preventDefault();
+                    this.remove();
+                    return false;
+                case "p":
+                    e.preventDefault();
+                    this.update({
+                        isPrimaryKey: this.model.isPrimaryKey ? false : true,
+                    });
+                    return false;
+                case "u":
+                    e.preventDefault();
+                    this.update({
+                        isUnique: this.model.isUnique ? false : true,
+                    });
+                    return false;
+                case "i":
+                    e.preventDefault();
+                    this.update({
+                        isIndex: this.model.isIndex ? false : true,
+                    });
+                    return false;
+                default:
+                    break;
+            }
+        }
+    }
+
     private renderPrimaryKey(){
         let output;
         if (this.model.renderAllOptions || this.model.isPrimaryKey){
@@ -168,7 +205,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
                 ${this.renderPrimaryKey()}
                 ${this.renderIndex()}
                 ${this.renderUnique()}
-                <input type="text" value="${this.model.name}" @input=${this.handleNameInput}>
+                <input type="text" value="${this.model.name}" @input=${this.handleNameInput} @keydown=${this.handleKeyboard}>
             </div>
             <div flex="row nowrap items-center">
                 <select>
