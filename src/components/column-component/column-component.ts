@@ -96,6 +96,10 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         }
     }
 
+    private deleteColumn:EventListener = (e:Event) => {
+        this.remove();
+    }
+
     private renderPrimaryKey(){
         let output;
         if (this.model.renderAllOptions || this.model.isPrimaryKey){
@@ -141,6 +145,21 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         return output;
     }
 
+    private renderDelete(){
+        let output;
+        if (this.model.renderAllOptions){
+            output = html`
+                <button @click=${this.deleteColumn} aria-label="Delete column ${this.model.name}" tooltip="Delete column">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                </button>
+            `;
+        }
+        else {
+            output = "";
+        }
+        return output;
+    }
+
     override render(){
         this.draggable = true;
         this.tabIndex = 0;
@@ -151,9 +170,12 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
                 ${this.renderUnique()}
                 <input type="text" value="${this.model.name}" @input=${this.handleNameInput}>
             </div>
-            <select>
-                <option ?selected=${this.model.type === "int"}>int</option>
-            </select>
+            <div flex="row nowrap items-center">
+                <select>
+                    <option ?selected=${this.model.type === "int"}>int</option>
+                </select>
+                ${this.renderDelete()}
+            </div>
         `;
         render(view, this);
     }

@@ -17,6 +17,9 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
 
     constructor(data:Table){
         super();
+        this.prevX = data.x;
+        this.prevY = data.y;
+        this.isMoving = false;
         this.model = {...data, ...{
             showAllColumnOptions: false,
         }};
@@ -39,6 +42,8 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     private mouseUp:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent){
             this.isMoving = false;
+            this.prevX = parseInt(this.dataset.left);
+            this.prevY = parseInt(this.dataset.top);
         }
     }
 
@@ -53,10 +58,6 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             this.dataset.left = `${x}`;
             this.prevX = e.clientX;
             this.prevY = e.clientY;
-            this.update({
-                x: x,
-                y: y,
-            });
         }
     }
 
@@ -207,9 +208,9 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     }
 
     override render(){
-        this.style.transform = `translate(${this.model.x}px, ${this.model.y}px)`;
-        this.dataset.top = `${this.model.y}`;
-        this.dataset.left = `${this.model.x}`;
+        this.style.transform = `translate(${this.prevX}px, ${this.prevY}px)`;
+        this.dataset.top = `${this.prevY}`;
+        this.dataset.left = `${this.prevX}`;
         this.tabIndex = 0;
         this.setAttribute("aria-label", `use arrow keys to nudge table ${this.model.name}`);
         const orderedColumns = new Array(Object.keys(this.model.columns).length).fill(null);
