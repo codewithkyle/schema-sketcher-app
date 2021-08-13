@@ -1,0 +1,115 @@
+editor-controls {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    flex-flow: row nowrap;
+    z-index: 5000;
+
+    .move{
+        width: 36px;
+        height: 36px;
+        background-color: var(--grey-300);
+        color: var(--grey-600);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.75rem;
+        box-shadow: var(--shadow-md);
+        border-radius: 0.5rem;
+        transition: all 80ms var(--ease-in-out);
+        border: 1px solid var(--grey-400);
+
+        &.is-active{
+            background-color: var(--primary-500);
+            color: var(--white) !important;
+
+            &:hover{
+                background-color: var(--primary-400);
+            }
+
+            &:active{
+                background-color: var(--primary-500);
+            }
+        }
+
+        &:hover{
+            background-color: var(--grey-200);
+            color: var(--grey-700);
+        }
+
+        &:active{
+            background-color: var(--grey-400);
+            color: var(--grey-700);
+        }
+
+        svg{
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    .scale{
+        display: inline-flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        box-shadow: var(--shadow-md);
+        border-radius: 0.5rem;
+        overflow: hidden;
+
+        button{
+            width: 36px;
+            height: 36px;
+            background-color: var(--grey-300);
+            color: var(--grey-600);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 80ms var(--ease-in-out);
+            border: 1px solid var(--grey-400);
+
+            &:first-of-type{
+                border-radius: 0.5rem 0 0 0.5rem;
+            }
+
+            &:last-of-type{
+                border-radius: 0 0.5rem 0.5rem 0;
+            }
+
+            &:hover{
+                background-color: var(--grey-200);
+                color: var(--grey-700);
+            }
+    
+            &:active{
+                background-color: var(--grey-400);
+                color: var(--grey-700);
+            }
+
+            svg{
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        span{
+            height: 36px;
+            width: 96px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            color: var(--grey-700);
+            text-align: center;
+            font-weight: var(--font-medium);
+            font-size: var(--font-base);
+            background-color: var(--grey-300);
+            border-width: 1px 0 1px 0;
+            border-color: var(--grey-400);
+            border-style: solid;
+            cursor: default;
+            user-select: none;
+        }
+    }
+}

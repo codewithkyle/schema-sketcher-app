@@ -9,6 +9,8 @@ import { v4 as uuid} from "uuid";
 import TableComponent from "~components/table-component/table-component";
 import { navigateTo } from "@codewithkyle/router";
 import db from "@codewithkyle/jsql";
+import EditorControls from "~components/editor-controls/editor-controls";
+import { createSubscription, publish } from "~lib/pubsub";
 
 const COLORS = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "light-blue", "indigo", "violet", "purple", "pink", "rose"];
 const SHADES = ["200", "300", "400", "500", "600"];
@@ -27,6 +29,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     private x: number;
     private y: number;
     private scale: number;
+    private forceMove: boolean;
 
     constructor(tokens, params){
         super();
@@ -38,6 +41,8 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         this.scale = 1;
         this.uid = tokens.UID;
         this.isMoving = false;
+        this.forceMove = false;
+        createSubscription("zoom");
     }
 
     override async connected(){
@@ -105,6 +110,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         anchor.style.transform = `translate(${this.x}px, ${this.y}px) scale(${scale})`;
         anchor.dataset.scale = `${scale}`;
         this.scale = scale;
+        publish("zoom", scale);
     }
 
     private updateName(newName:string){
@@ -115,7 +121,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
 
     private handleMouseDown:EventListener = (e:MouseEvent) => {
-        if (e instanceof MouseEvent && this.canMove){
+        if (e instanceof MouseEvent && (this.canMove || this.forceMove)){
             this.isMoving = true;
             this.startX = e.clientX;
             this.startY = e.clientY;
@@ -124,16 +130,18 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
 
     private handleMouseUp:EventListener = (e:MouseEvent) => {
-        if (e instanceof MouseEvent){
+        if (e instanceof MouseEvent && this.isMoving){
             this.isMoving = false;
             const anchor = this.querySelector(".js-anchor") as HTMLElement;
             this.x = parseInt(anchor.dataset.left);
             this.y = parseInt(anchor.dataset.top);
+            this.setCursor("hand");
         }
     }
 
     private handleMouseMove:EventListener = (e:MouseEvent) => {
-        if (e instanceof MouseEvent && this.isMoving && this.canMove){
+        if (e instanceof MouseEvent && this.isMoving && (this.canMove || this.forceMove)){
+            console.log("moving");
             const anchor = this.querySelector(".js-anchor") as HTMLElement;
             const moveX = this.startX - e.clientX;
             const moveY = this.startY - e.clientY;
@@ -197,6 +205,28 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
             document.body.appendChild(menu);
         }
     }
+
+    private scaleCallback(scale:number){
+        const anchor = this.querySelector(".js-anchor") as HTMLElement;
+        if (scale < 0.125){
+            scale = 0.125;
+        } else if (scale > 2){
+            scale = 2;
+        }
+        anchor.style.transform = `translate(${this.x}px, ${this.y}px) scale(${scale})`;
+        anchor.dataset.scale = `${scale}`;
+        this.scale = scale;
+    }
+
+    private toggleMoveCallback(isMoving){
+        this.forceMove = isMoving;
+        if (isMoving){
+            this.setCursor("hand");
+        }
+        else {
+            this.setCursor("auto");
+        }
+    }
     
     override render(){
         const view = html`
@@ -208,6 +238,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                     })}
                 </div>
             </div>
+            ${new EditorControls(this.isMoving, this.scale, this.toggleMoveCallback.bind(this), this.scaleCallback.bind(this))}
         `;
         render(view, this);
     }
