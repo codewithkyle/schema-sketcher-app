@@ -40,6 +40,7 @@ new-diagram-modal{
 
             &:hover{
                 background-color: var(--grey-50);
+                border-color: var(--grey-400);
             }
 
             &:active{
@@ -62,6 +63,7 @@ new-diagram-modal{
             &:disabled{
                 background-color: var(--grey-50);
                 cursor: not-allowed;
+                border-color: var(--grey-200);
 
                 svg,
                 h4,

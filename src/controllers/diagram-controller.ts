@@ -1,20 +1,28 @@
 import { v4 as uuid } from "uuid";
 import db from "@codewithkyle/jsql";
 import { navigateTo } from "@codewithkyle/router";
+import { Diagram } from "~types/diagram";
+
+const TYPES = ["int", "bigint", "binary", "blob", "boolean", "char", "date", "datetime", "decimal", "double", "enum", "float", "geometry", "json", "bson", "longtext", "mediumint", "mediumtext", "multipoint", "point", "smallint", "time", "text", "timestamp", "tinyint", "uuid", "varchar"];
 
 class DiagramController {
     public async createDiagram(type:"local"|"cloud"){
         const uid = uuid();
+        const types = {};
+        TYPES.map(type => {
+            types[uuid()] = type;
+        });
+        const diagram:Diagram = {
+            uid: uid,
+            name: "UNTITLED",
+            timestamp: Date.now(),
+            tables: {},
+            types: types,
+            connections: {},
+        };
         // @ts-ignore
         await db.query("INSERT INTO diagrams VALUES ($diagram)", {
-            diagram: {
-                uid: uid,
-                name: "UNTITLED",
-                timestamp: Date.now(),
-                tables: {},
-                type: {},
-                connections: {},
-            },
+            diagram: diagram,
         });
         navigateTo(`/diagram/${uid}`);
     }
@@ -35,7 +43,7 @@ class DiagramController {
         });
         return {
             ops: ops,
-            diagram: diagram[0],
+            diagram: diagram?.[0] ?? null,
         };
     }
 

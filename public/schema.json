@@ -15,6 +15,15 @@
                 },
                 {
                     "key": "timestamp"
+                },
+                {
+                    "key": "tables"
+                },
+                {
+                    "key": "types"
+                },
+                {
+                    "key": "connections"
                 }
             ]
         },

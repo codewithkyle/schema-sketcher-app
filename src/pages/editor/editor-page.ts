@@ -7,6 +7,8 @@ import { Diagram } from "~types/diagram";
 import ContextMenu from "~components/context-menu/context-menu";
 import { v4 as uuid} from "uuid";
 import TableComponent from "~components/table-component/table-component";
+import { navigateTo } from "@codewithkyle/router";
+import db from "@codewithkyle/jsql";
 
 const COLORS = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "light-blue", "indigo", "violet", "purple", "pink", "rose"];
 const SHADES = ["200", "300", "400", "500", "600"];
@@ -44,6 +46,9 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         window.addEventListener("keyup", this.handleKeyUp);
         await css(["editor-page"]);
         const { ops, diagram } = await diagramController.loadDiagram(this.uid);
+        if (!diagram){
+            navigateTo("/");
+        }
         this.update({
             diagram: diagram,
         });
@@ -142,14 +147,19 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         }
     }
 
-    private spawn(type:"table"|"node"){
+    private async spawn(type:"table"|"node"){
         const uid = uuid();
         const updatedModel = {...this.model};
         switch(type){
             case "table":
                 const tableCount = Object.keys(updatedModel.diagram.tables).length + 1;
                 const columnUid = uuid();
+                // @ts-ignore
+                const types = await db.query("SELECT types FROM diagrams WHERE uid = $uid LIMIT 1", {
+                    uid: this.model.diagram.uid,
+                });
                 updatedModel.diagram.tables[uid] = {
+                    uid: uid,
                     name: `table_${tableCount}`,
                     color: this.getRandomColor(),
                     x: this.placeX,
@@ -157,7 +167,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                     columns: {
                         [columnUid]: {
                             name: "id",
-                            type: "int",
+                            type: Object.keys(types[0].types)[0],
                             isNullable: false,
                             isUnique: false,
                             isIndex: false,
@@ -190,11 +200,11 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     
     override render(){
         const view = html`
-            ${new EditorHeader(this.model.diagram.name, this.updateName.bind(this))}
+            ${new EditorHeader(this.model.diagram.name, this.updateName.bind(this), this.model.diagram.uid)}
             <div class="canvas js-canvas" @mousedown=${this.handleMouseDown} @mouseup=${this.handleMouseUp} @mousemove=${this.handleMouseMove} @contextmenu=${this.handleContextMenu}>
                 <div data-scale="${this.scale}" data-top="${this.y}" data-left="${this.x}" style="transform: translate(${this.x}px, ${this.y}px) scale(${this.scale});" class="diagram js-anchor">
                     ${Object.keys(this.model.diagram.tables).map((key:string, index:number) => {
-                        return new TableComponent(this.model.diagram.tables[key]);
+                        return new TableComponent(this.model.diagram.tables[key], this.model.diagram.uid);
                     })}
                 </div>
             </div>

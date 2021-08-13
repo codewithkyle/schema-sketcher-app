@@ -15,13 +15,15 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     private isMoving: boolean;
     private movingColumnUID: string;
     private focusLastColumn: boolean;
+    private diagramID: string;
 
-    constructor(data:Table){
+    constructor(data:Table, diagramID:string){
         super();
         this.focusLastColumn = false;
         this.prevX = data.x;
         this.prevY = data.y;
         this.isMoving = false;
+        this.diagramID = diagramID;
         this.model = {...data, ...{
             showAllColumnOptions: false,
         }};
@@ -271,7 +273,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             </header>
             <columns-container>
                 ${orderedColumns.map((column) => {
-                    return new ColumnComponent(column, this.moveCallback.bind(this), this.startMoveCallback.bind(this), this.model.showAllColumnOptions, this.addColumn.bind(this));
+                    return new ColumnComponent(column, this.moveCallback.bind(this), this.startMoveCallback.bind(this), this.model.showAllColumnOptions, this.addColumn.bind(this), this.diagramID);
                 })}
             </columns-container>
         `;

@@ -40,7 +40,7 @@ export interface Diagram{
         [uid:string]: Table,
     },
     types: {
-        [uid:string]: ColumnType,
+        [uid:string]: string,
     },
     connections: {
         [uid:string]: Connection,

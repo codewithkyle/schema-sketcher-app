@@ -6,7 +6,7 @@ import NewDiagramModal from "~components/new-diagram-modal/new-diagram-modal";
 import db from "@codewithkyle/jsql";
 import dayjs_min from "~lib/dayjs";
 import { navigateTo } from "@codewithkyle/router";
-import { Diagram } from "~types/app";
+import { Diagram } from "~types/diagram";
 
 type Tabs = "all" | "cloud" | "local";
 

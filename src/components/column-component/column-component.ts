@@ -1,24 +1,30 @@
+import db from "@codewithkyle/jsql";
 import SuperComponent from "@codewithkyle/supercomponent";
 import { html, render } from "lit-html";
 import { css, mount } from "~controllers/env";
 import type { Column } from "~types/diagram";
+import type { SelectOption } from "~types/general";
 
 
 interface IColumnComponent extends Column{
     renderAllOptions: boolean,
+    columnTypes: Array<SelectOption>,
 }
 export default class ColumnComponent extends SuperComponent<IColumnComponent>{
     private moveCallback:Function;
     private startMoveCallback:Function;
     private addColumnCallback:Function;
+    private diagramID: string;
 
-    constructor(data:Column, moveCallback:Function, startMoveCallback:Function, renderAllOptions:boolean, addColumnCallback:Function){
+    constructor(data:Column, moveCallback:Function, startMoveCallback:Function, renderAllOptions:boolean, addColumnCallback:Function, diagramID:string){
         super();
         this.moveCallback = moveCallback;
         this.startMoveCallback = startMoveCallback;
         this.addColumnCallback = addColumnCallback;
+        this.diagramID = diagramID;
         this.model = {...data, ...{
             renderAllOptions: renderAllOptions,
+            columnTypes: [],
         }};
     }
 
@@ -29,6 +35,16 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         this.addEventListener("drag", this.handleDragStart);
         this.addEventListener("dragend", this.handleDragEnd);
         await css(["column-component"]);
+        // @ts-ignore
+        const types = await db.query("SELECT types FROM diagrams WHERE uid = $uid", {
+            uid: this.diagramID,
+        });
+        Object.keys(types[0].types).map(key => {
+            this.model.columnTypes.push({
+                label: types[0].types[key],
+                value: key
+            });
+        });
         this.render();
     }
 
@@ -197,6 +213,14 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         return output;
     }
 
+    private changeType:EventListener = (e:Event) => {
+        const target = e.currentTarget as HTMLSelectElement;
+        const value = target.value;
+        this.update({
+            type: value,  
+        });
+    }
+
     override render(){
         this.draggable = true;
         this.tabIndex = 0;
@@ -208,8 +232,10 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
                 <input type="text" value="${this.model.name}" @input=${this.handleNameInput} @keydown=${this.handleKeyboard}>
             </div>
             <div flex="row nowrap items-center">
-                <select>
-                    <option ?selected=${this.model.type === "int"}>int</option>
+                <select @change=${this.changeType}>
+                    ${this.model.columnTypes.map(type => {
+                        return html`<option ?selected=${this.model.type === type.value}>${type.label}</option>`;
+                    })}
                 </select>
                 ${this.renderDelete()}
             </div>

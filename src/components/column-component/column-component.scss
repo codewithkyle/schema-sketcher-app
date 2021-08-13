@@ -83,6 +83,8 @@ column-component{
         cursor: pointer;
         font-size: var(--font-base);
         transition: all 80ms var(--ease-in-out);
+        text-align: right;
+        text-align-last: right;
 
         &:focus{
             box-shadow: var(--focus-ring);
