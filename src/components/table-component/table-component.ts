@@ -29,6 +29,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
 
     override async connected(){
         document.addEventListener("keydown", this.handleKeyboard);
+        document.addEventListener("mousemove", this.mouseMove);
         await css(["table-component", "overflow-menu"]);
         this.render();
     }
@@ -224,7 +225,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             orderedColumns[column.order] = column;
         });
         const view = html`
-            <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseup=${this.mouseUp} @mousemove=${this.mouseMove}>
+            <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseup=${this.mouseUp}>
                 <h4 title="${this.model.name}">${this.model.name}</h4>
                 <overflow-button @mousedown=${this.noop}>
                     <button>
