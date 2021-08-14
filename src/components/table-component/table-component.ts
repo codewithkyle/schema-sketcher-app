@@ -36,6 +36,13 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         this.render();
     }
 
+    private confirmDelete(){
+        const doDelete = confirm(`Are you sure you want to delete table ${this.model.name}?`);
+        if (doDelete){
+            this.remove();
+        }
+    }
+
     private mouseDown:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent){
             this.isMoving = true;
@@ -90,6 +97,14 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
                     moveX = true;
                     direction = 1;
                     break;
+                case "Delete":
+                    this.confirmDelete();
+                    break;
+                case "d":
+                    if (e.ctrlKey || e.metaKey){
+                        console.log("Duplicate table");
+                    }
+                    break;
                 default:
                     break;
             }
@@ -133,10 +148,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     private deleteTable:EventListener = (e:Event) => {
         // @ts-ignore
         document.activeElement?.blur();
-        const doDelete = confirm(`Are you sure you want to delete table ${this.model.name}?`);
-        if (doDelete){
-            this.remove();
-        }
+        this.confirmDelete();
     }
 
     private addColumn = (focusColumn) => {

@@ -19,6 +19,7 @@ class DiagramController {
             tables: {},
             types: types,
             connections: {},
+            nodes: {},
         };
         // @ts-ignore
         await db.query("INSERT INTO diagrams VALUES ($diagram)", {

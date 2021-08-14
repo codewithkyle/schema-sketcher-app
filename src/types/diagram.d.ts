@@ -32,6 +32,15 @@ export interface Table {
     }
 }
 
+export interface Node {
+    uid: string,
+    color: string,
+    text: string,
+    x: number,
+    y: number,
+    icon: string,
+}
+
 export interface Diagram{
     name: string,
     timestamp: number,
@@ -44,5 +53,8 @@ export interface Diagram{
     },
     connections: {
         [uid:string]: Connection,
+    },
+    nodes: {
+        [uid:string]: Node,
     }
 }

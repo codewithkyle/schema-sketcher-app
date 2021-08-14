@@ -11,6 +11,7 @@ import { navigateTo } from "@codewithkyle/router";
 import db from "@codewithkyle/jsql";
 import EditorControls from "~components/editor-controls/editor-controls";
 import { createSubscription, publish } from "~lib/pubsub";
+import NodeComponent from "~components/node-component/node-component";
 
 const COLORS = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "light-blue", "indigo", "violet", "purple", "pink", "rose"];
 const SHADES = ["200", "300", "400", "500", "600"];
@@ -186,6 +187,16 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                     },
                 };
                 break;
+            case "node":
+                updatedModel.diagram.nodes[uid] = {
+                    uid: uid,
+                    text: "New node",
+                    x: this.placeX,
+                    y: this.placeY,
+                    color: "primary",
+                    icon: "function",
+                };
+                break;
             default:
                 break;
         }
@@ -235,6 +246,9 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                 <div data-scale="${this.scale}" data-top="${this.y}" data-left="${this.x}" style="transform: translate(${this.x}px, ${this.y}px) scale(${this.scale});" class="diagram js-anchor">
                     ${Object.keys(this.model.diagram.tables).map((key:string, index:number) => {
                         return new TableComponent(this.model.diagram.tables[key], this.model.diagram.uid);
+                    })}
+                    ${Object.keys(this.model.diagram.nodes).map(key => {
+                        return new NodeComponent(this.model.diagram.nodes[key], this.model.diagram.uid);
                     })}
                 </div>
             </div>
