@@ -22,7 +22,7 @@ export default class SettingsModal extends SuperComponent<ISettingsModal>{
     }
 
     override async connected(){
-        await css(["settings-modal"]);
+        await css(["settings-modal", "tabs"]);
         console.log(this.diagramID);
         // @ts-ignore
         const results = await db.query("SELECT * FROM diagrams WHERE uid = $uid", {

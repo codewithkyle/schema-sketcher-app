@@ -47,7 +47,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
 
     override async connected(){
-        window.addEventListener("mousewheel", this.handleScroll.bind(this), {capture: true, passive: true});
+        window.addEventListener("mousewheel", this.handleScroll.bind(this), {passive: true});
         window.addEventListener("keydown", this.handleKeyDown);
         window.addEventListener("keyup", this.handleKeyUp);
         await css(["editor-page"]);
@@ -98,20 +98,23 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
 
     private handleScroll:EventListener = (e:WheelEvent) => {
-        const delta = e.deltaY * -1;
-        const speed = 0.001;
-        const scroll = delta * speed;
-        const anchor = this.querySelector(".js-anchor") as HTMLElement;
-        let scale = parseFloat(anchor.dataset.scale) + scroll;
-        if (scale < 0.125){
-            scale = 0.125;
-        } else if (scale > 2){
-            scale = 2;
+        const target = e.target as HTMLElement;
+        if (target.closest(".js-canvas") || target.classList.contains(".js-canvas")){
+            const delta = e.deltaY * -1;
+            const speed = 0.001;
+            const scroll = delta * speed;
+            const anchor = this.querySelector(".js-anchor") as HTMLElement;
+            let scale = parseFloat(anchor.dataset.scale) + scroll;
+            if (scale < 0.125){
+                scale = 0.125;
+            } else if (scale > 2){
+                scale = 2;
+            }
+            anchor.style.transform = `translate(${this.x}px, ${this.y}px) scale(${scale})`;
+            anchor.dataset.scale = `${scale}`;
+            this.scale = scale;
+            publish("zoom", scale);
         }
-        anchor.style.transform = `translate(${this.x}px, ${this.y}px) scale(${scale})`;
-        anchor.dataset.scale = `${scale}`;
-        this.scale = scale;
-        publish("zoom", scale);
     }
 
     private updateName(newName:string){

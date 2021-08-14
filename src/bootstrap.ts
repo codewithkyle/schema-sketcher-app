@@ -10,6 +10,13 @@ import db from "@codewithkyle/jsql";
     // @ts-ignore
     await db.start();
 
+    // @ts-ignore
+    const items = await db.query("SELECT name FROM icons");
+    if (items.length !== 2681){
+        // @ts-ignore
+        db.ingest(`${location.origin}/icons.ndjson`, "icons");
+    }
+
     //@ts-ignore
     await import("/js/routes.js");
 })();

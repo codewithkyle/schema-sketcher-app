@@ -40,6 +40,7 @@
     "@codewithkyle/router",
     "@codewithkyle/supercomponent",
     "lit-html",
+    "lit-html/directives/unsafe-html",
     "uuid",
     "dayjs",
     "tooltipper"
