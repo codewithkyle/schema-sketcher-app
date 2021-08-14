@@ -193,7 +193,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                     text: "New node",
                     x: this.placeX,
                     y: this.placeY,
-                    color: "primary",
+                    color: "grey",
                     icon: "function",
                 };
                 break;
