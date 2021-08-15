@@ -1,6 +1,7 @@
 export type ConnectionType = "one-one" | "one-many" | "many-one" | "many-many";
 
 export interface Connection {
+    uid: string,
     startNodeID: string,
     endNodeID: string,
     type: ConnectionType,
@@ -59,7 +60,7 @@ export interface Diagram{
     }
 }
 
-export type Point = {
+export interface Point {
     x:number,
     y:number,
 }

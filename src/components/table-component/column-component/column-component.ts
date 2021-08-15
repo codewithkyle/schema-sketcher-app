@@ -1,7 +1,9 @@
 import db from "@codewithkyle/jsql";
 import SuperComponent from "@codewithkyle/supercomponent";
 import { html, render } from "lit-html";
+import ConnectorComponent from "~components/connector-component/connector-component";
 import { css, mount } from "~controllers/env";
+import { publish } from "~lib/pubsub";
 import type { Column } from "~types/diagram";
 import type { SelectOption } from "~types/general";
 
@@ -15,13 +17,15 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
     private startMoveCallback:Function;
     private addColumnCallback:Function;
     private diagramID: string;
+    private tableID: string;
 
-    constructor(data:Column, moveCallback:Function, startMoveCallback:Function, renderAllOptions:boolean, addColumnCallback:Function, diagramID:string){
+    constructor(data:Column, moveCallback:Function, startMoveCallback:Function, renderAllOptions:boolean, addColumnCallback:Function, diagramID:string, tableID:string){
         super();
         this.moveCallback = moveCallback;
         this.startMoveCallback = startMoveCallback;
         this.addColumnCallback = addColumnCallback;
         this.diagramID = diagramID;
+        this.tableID = tableID;
         this.model = {...data, ...{
             renderAllOptions: renderAllOptions,
             columnTypes: [],
@@ -29,11 +33,11 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
     }
 
     override async connected(){
-        this.addEventListener("dragover", this.handleDragOver);
-        this.addEventListener("dragleave", this.handleDragLeave);
-        this.addEventListener("drop", this.handleDrop);
-        this.addEventListener("drag", this.handleDragStart);
-        this.addEventListener("dragend", this.handleDragEnd);
+        // this.addEventListener("dragover", this.handleDragOver);
+        // this.addEventListener("dragleave", this.handleDragLeave);
+        // this.addEventListener("drop", this.handleDrop);
+        // this.addEventListener("drag", this.handleDragStart);
+        // this.addEventListener("dragend", this.handleDragEnd);
         await css(["column-component"]);
         // @ts-ignore
         const types = await db.query("SELECT types FROM diagrams WHERE uid = $uid", {
@@ -221,24 +225,36 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         });
     }
 
+    private endDraw:EventListener = (e:Event) => {
+        publish("canvas", {
+            type: "end",
+            id: this.id,
+        });
+    }
+
     override render(){
         this.draggable = true;
         this.tabIndex = 0;
+        this.id = `${this.tableID}_${this.model.name.replace(/\s+/, "_")}`;
         const view = html`
-            <div flex="row nowrap items-center" style="flex:1;width:100%">
-                ${this.renderPrimaryKey()}
-                ${this.renderIndex()}
-                ${this.renderUnique()}
-                <input type="text" value="${this.model.name}" @input=${this.handleNameInput} @keydown=${this.handleKeyboard}>
+            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -6px;`, this.id, "left")}
+            <div @mouseup=${this.endDraw} tabindex="0" draggable="true" class="w-full" flex="row nowrap items-center" @drag=${this.handleDragStart} @dragover=${this.handleDragOver} @dragend=${this.handleDragEnd} @drop=${this.handleDrop} @dragleave=${this.handleDragLeave}>
+                <div flex="row nowrap items-center" style="flex:1;width:100%">
+                    ${this.renderPrimaryKey()}
+                    ${this.renderIndex()}
+                    ${this.renderUnique()}
+                    <input type="text" value="${this.model.name}" @input=${this.handleNameInput} @keydown=${this.handleKeyboard}>
+                </div>
+                <div flex="row nowrap items-center">
+                    <select @change=${this.changeType}>
+                        ${this.model.columnTypes.map(type => {
+                            return html`<option ?selected=${this.model.type === type.value}>${type.label}</option>`;
+                        })}
+                    </select>
+                    ${this.renderDelete()}
+                </div>
             </div>
-            <div flex="row nowrap items-center">
-                <select @change=${this.changeType}>
-                    ${this.model.columnTypes.map(type => {
-                        return html`<option ?selected=${this.model.type === type.value}>${type.label}</option>`;
-                    })}
-                </select>
-                ${this.renderDelete()}
-            </div>
+            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 6px);`, this.id, "right")}
         `;
         render(view, this);
     }

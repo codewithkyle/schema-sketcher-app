@@ -1,7 +1,7 @@
 import SuperComponent from "@codewithkyle/supercomponent";
 import { html, render } from "lit-html";
 import { v4 as uuid } from "uuid";
-import ColumnComponent from "~components/column-component/column-component";
+import ColumnComponent from "./column-component/column-component";
 import { css, mount } from "~controllers/env";
 import { publish } from "~lib/pubsub";
 import type { Column, Table } from "~types/diagram";
@@ -242,6 +242,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         this.dataset.top = `${this.prevY}`;
         this.dataset.left = `${this.prevX}`;
         this.tabIndex = 0;
+        this.id = this.model.name.replace(/\s+/, "_");
         this.setAttribute("aria-label", `use arrow keys to nudge table ${this.model.name}`);
         const orderedColumns = new Array(Object.keys(this.model.columns).length).fill(null);
         Object.keys(this.model.columns).map((key) => {
@@ -295,7 +296,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             </header>
             <columns-container>
                 ${orderedColumns.map((column) => {
-                    return new ColumnComponent(column, this.moveCallback.bind(this), this.startMoveCallback.bind(this), this.model.showAllColumnOptions, this.addColumn.bind(this), this.diagramID);
+                    return new ColumnComponent(column, this.moveCallback.bind(this), this.startMoveCallback.bind(this), this.model.showAllColumnOptions, this.addColumn.bind(this), this.diagramID, this.id);
                 })}
             </columns-container>
         `;

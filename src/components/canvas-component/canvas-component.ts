@@ -1,17 +1,21 @@
 import { css, mount } from "~controllers/env";
-import { createSubscription, subscribe } from "~lib/pubsub";
+import { createSubscription, subscribe, unsubscribe } from "~lib/pubsub";
 import type { Point } from "~types/diagram";
+import { v4 as uuid } from "uuid";
 
 const LINE_COLOUR = "#9CA3AF";
 const LINE_HOVER_COLOUR = "#EC4899";
 
+interface StartPoint extends Point {
+    id: string,
+}
 
 class Line {
-    public start: Point;
-    public end: Point;
+    public start: string;
+    public end: string;
     public uid: string;
     
-    constructor(start:Point, end:Point, uid:string){
+    constructor(start:string, end:string, uid:string){
         this.start = start;
         this.end = end;
         this.uid = uid;
@@ -28,8 +32,9 @@ export default class CanvasComponent extends HTMLElement{
     private oldTime: number;
     private lines:Array<Line>;
     private highlightedLines:Array<string>;
-    private openStartPoint:Point;
+    private openStartPoint:StartPoint;
     private mousePos:Point;
+    private ticketID: string;
 
     constructor(){
         super();
@@ -42,35 +47,30 @@ export default class CanvasComponent extends HTMLElement{
         this.openStartPoint = null;
         this.mousePos = null;
         css(["canvas-component"]);
-        this.canvas = this.querySelector("canvas") || document.createElement("canvas");
-        if (!this.canvas.isConnected){
-            this.appendChild(this.canvas);
-        }
-        this.ctx = this.canvas.getContext("2d");
         createSubscription("canvas");
-        subscribe("canvas", this.inbox.bind(this));
+        this.ticketID = subscribe("canvas", this.inbox.bind(this));
     }
 
     connectedCallback(){
         setTimeout(()=>{
+            this.canvas = this.querySelector("canvas") || document.createElement("canvas");
+            if (!this.canvas.isConnected){
+                this.appendChild(this.canvas);
+            }
+            this.ctx = this.canvas.getContext("2d");
+            this.canvas.addEventListener("mousemove", this.handleMouseMove, { capture: true });
+            this.canvas.addEventListener("mouseup", this.endMouseMove, { capture: true });
             this.calcSize();
             this.oldTime = performance.now();
             this.eventLoop();
-        }, 150);
-        // this.canvas.addEventListener("mousemove", (e:MouseEvent) => {
-        //     mousePos = {
-        //         x: e.clientX,
-        //         y: e.clientY,
-        //     };
-        // }, { capture: true });
-        // this.canvas.addEventListener("mouseup", (e:MouseEvent) => {
-        //     const line = new Line(openStartPoint, {
-        //         x: e.clientX,
-        //         y: e.clientY
-        //     });
-        //     lines.push(line);
-        //     openStartPoint = null;
-        // }, { capture: true });        
+        }, 150);      
+    }
+
+    disconnectedCallback(){
+        this.eventLoop = ()=>{};
+        unsubscribe(this.ticketID);
+        this.canvas.removeEventListener("mousemove", this.handleMouseMove, { capture: true });
+        this.canvas.removeEventListener("mouseup", this.endMouseMove, { capture: true });
     }
 
     private calcSize(){
@@ -105,6 +105,10 @@ export default class CanvasComponent extends HTMLElement{
                 }
             }
         }
+        topX -= 18;
+        topY -= 18;
+        bottomX += 18;
+        bottomY += 18;
         const width = bottomX - topX;
         const height = bottomY - topY;
         this.canvas.width = width;
@@ -118,10 +122,51 @@ export default class CanvasComponent extends HTMLElement{
         this.h = height;
     }
 
+    private endMouseMove:EventListener = (e:MouseEvent) => {
+        this.openStartPoint = null;
+    }
+
+    private handleMouseMove:EventListener = (e:MouseEvent) => {
+        this.mousePos = {
+            x: e.clientX,
+            y: e.clientY,
+        };
+    }
+
+    private startNewLine(x:number, y:number, id:string){
+        this.openStartPoint = {
+            x: x,
+            y: y,
+            id: id,
+        };
+        this.mousePos = {
+            x: x,
+            y: y,
+        };
+    }
+
+    private endLine(id:string){
+        if (this.openStartPoint !== null){
+            console.log(`Create line from ${this.openStartPoint.id} to ${id}`);
+            this.lines.push({
+                start: this.openStartPoint.id,
+                end: id,
+                uid: uuid(),
+            });
+            this.openStartPoint = null;
+        }
+    }
+
     private inbox(e){
         switch(e.type){
             case "render":
                 this.calcSize();
+                break;
+            case "start":
+                this.startNewLine(e.x, e.y, e.id);
+                break;
+            case "end":
+                this.endLine(e.id);
                 break;
             default:
                 console.warn(`Invalid 'canvas' message type: ${e.type}`);
@@ -129,22 +174,75 @@ export default class CanvasComponent extends HTMLElement{
         }
     }
 
-    private drawLine(startX, startY, endX, endY){
-        const centerX = (startX + endX) / 2;
+    private drawLine(startX, startY, endX, endY, startSide, endSide){
+        let centerX = (startX + endX) / 2;
+        let centerY = (startY + endY) / 2;
         this.ctx.beginPath();
         this.ctx.moveTo(startX, startY);
-        if (Math.abs(startY - endY) >= 16 && Math.abs(startX - endX) >= 16){
-            const offsetY = endY >= startY ? -8 : 8;
-            const offsetX = endX <= startX ? 8 : -8;
-            this.ctx.lineTo((centerX + offsetX), startY);
-            this.ctx.arcTo(centerX, startY, centerX, (startY + offsetY * -1), 8);
-            this.ctx.lineTo(centerX, (endY + offsetY));
-            this.ctx.arcTo(centerX, endY, (centerX + offsetX * -1), endY, 8);
-            this.ctx.lineTo(endX, endY);
-        } else {
+        if (startSide === "left" && endSide === "left"){
+            if (startX <= endX){
+                centerX = startX - 16;
+            }
+            else {
+                centerX = endX - 16;
+            }
             this.ctx.lineTo(centerX, startY);
             this.ctx.lineTo(centerX, endY);
             this.ctx.lineTo(endX, endY);
+        }
+        else if (startSide === "right" && endSide === "right"){
+            if (startX >= endX){
+                centerX = startX + 16;
+            }
+            else {
+                centerX = endX + 16;
+            }
+            this.ctx.lineTo(centerX, startY);
+            this.ctx.lineTo(centerX, endY);
+            this.ctx.lineTo(endX, endY);
+        }
+        else if (startSide === "left" && endSide === "right" && startX <= endX){
+            if (startX <= endX){
+                centerX = startX - 16;
+            }
+            else {
+                centerX = endX - 16;
+            }
+            this.ctx.lineTo(centerX, startY);
+            this.ctx.lineTo(centerX, centerY);
+            this.ctx.lineTo(endX + 16, centerY);
+            this.ctx.lineTo(endX + 16, endY);
+            this.ctx.lineTo(endX, endY);
+        }
+        else if (startSide === "right" && endSide === "left" && endX <= startX){
+            if (startX >= endX){
+                centerX = startX + 16;
+            }
+            else {
+                centerX = endX + 16;
+            }
+            this.ctx.lineTo(centerX, startY);
+            this.ctx.lineTo(centerX, centerY);
+            this.ctx.lineTo(endX - 16, centerY);
+            this.ctx.lineTo(endX - 16, endY);
+            this.ctx.lineTo(endX, endY);
+        }
+        else {
+            if (Math.abs(startY - endY) >= 16 && Math.abs(startX - endX) >= 16){
+                // rounde
+                const offsetY = endY >= startY ? -8 : 8;
+                const offsetX = endX <= startX ? 8 : -8;
+                this.ctx.lineTo((centerX + offsetX), startY);
+                this.ctx.arcTo(centerX, startY, centerX, (startY + offsetY * -1), 8);
+                this.ctx.lineTo(centerX, (endY + offsetY));
+                this.ctx.arcTo(centerX, endY, (centerX + offsetX * -1), endY, 8);
+                this.ctx.lineTo(endX, endY);
+            } else {
+                // square
+                this.ctx.lineTo(centerX, startY);
+                this.ctx.lineTo(centerX, endY);
+                this.ctx.lineTo(endX, endY);
+            }
         }
         this.ctx.stroke();
     }
@@ -156,58 +254,143 @@ export default class CanvasComponent extends HTMLElement{
         this.highlightedLines = [];
         
         this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+        const bounds = this.canvas.getBoundingClientRect();
+        this.ctx.lineWidth = 1;
     
         if (this.openStartPoint !== null){
             this.ctx.strokeStyle = LINE_COLOUR;
-            const { x: startX, y: startY } = this.openStartPoint;
+            const startColumnEl:HTMLElement = document.body.querySelector(`#${this.openStartPoint.id}`); 
+            const startColumnBounds = startColumnEl.getBoundingClientRect();
             const { x: endX, y: endY } = this.mousePos;
-            this.drawLine(startX, startY, endX, endY);   
-        }
-    
-        for (let i = 0; i < this.lines.length; i++){
-            const { x: mouseX, y: mouseY } = this.mousePos;
-            const { x: startX, y: startY } = this.lines[i].start;
-            const { x: endX, y: endY } = this.lines[i].end;
-            const aX = startX <= endX ? startX : endX;
-            const aY = startY <= endY ? startY : endY;
-            const bX = startX >= endX ? startX : endX;
-            const bY = startY >= endY ? startY : endY;
-            if (
-                mouseX >= aX && mouseX <= bX &&
-                mouseY >= aY && mouseY <= bY
-            ) {
-                const centerX = (startX + endX) / 2;
-                const direction = startX <= endX ? -1 : 1;
-                if (mouseX >= centerX - 8 && mouseX <= centerX + 8){
-                    this.highlightedLines.push(this.lines[i].uid);
-                }
-                else if (mouseY >= startY - 8 && mouseY <= startY + 8){
-                    if (direction === -1){
-                        if (mouseX <= centerX){
-                            this.highlightedLines.push(this.lines[i].uid);
-                        }
-                    } else {
-                        if (mouseX >= centerX){
-                            this.highlightedLines.push(this.lines[i].uid);
-                        }
-                    }
-                }
-                else if (mouseY >= endY - 8 && mouseY <= endY + 8){
-                    if (direction === -1){
-                        if (mouseX >= centerX){
-                            this.highlightedLines.push(this.lines[i].uid);
-                        }
-                    } else {
-                        if (mouseX <= centerX){
-                            this.highlightedLines.push(this.lines[i].uid);
-                        }
-                    }
+            let startSide;
+            let endSide;
+            if (endX <= startColumnBounds.x){
+                startSide = "left";
+                endSide = "left";
+            }
+            else if (endX > startColumnBounds.x + startColumnBounds.width) {
+                startSide = "right";
+                endSide = "left";
+            }
+            else if (endX > startColumnBounds.x && endX < startColumnBounds.x + startColumnBounds.width){
+                if (endX >= startColumnBounds.x + startColumnBounds.width / 2){
+                    startSide = "right";
+                    endSide = "right";
+                } else {
+                    startSide = "left";
+                    endSide = "left";
                 }
             }
+            const startEl:HTMLElement = document.body.querySelector(`#${this.openStartPoint.id}_${startSide}`);
+            const startBounds = startEl.getBoundingClientRect();
+            const startX = startBounds.x - bounds.x + startBounds.width / 2;
+            const startY = startBounds.y - bounds.y + startBounds.height / 2;
+            this.drawLine(startX, startY, endX - bounds.x, endY - bounds.y, startSide, endSide);
+        }
+    
+        const lines = [];
+        for (let i = 0; i < this.lines.length; i++){
+            const startColumnEL:HTMLElement = document.body.querySelector(`#${this.lines[i].start}`);
+            const endColumnEL:HTMLElement = document.body.querySelector(`#${this.lines[i].end}`);
+
+            const startColumnBounds = startColumnEL.getBoundingClientRect();
+            const endColumnBounds = endColumnEL.getBoundingClientRect();
+
+            let startSide;
+            let endSide;
+            if (endColumnBounds.x > startColumnBounds.x && endColumnBounds.x < startColumnBounds.x + startColumnBounds.width){
+                if (endColumnBounds.x > startColumnBounds.x + startColumnBounds.width / 2){
+                    startSide = "right";
+                    endSide = "left";
+                }
+                else {
+                    startSide = "right";
+                    endSide = "right";
+                }
+            }
+            else if (startColumnBounds.x > endColumnBounds.x && startColumnBounds.x < endColumnBounds.x + endColumnBounds.width){
+                if (startColumnBounds.x > endColumnBounds.x + endColumnBounds.width / 2){
+                    startSide = "left";
+                    endSide = "right";
+                }
+                else {
+                    startSide = "left";
+                    endSide = "left";
+                }
+            }
+            else if (startColumnBounds.x < endColumnBounds.x){
+                startSide = "right";
+                endSide = "left";
+            }
+            else {
+                startSide = "left";
+                endSide = "right";
+            }
+
+            const startEl:HTMLElement = document.body.querySelector(`#${this.lines[i].start}_${startSide}`);
+            const endEL:HTMLElement = document.body.querySelector(`#${this.lines[i].end}_${endSide}`);
+
+            const startBounds = startEl.getBoundingClientRect();
+            const endBounds = endEL.getBoundingClientRect();
+            const start = {
+                x: startBounds.x + (startBounds.width / 2) - bounds.x,
+                y: startBounds.y + (startBounds.height / 2) - bounds.y,
+            },
+            end = {
+                x: endBounds.x + (endBounds.width / 2) - bounds.x,
+                y: endBounds.y + (endBounds.height / 2) - bounds.y,
+            };
+            lines.push({
+                start: start,
+                end: end,
+                uid: this.lines[i].uid,
+                startSide: startSide,
+                endSide: endSide,
+            });
+            // const mouseX = this.mousePos.x - bounds.x;
+            // const mouseY = this.mousePos.y - bounds.y;
+            // const { x: startX, y: startY } = start;
+            // const { x: endX, y: endY } = end;
+            // const aX = startX <= endX ? startX : endX;
+            // const aY = startY <= endY ? startY : endY;
+            // const bX = startX >= endX ? startX : endX;
+            // const bY = startY >= endY ? startY : endY;
+            // if (
+            //     mouseX >= aX && mouseX <= bX &&
+            //     mouseY >= aY && mouseY <= bY
+            // ) {
+            //     const centerX = (startX + endX) / 2;
+            //     const direction = startX <= endX ? -1 : 1;
+            //     if (mouseX >= centerX - 8 && mouseX <= centerX + 8){
+            //         this.highlightedLines.push(this.lines[i].uid);
+            //     }
+            //     else if (mouseY >= startY - 8 && mouseY <= startY + 8){
+            //         if (direction === -1){
+            //             if (mouseX <= centerX){
+            //                 this.highlightedLines.push(this.lines[i].uid);
+            //             }
+            //         } else {
+            //             if (mouseX >= centerX){
+            //                 this.highlightedLines.push(this.lines[i].uid);
+            //             }
+            //         }
+            //     }
+            //     else if (mouseY >= endY - 8 && mouseY <= endY + 8){
+            //         if (direction === -1){
+            //             if (mouseX >= centerX){
+            //                 this.highlightedLines.push(this.lines[i].uid);
+            //             }
+            //         } else {
+            //             if (mouseX <= centerX){
+            //                 this.highlightedLines.push(this.lines[i].uid);
+            //             }
+            //         }
+            //     }
+            // }
         }
         
-        for (let i = 0; i < this.lines.length; i++){
-            const line:Line = this.lines[i];
+        for (let i = 0; i < lines.length; i++){
+            const line = lines[i];
             const { x: startX, y: startY } = line.start;
             const { x: endX, y: endY } = line.end;
             if (this.highlightedLines.includes(line.uid)){
@@ -215,7 +398,7 @@ export default class CanvasComponent extends HTMLElement{
             } else {
                 this.ctx.strokeStyle = LINE_COLOUR;
             }
-            this.drawLine(startX, startY, endX, endY);
+            this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide);
         }
         window.requestAnimationFrame(this.eventLoop.bind(this));
     }

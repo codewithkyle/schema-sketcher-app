@@ -24,6 +24,11 @@ column-component{
         *{
             color: var(--primary-500);
         }
+
+        connector-component{
+            opacity: 1;
+            visibility: visible;
+        }
     }
 
     &:focus-within{
@@ -31,6 +36,11 @@ column-component{
         
         *{
             color: var(--primary-500);
+        }
+
+        connector-component{
+            opacity: 1;
+            visibility: visible;
         }
     }
 
@@ -46,6 +56,11 @@ column-component{
 
         .drag-handle{
             border-right-color: transparent;
+        }
+
+        connector-component{
+            opacity: 0;
+            visibility: hidden;
         }
     }
 

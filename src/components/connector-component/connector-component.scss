@@ -1,0 +1,18 @@
+connector-component{
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--white);
+    border: 2px solid var(--grey-500);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 80ms var(--ease-in-out);
+    cursor: pointer;
+    z-index: 10;
+
+    &:hover{
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-500);
+    }
+}
