@@ -67,7 +67,7 @@ export default class CanvasComponent extends HTMLElement{
     }
 
     disconnectedCallback(){
-        this.eventLoop = ()=>{};
+        this.eventLoop = async ()=>{};
         unsubscribe(this.ticketID);
         this.canvas.removeEventListener("mousemove", this.handleMouseMove, { capture: true });
         this.canvas.removeEventListener("mouseup", this.endMouseMove, { capture: true });
@@ -146,6 +146,7 @@ export default class CanvasComponent extends HTMLElement{
     }
 
     private endLine(id:string){
+        console.log(id);
         if (this.openStartPoint !== null){
             console.log(`Create line from ${this.openStartPoint.id} to ${id}`);
             this.lines.push({
@@ -186,9 +187,27 @@ export default class CanvasComponent extends HTMLElement{
             else {
                 centerX = endX - 16;
             }
-            this.ctx.lineTo(centerX, startY);
-            this.ctx.lineTo(centerX, endY);
-            this.ctx.lineTo(endX, endY);
+            if (Math.abs(startY - endY) >= 32){
+                let offsetY;
+                let offsetX;
+                if (endX < startX){
+                    offsetY = endY >= startY ? -8 : 8;
+                    offsetX = endX <= startX ? 8 : -8;
+                }
+                else {
+                    offsetY = endY >= startY ? -8 : 8;
+                    offsetX = endX <= startX ? -8 : 8;
+                }
+                this.ctx.lineTo(centerX + offsetX, startY);
+                this.ctx.arcTo(centerX, startY, centerX, (startY - offsetY), 8);
+                this.ctx.lineTo(centerX, endY + offsetY);
+                this.ctx.arcTo(centerX, endY, (centerX + offsetX), endY, 8);
+                this.ctx.lineTo(endX, endY);
+            } else {
+                this.ctx.lineTo(centerX, startY);
+                this.ctx.lineTo(centerX, endY);
+                this.ctx.lineTo(endX, endY);
+            }
         }
         else if (startSide === "right" && endSide === "right"){
             if (startX >= endX){
@@ -197,9 +216,19 @@ export default class CanvasComponent extends HTMLElement{
             else {
                 centerX = endX + 16;
             }
-            this.ctx.lineTo(centerX, startY);
-            this.ctx.lineTo(centerX, endY);
-            this.ctx.lineTo(endX, endY);
+            if (Math.abs(startY - endY) >= 32){
+                const offsetY = endY >= startY ? -8 : 8;
+                const offsetX = endX <= startX ? -8 : 8;
+                this.ctx.lineTo(centerX + offsetX, startY);
+                this.ctx.arcTo(centerX, startY, centerX, (startY - offsetY), 8);
+                this.ctx.lineTo(centerX, endY + offsetY);
+                this.ctx.arcTo(centerX, endY, (centerX + offsetX), endY, 8);
+                this.ctx.lineTo(endX, endY);
+            } else {
+                this.ctx.lineTo(centerX, startY);
+                this.ctx.lineTo(centerX, endY);
+                this.ctx.lineTo(endX, endY);
+            }
         }
         else if (startSide === "left" && endSide === "right" && startX <= endX){
             if (startX <= endX){
@@ -229,7 +258,7 @@ export default class CanvasComponent extends HTMLElement{
         }
         else {
             if (Math.abs(startY - endY) >= 16 && Math.abs(startX - endX) >= 16){
-                // rounde
+                // round
                 const offsetY = endY >= startY ? -8 : 8;
                 const offsetX = endX <= startX ? 8 : -8;
                 this.ctx.lineTo((centerX + offsetX), startY);
@@ -247,7 +276,22 @@ export default class CanvasComponent extends HTMLElement{
         this.ctx.stroke();
     }
 
-    private eventLoop() {
+    private async getElement(id:string):Promise<HTMLElement>{
+        let el = document.body.querySelector(id);
+        if (!el){
+            await new Promise((resolve) => {
+                while(!el){
+                    console.log(`looking for ${id}`);
+                    el = document.body.querySelector(id);
+                }
+                // @ts-ignore
+                resolve();
+            });
+        }
+        return el as HTMLElement;
+    }
+
+    private async eventLoop() {
         const newTime = performance.now();
         const deltaTime = (newTime - this.oldTime) / 1000;
         this.oldTime = newTime;
@@ -281,7 +325,11 @@ export default class CanvasComponent extends HTMLElement{
                     endSide = "left";
                 }
             }
-            const startEl:HTMLElement = document.body.querySelector(`#${this.openStartPoint.id}_${startSide}`);
+            else{
+                startSide = "left";
+                endSide = "right";
+            }
+            const startEl:HTMLElement = await this.getElement(`#${this.openStartPoint.id}_${startSide}`);
             const startBounds = startEl.getBoundingClientRect();
             const startX = startBounds.x - bounds.x + startBounds.width / 2;
             const startY = startBounds.y - bounds.y + startBounds.height / 2;
@@ -290,8 +338,8 @@ export default class CanvasComponent extends HTMLElement{
     
         const lines = [];
         for (let i = 0; i < this.lines.length; i++){
-            const startColumnEL:HTMLElement = document.body.querySelector(`#${this.lines[i].start}`);
-            const endColumnEL:HTMLElement = document.body.querySelector(`#${this.lines[i].end}`);
+            const startColumnEL:HTMLElement = await this.getElement(`#${this.lines[i].start}`);
+            const endColumnEL:HTMLElement = await this.getElement(`#${this.lines[i].end}`);
 
             const startColumnBounds = startColumnEL.getBoundingClientRect();
             const endColumnBounds = endColumnEL.getBoundingClientRect();
@@ -327,8 +375,8 @@ export default class CanvasComponent extends HTMLElement{
                 endSide = "right";
             }
 
-            const startEl:HTMLElement = document.body.querySelector(`#${this.lines[i].start}_${startSide}`);
-            const endEL:HTMLElement = document.body.querySelector(`#${this.lines[i].end}_${endSide}`);
+            const startEl:HTMLElement = await this.getElement(`#${this.lines[i].start}_${startSide}`);
+            const endEL:HTMLElement = await this.getElement(`#${this.lines[i].end}_${endSide}`);
 
             const startBounds = startEl.getBoundingClientRect();
             const endBounds = endEL.getBoundingClientRect();
