@@ -6,6 +6,7 @@ import IconModal from "~components/icon-modal/icon-modal";
 import { css, mount } from "~controllers/env";
 import { publish } from "~lib/pubsub";
 import { Node } from "~types/diagram";
+import ConnectorComponent from "~components/connector-component/connector-component";
 
 interface INodeComponent extends Node {
 
@@ -48,32 +49,36 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
 
     private handleKeyboard:EventListener = (e:KeyboardEvent) => {
         if (e instanceof KeyboardEvent && document.activeElement === this){
-            e.preventDefault();
-            e.stopImmediatePropagation();
             let moveX = false;
             let moveY = false;
             let direction = 0;
             switch(e.key){
                 case "ArrowUp":
+                    e.preventDefault();
                     moveY = true;
                     direction = -1;
                     break;
                 case "ArrowDown":
+                    e.preventDefault();
                     moveY = true;
                     direction = 1;
                     break;
                 case "ArrowLeft":
+                    e.preventDefault();
                     moveX = true;
                     direction = -1;
                     break;
                 case "ArrowRight":
+                    e.preventDefault();
                     moveX = true;
                     direction = 1;
                     break;
                 case "Delete":
+                    e.preventDefault();
                     this.confirmDelete();
                     break;
                 case "d":
+                    e.preventDefault();
                     if (e.ctrlKey || e.metaKey){
                         console.log("Duplicate node");
                     }
@@ -109,13 +114,13 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
 
     private handleInputKeyboard:EventListener = (e:KeyboardEvent) => {
         if (e instanceof KeyboardEvent && (e.metaKey || e.ctrlKey)){
-            e.preventDefault();
-            e.stopImmediatePropagation();
             switch(e.key){
                 case "Delete":
+                    e.preventDefault();
                     this.confirmDelete();
                     break;
                 case "d":
+                    e.preventDefault();
                     if (e.ctrlKey || e.metaKey){
                         console.log("Duplicate node");
                     }
@@ -150,6 +155,11 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             this.isMoving = false;
             this.prevX = parseInt(this.dataset.left);
             this.prevY = parseInt(this.dataset.top);
+            publish("canvas", {
+                type: "end",
+                id: this.id,
+                tableID: this.id,
+            });
         }
     }
 
@@ -164,9 +174,6 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             this.dataset.left = `${x}`;
             this.prevX = e.clientX;
             this.prevY = e.clientY;
-            publish("canvas", {
-                type: "render",
-            });
         }
     }
 
@@ -184,7 +191,6 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
     }
 
     private noop:EventListener = (e:Event) => {
-        e.preventDefault();
         e.stopImmediatePropagation();
     }
 
@@ -193,6 +199,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         this.dataset.top = `${this.prevY}`;
         this.dataset.left = `${this.prevX}`;
         this.tabIndex = 0;
+        this.id = `node_${this.model.uid}`;
         this.setAttribute("aria-label", `use arrow keys to nudge node`);
         // @ts-ignore
         const result = await db.query("SELECT svg FROM icons WHERE name = $name", {
@@ -206,6 +213,10 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
                 ${unsafeHTML(icon)}
             </button>
             <input value="${this.model.text}" type="text" @input=${this.handleInput} @keydown=${this.handleInputKeyboard}>
+            ${new ConnectorComponent(`top: -6px;left: 16px;`, this.id, "top", this.id)}
+            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 6px);`, this.id, "right", this.id)}
+            ${new ConnectorComponent(`top: calc(100% - 6px);left: 16px;`, this.id, "bottom", this.id)}
+            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -6px;`, this.id, "left", this.id)}
         `;
         render(view, this);
     }

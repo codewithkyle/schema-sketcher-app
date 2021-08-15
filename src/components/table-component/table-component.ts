@@ -76,32 +76,36 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
 
     private handleKeyboard:EventListener = (e:KeyboardEvent) => {
         if (e instanceof KeyboardEvent && document.activeElement === this){
-            e.preventDefault();
-            e.stopImmediatePropagation();
             let moveX = false;
             let moveY = false;
             let direction = 0;
             switch(e.key){
                 case "ArrowUp":
+                    e.preventDefault();
                     moveY = true;
                     direction = -1;
                     break;
                 case "ArrowDown":
+                    e.preventDefault();
                     moveY = true;
                     direction = 1;
                     break;
                 case "ArrowLeft":
+                    e.preventDefault();
                     moveX = true;
                     direction = -1;
                     break;
                 case "ArrowRight":
+                    e.preventDefault();
                     moveX = true;
                     direction = 1;
                     break;
                 case "Delete":
+                    e.preventDefault();
                     this.confirmDelete();
                     break;
                 case "d":
+                    e.preventDefault();
                     if (e.ctrlKey || e.metaKey){
                         console.log("Duplicate table");
                     }

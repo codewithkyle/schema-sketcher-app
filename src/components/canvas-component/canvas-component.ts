@@ -98,9 +98,7 @@ export default class CanvasComponent extends HTMLElement{
     }
 
     private endLine(id:string, tableID:string){
-        console.log(tableID, this.openStartPoint.tableID)
         if (this.openStartPoint !== null && id !== this.openStartPoint.id && tableID !== this.openStartPoint.tableID){
-            console.log(`Create line from ${this.openStartPoint.id} to ${id}`);
             this.lines.push({
                 start: this.openStartPoint.id,
                 end: id,
@@ -269,16 +267,6 @@ export default class CanvasComponent extends HTMLElement{
 
     private async getElement(id:string):Promise<HTMLElement>{
         let el = document.body.querySelector(id);
-        if (!el){
-            await new Promise((resolve) => {
-                while(!el){
-                    console.log(`looking for ${id}`);
-                    el = document.body.querySelector(id);
-                }
-                // @ts-ignore
-                resolve();
-            });
-        }
         return el as HTMLElement;
     }
 
@@ -288,157 +276,162 @@ export default class CanvasComponent extends HTMLElement{
         this.oldTime = newTime;
         this.highlightedLines = [];
         
-        this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
-        const bounds = this.canvas.getBoundingClientRect();
-        this.ctx.lineWidth = 1;
-    
-        if (this.openStartPoint !== null){
-            this.ctx.strokeStyle = LINE_COLOUR;
-            const startColumnEl:HTMLElement = document.body.querySelector(`#${this.openStartPoint.id}`); 
-            const startColumnBounds = startColumnEl.getBoundingClientRect();
-            const { x: endX, y: endY } = this.mousePos;
-            let startSide;
-            let endSide;
-            if (endX <= startColumnBounds.x){
-                startSide = "left";
-                endSide = "left";
-            }
-            else if (endX >= startColumnBounds.x && endX <= startColumnBounds.x + startColumnBounds.width){
-                if (endX >= startColumnBounds.x + startColumnBounds.width / 2){
-                    startSide = "right";
-                    endSide = "right";
-                } else {
-                    startSide = "left";
-                    endSide = "left";
-                }
-            }
-            else if (endX > startColumnBounds.x + startColumnBounds.width) {
-                startSide = "right";
-                endSide = "left";
-            }
-            else{
-                startSide = "left";
-                endSide = "right";
-            }
-            const startEl:HTMLElement = await this.getElement(`#${this.openStartPoint.id}_${startSide}`);
-            const startBounds = startEl.getBoundingClientRect();
-            const startX = startBounds.x - bounds.x + startBounds.width / 2;
-            const startY = startBounds.y - bounds.y + startBounds.height / 2;
-            this.drawLine(startX, startY, endX - bounds.x, endY - bounds.y, startSide, endSide);
-        }
-    
-        const lines = [];
-        for (let i = 0; i < this.lines.length; i++){
-            const startColumnEL:HTMLElement = await this.getElement(`#${this.lines[i].start}`);
-            const endColumnEL:HTMLElement = await this.getElement(`#${this.lines[i].end}`);
-
-            const startColumnBounds = startColumnEL.getBoundingClientRect();
-            const endColumnBounds = endColumnEL.getBoundingClientRect();
-
-            let startSide;
-            let endSide;
-            if (endColumnBounds.x >= startColumnBounds.x && endColumnBounds.x <= startColumnBounds.x + startColumnBounds.width){
-                if (endColumnBounds.x > startColumnBounds.x + startColumnBounds.width / 2){
-                    startSide = "right";
-                    endSide = "left";
-                }
-                else {
-                    startSide = "right";
-                    endSide = "right";
-                }
-            }
-            else if (startColumnBounds.x >= endColumnBounds.x && startColumnBounds.x <= endColumnBounds.x + endColumnBounds.width){
-                if (startColumnBounds.x > endColumnBounds.x + endColumnBounds.width / 2){
-                    startSide = "left";
-                    endSide = "right";
-                }
-                else {
-                    startSide = "left";
-                    endSide = "left";
-                }
-            }
-            else if (startColumnBounds.x < endColumnBounds.x){
-                startSide = "right";
-                endSide = "left";
-            }
-            else {
-                startSide = "left";
-                endSide = "right";
-            }
-
-            const startEl:HTMLElement = await this.getElement(`#${this.lines[i].start}_${startSide}`);
-            const endEL:HTMLElement = await this.getElement(`#${this.lines[i].end}_${endSide}`);
-
-            const startBounds = startEl.getBoundingClientRect();
-            const endBounds = endEL.getBoundingClientRect();
-            const start = {
-                x: startBounds.x + (startBounds.width / 2) - bounds.x,
-                y: startBounds.y + (startBounds.height / 2) - bounds.y,
-            },
-            end = {
-                x: endBounds.x + (endBounds.width / 2) - bounds.x,
-                y: endBounds.y + (endBounds.height / 2) - bounds.y,
-            };
-            lines.push({
-                start: start,
-                end: end,
-                uid: this.lines[i].uid,
-                startSide: startSide,
-                endSide: endSide,
-            });
-            // const mouseX = this.mousePos.x - bounds.x;
-            // const mouseY = this.mousePos.y - bounds.y;
-            // const { x: startX, y: startY } = start;
-            // const { x: endX, y: endY } = end;
-            // const aX = startX <= endX ? startX : endX;
-            // const aY = startY <= endY ? startY : endY;
-            // const bX = startX >= endX ? startX : endX;
-            // const bY = startY >= endY ? startY : endY;
-            // if (
-            //     mouseX >= aX && mouseX <= bX &&
-            //     mouseY >= aY && mouseY <= bY
-            // ) {
-            //     const centerX = (startX + endX) / 2;
-            //     const direction = startX <= endX ? -1 : 1;
-            //     if (mouseX >= centerX - 8 && mouseX <= centerX + 8){
-            //         this.highlightedLines.push(this.lines[i].uid);
-            //     }
-            //     else if (mouseY >= startY - 8 && mouseY <= startY + 8){
-            //         if (direction === -1){
-            //             if (mouseX <= centerX){
-            //                 this.highlightedLines.push(this.lines[i].uid);
-            //             }
-            //         } else {
-            //             if (mouseX >= centerX){
-            //                 this.highlightedLines.push(this.lines[i].uid);
-            //             }
-            //         }
-            //     }
-            //     else if (mouseY >= endY - 8 && mouseY <= endY + 8){
-            //         if (direction === -1){
-            //             if (mouseX >= centerX){
-            //                 this.highlightedLines.push(this.lines[i].uid);
-            //             }
-            //         } else {
-            //             if (mouseX <= centerX){
-            //                 this.highlightedLines.push(this.lines[i].uid);
-            //             }
-            //         }
-            //     }
-            // }
-        }
+        try {
+            this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+            const bounds = this.canvas.getBoundingClientRect();
+            this.ctx.lineWidth = 1;
         
-        for (let i = 0; i < lines.length; i++){
-            const line = lines[i];
-            const { x: startX, y: startY } = line.start;
-            const { x: endX, y: endY } = line.end;
-            if (this.highlightedLines.includes(line.uid)){
-                this.ctx.strokeStyle = LINE_HOVER_COLOUR;
-            } else {
+            if (this.openStartPoint !== null){
                 this.ctx.strokeStyle = LINE_COLOUR;
+                const startColumnEl:HTMLElement = document.body.querySelector(`#${this.openStartPoint.id}`); 
+                const startColumnBounds = startColumnEl.getBoundingClientRect();
+                const { x: endX, y: endY } = this.mousePos;
+                let startSide;
+                let endSide;
+                if (endX <= startColumnBounds.x){
+                    startSide = "left";
+                    endSide = "left";
+                }
+                else if (endX >= startColumnBounds.x && endX <= startColumnBounds.x + startColumnBounds.width){
+                    if (endX >= startColumnBounds.x + startColumnBounds.width / 2){
+                        startSide = "right";
+                        endSide = "right";
+                    } else {
+                        startSide = "left";
+                        endSide = "left";
+                    }
+                }
+                else if (endX > startColumnBounds.x + startColumnBounds.width) {
+                    startSide = "right";
+                    endSide = "left";
+                }
+                else{
+                    startSide = "left";
+                    endSide = "right";
+                }
+                const startEl:HTMLElement = await this.getElement(`#${this.openStartPoint.id}_${startSide}`);
+                const startBounds = startEl.getBoundingClientRect();
+                const startX = startBounds.x - bounds.x + startBounds.width / 2;
+                const startY = startBounds.y - bounds.y + startBounds.height / 2;
+                this.drawLine(startX, startY, endX - bounds.x, endY - bounds.y, startSide, endSide);
             }
-            this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide);
+        
+            const lines = [];
+            for (let i = 0; i < this.lines.length; i++){
+                const startColumnEL:HTMLElement = await this.getElement(`#${this.lines[i].start}`);
+                const endColumnEL:HTMLElement = await this.getElement(`#${this.lines[i].end}`);
+
+                const startColumnBounds = startColumnEL.getBoundingClientRect();
+                const endColumnBounds = endColumnEL.getBoundingClientRect();
+
+                let startSide;
+                let endSide;
+                if (endColumnBounds.x >= startColumnBounds.x && endColumnBounds.x <= startColumnBounds.x + startColumnBounds.width){
+                    if (endColumnBounds.x > startColumnBounds.x + startColumnBounds.width / 2){
+                        startSide = "right";
+                        endSide = "left";
+                    }
+                    else {
+                        startSide = "right";
+                        endSide = "right";
+                    }
+                }
+                else if (startColumnBounds.x >= endColumnBounds.x && startColumnBounds.x <= endColumnBounds.x + endColumnBounds.width){
+                    if (startColumnBounds.x > endColumnBounds.x + endColumnBounds.width / 2){
+                        startSide = "left";
+                        endSide = "right";
+                    }
+                    else {
+                        startSide = "left";
+                        endSide = "left";
+                    }
+                }
+                else if (startColumnBounds.x < endColumnBounds.x){
+                    startSide = "right";
+                    endSide = "left";
+                }
+                else {
+                    startSide = "left";
+                    endSide = "right";
+                }
+
+                const startEl:HTMLElement = await this.getElement(`#${this.lines[i].start}_${startSide}`);
+                const endEL:HTMLElement = await this.getElement(`#${this.lines[i].end}_${endSide}`);
+
+                const startBounds = startEl.getBoundingClientRect();
+                const endBounds = endEL.getBoundingClientRect();
+                const start = {
+                    x: startBounds.x + (startBounds.width / 2) - bounds.x,
+                    y: startBounds.y + (startBounds.height / 2) - bounds.y,
+                },
+                end = {
+                    x: endBounds.x + (endBounds.width / 2) - bounds.x,
+                    y: endBounds.y + (endBounds.height / 2) - bounds.y,
+                };
+                lines.push({
+                    start: start,
+                    end: end,
+                    uid: this.lines[i].uid,
+                    startSide: startSide,
+                    endSide: endSide,
+                });
+                // const mouseX = this.mousePos.x - bounds.x;
+                // const mouseY = this.mousePos.y - bounds.y;
+                // const { x: startX, y: startY } = start;
+                // const { x: endX, y: endY } = end;
+                // const aX = startX <= endX ? startX : endX;
+                // const aY = startY <= endY ? startY : endY;
+                // const bX = startX >= endX ? startX : endX;
+                // const bY = startY >= endY ? startY : endY;
+                // if (
+                //     mouseX >= aX && mouseX <= bX &&
+                //     mouseY >= aY && mouseY <= bY
+                // ) {
+                //     const centerX = (startX + endX) / 2;
+                //     const direction = startX <= endX ? -1 : 1;
+                //     if (mouseX >= centerX - 8 && mouseX <= centerX + 8){
+                //         this.highlightedLines.push(this.lines[i].uid);
+                //     }
+                //     else if (mouseY >= startY - 8 && mouseY <= startY + 8){
+                //         if (direction === -1){
+                //             if (mouseX <= centerX){
+                //                 this.highlightedLines.push(this.lines[i].uid);
+                //             }
+                //         } else {
+                //             if (mouseX >= centerX){
+                //                 this.highlightedLines.push(this.lines[i].uid);
+                //             }
+                //         }
+                //     }
+                //     else if (mouseY >= endY - 8 && mouseY <= endY + 8){
+                //         if (direction === -1){
+                //             if (mouseX >= centerX){
+                //                 this.highlightedLines.push(this.lines[i].uid);
+                //             }
+                //         } else {
+                //             if (mouseX <= centerX){
+                //                 this.highlightedLines.push(this.lines[i].uid);
+                //             }
+                //         }
+                //     }
+                // }
+            }
+            
+            for (let i = 0; i < lines.length; i++){
+                const line = lines[i];
+                const { x: startX, y: startY } = line.start;
+                const { x: endX, y: endY } = line.end;
+                if (this.highlightedLines.includes(line.uid)){
+                    this.ctx.strokeStyle = LINE_HOVER_COLOUR;
+                } else {
+                    this.ctx.strokeStyle = LINE_COLOUR;
+                }
+                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide);
+            }            
+        } catch(e) {
+            console.log("Something went wrong, skipping frame.");
         }
+
         window.requestAnimationFrame(this.eventLoop.bind(this));
     }
 }

@@ -6,7 +6,6 @@ node-component{
     box-shadow: var(--shadow-md);
     height: 48px;
     border-radius: 24px;
-    overflow: hidden;
     transition: box-shadow 80ms var(--ease-in-out);
     border: 1px solid var(--grey-300);
     padding: 0 1rem 0 4px;
@@ -16,6 +15,11 @@ node-component{
 
     &:hover{
         box-shadow: var(--shadow-xl);
+
+        connector-component{
+            opacity: 1;
+            visibility: visible;
+        }
     }
 
     &:focus{
