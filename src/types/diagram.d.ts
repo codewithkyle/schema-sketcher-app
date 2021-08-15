@@ -58,3 +58,8 @@ export interface Diagram{
         [uid:string]: Node,
     }
 }
+
+export type Point = {
+    x:number,
+    y:number,
+}

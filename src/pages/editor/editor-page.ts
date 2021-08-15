@@ -12,6 +12,7 @@ import db from "@codewithkyle/jsql";
 import EditorControls from "~components/editor-controls/editor-controls";
 import { createSubscription, publish } from "~lib/pubsub";
 import NodeComponent from "~components/node-component/node-component";
+import CanvasComponent from "~components/canvas-component/canvas-component";
 
 const COLORS = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "light-blue", "indigo", "violet", "purple", "pink", "rose"];
 const SHADES = ["200", "300", "400", "500", "600"];
@@ -253,6 +254,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                     ${Object.keys(this.model.diagram.nodes).map(key => {
                         return new NodeComponent(this.model.diagram.nodes[key], this.model.diagram.uid);
                     })}
+                    ${new CanvasComponent()}
                 </div>
             </div>
             ${new EditorControls(this.isMoving, this.scale, this.toggleMoveCallback.bind(this), this.scaleCallback.bind(this))}

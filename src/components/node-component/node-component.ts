@@ -4,6 +4,7 @@ import { html, render } from "lit-html";
 import { unsafeHTML } from "lit-html/directives/unsafe-html";
 import IconModal from "~components/icon-modal/icon-modal";
 import { css, mount } from "~controllers/env";
+import { publish } from "~lib/pubsub";
 import { Node } from "~types/diagram";
 
 interface INodeComponent extends Node {
@@ -92,6 +93,9 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
                 this.dataset.left = `${x}`;
                 this.prevX = x;
                 this.prevY = y;
+                publish("canvas", {
+                    type: "render",
+                });
             }
             else if (moveY) {
                 const x = parseInt(this.dataset.left);
@@ -102,6 +106,9 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
                 this.dataset.left = `${x}`;
                 this.prevX = x;
                 this.prevY = y;
+                publish("canvas", {
+                    type: "render",
+                });
             }
         }
     }
@@ -163,6 +170,9 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             this.dataset.left = `${x}`;
             this.prevX = e.clientX;
             this.prevY = e.clientY;
+            publish("canvas", {
+                type: "render",
+            });
         }
     }
 

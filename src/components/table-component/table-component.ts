@@ -3,6 +3,7 @@ import { html, render } from "lit-html";
 import { v4 as uuid } from "uuid";
 import ColumnComponent from "~components/column-component/column-component";
 import { css, mount } from "~controllers/env";
+import { publish } from "~lib/pubsub";
 import type { Column, Table } from "~types/diagram";
 
 
@@ -70,6 +71,9 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             this.dataset.left = `${x}`;
             this.prevX = e.clientX;
             this.prevY = e.clientY;
+            publish("canvas", {
+                type: "render",
+            });
         }
     }
 
@@ -120,6 +124,9 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
                 this.dataset.left = `${x}`;
                 this.prevX = x;
                 this.prevY = y;
+                publish("canvas", {
+                    type: "render",
+                });
             }
             else if (moveY) {
                 const x = parseInt(this.dataset.left);
@@ -130,6 +137,9 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
                 this.dataset.left = `${x}`;
                 this.prevX = x;
                 this.prevY = y;
+                publish("canvas", {
+                    type: "render",
+                });
             }
         }
     }
