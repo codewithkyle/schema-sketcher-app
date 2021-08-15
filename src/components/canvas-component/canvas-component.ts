@@ -217,8 +217,16 @@ export default class CanvasComponent extends HTMLElement{
                 centerX = endX + 16;
             }
             if (Math.abs(startY - endY) >= 32){
-                const offsetY = endY >= startY ? -8 : 8;
-                const offsetX = endX <= startX ? -8 : 8;
+                let offsetY;
+                let offsetX;
+                if (endX <= startX){
+                    offsetY = endY >= startY ? -8 : 8;
+                    offsetX = endX <= startX ? 8 : -8;
+                }
+                else {
+                    offsetY = endY >= startY ? -8 : 8;
+                    offsetX = endX <= startX ? 8 : -8;
+                }
                 this.ctx.lineTo(centerX + offsetX, startY);
                 this.ctx.arcTo(centerX, startY, centerX, (startY - offsetY), 8);
                 this.ctx.lineTo(centerX, endY + offsetY);
@@ -237,11 +245,28 @@ export default class CanvasComponent extends HTMLElement{
             else {
                 centerX = endX - 16;
             }
-            this.ctx.lineTo(centerX, startY);
-            this.ctx.lineTo(centerX, centerY);
-            this.ctx.lineTo(endX + 16, centerY);
-            this.ctx.lineTo(endX + 16, endY);
-            this.ctx.lineTo(endX, endY);
+            if (startY <= endY){
+                this.ctx.lineTo(centerX + 8, startY);
+                this.ctx.arcTo(centerX, startY, centerX, startY + 8, 8);
+                this.ctx.lineTo(centerX, centerY - 8);
+                this.ctx.arcTo(centerX, centerY, centerX + 8, centerY, 8);
+                this.ctx.lineTo(endX + 8, centerY);
+                this.ctx.arcTo(endX + 16, centerY, endX + 16, centerY + 8, 8);
+                this.ctx.lineTo(endX + 16, endY - 8);
+                this.ctx.arcTo(endX + 16, endY, endX - 8, endY, 8);
+                this.ctx.lineTo(endX, endY);
+            }
+            else {
+                this.ctx.lineTo(centerX + 8, startY);
+                this.ctx.arcTo(centerX, startY, centerX, startY - 8, 8);
+                this.ctx.lineTo(centerX, centerY + 8);
+                this.ctx.arcTo(centerX, centerY, centerX + 8, centerY, 8);
+                this.ctx.lineTo(endX + 8, centerY);
+                this.ctx.arcTo(endX + 16, centerY, endX + 16, centerY - 8, 8);
+                this.ctx.lineTo(endX + 16, endY + 8);
+                this.ctx.arcTo(endX + 16, endY, endX - 8, endY, 8);
+                this.ctx.lineTo(endX, endY);
+            }
         }
         else if (startSide === "right" && endSide === "left" && endX <= startX){
             if (startX >= endX){
@@ -250,11 +275,28 @@ export default class CanvasComponent extends HTMLElement{
             else {
                 centerX = endX + 16;
             }
-            this.ctx.lineTo(centerX, startY);
-            this.ctx.lineTo(centerX, centerY);
-            this.ctx.lineTo(endX - 16, centerY);
-            this.ctx.lineTo(endX - 16, endY);
-            this.ctx.lineTo(endX, endY);
+            if (startY <= endY){
+                this.ctx.lineTo(centerX - 8, startY);
+                this.ctx.arcTo(centerX, startY, centerX, startY + 8, 8);
+                this.ctx.lineTo(centerX, centerY - 8);
+                this.ctx.arcTo(centerX, centerY, centerX - 8, centerY, 8);
+                this.ctx.lineTo(endX - 8, centerY);
+                this.ctx.arcTo(endX - 16, centerY, endX - 16, centerY + 8, 8);
+                this.ctx.lineTo(endX - 16, endY - 8);
+                this.ctx.arcTo(endX - 16, endY, endX + 8, endY, 8);
+                this.ctx.lineTo(endX, endY);
+            }
+            else {
+                this.ctx.lineTo(centerX - 8, startY);
+                this.ctx.arcTo(centerX, startY, centerX, startY - 8, 8);
+                this.ctx.lineTo(centerX, centerY + 8);
+                this.ctx.arcTo(centerX, centerY, centerX - 8, centerY, 8);
+                this.ctx.lineTo(endX - 8, centerY);
+                this.ctx.arcTo(endX - 16, centerY, endX - 16, centerY - 8, 8);
+                this.ctx.lineTo(endX - 16, endY + 8);
+                this.ctx.arcTo(endX - 16, endY, endX + 8, endY, 8);
+                this.ctx.lineTo(endX, endY);
+            }
         }
         else {
             if (Math.abs(startY - endY) >= 16 && Math.abs(startX - endX) >= 16){
