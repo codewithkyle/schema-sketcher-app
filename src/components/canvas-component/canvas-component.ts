@@ -8,6 +8,7 @@ const LINE_HOVER_COLOUR = "#EC4899";
 
 interface StartPoint extends Point {
     id: string,
+    tableID: string,
 }
 
 class Line {
@@ -52,74 +53,24 @@ export default class CanvasComponent extends HTMLElement{
     }
 
     connectedCallback(){
-        setTimeout(()=>{
-            this.canvas = this.querySelector("canvas") || document.createElement("canvas");
+        this.canvas = this.querySelector("canvas") || document.createElement("canvas");
             if (!this.canvas.isConnected){
                 this.appendChild(this.canvas);
             }
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight - 64;
             this.ctx = this.canvas.getContext("2d");
-            this.canvas.addEventListener("mousemove", this.handleMouseMove, { capture: true });
-            this.canvas.addEventListener("mouseup", this.endMouseMove, { capture: true });
-            this.calcSize();
+            window.addEventListener("mousemove", this.handleMouseMove);
+            window.addEventListener("mouseup", this.endMouseMove);
             this.oldTime = performance.now();
-            this.eventLoop();
-        }, 150);      
+            this.eventLoop();   
     }
 
     disconnectedCallback(){
         this.eventLoop = async ()=>{};
         unsubscribe(this.ticketID);
-        this.canvas.removeEventListener("mousemove", this.handleMouseMove, { capture: true });
-        this.canvas.removeEventListener("mouseup", this.endMouseMove, { capture: true });
-    }
-
-    private calcSize(){
-        const nodes:Array<HTMLElement> = Array.from(document.body.querySelectorAll("table-component, node-component"));
-        let topX;
-        let topY;
-        let bottomX;
-        let bottomY;
-        for (let i = 0; i < nodes.length; i++){
-            const node:HTMLElement = nodes[i];
-            const bounds = node.getBoundingClientRect();
-            if (i === 0) {
-                topX = parseInt(node.dataset.left);
-                topY = parseInt(node.dataset.top);
-                bottomX = parseInt(node.dataset.left) + bounds.width;
-                bottomY = parseInt(node.dataset.top) + bounds.height;
-            }
-            else {
-                const tempX = parseInt(node.dataset.left);
-                const tempY = parseInt(node.dataset.top);
-                if (tempX < topX){
-                    topX = tempX;
-                }
-                if (tempY < topY){
-                    topY = tempY;
-                }
-                if (tempX + bounds.width > bottomX){
-                    bottomX = tempX + bounds.width;
-                }
-                if (tempY + bounds.height > bottomY){
-                    bottomY = tempY + bounds.height;
-                }
-            }
-        }
-        topX -= 18;
-        topY -= 18;
-        bottomX += 18;
-        bottomY += 18;
-        const width = bottomX - topX;
-        const height = bottomY - topY;
-        this.canvas.width = width;
-        this.canvas.height = height;
-        this.style.width = `${width}px`;
-        this.style.height = `${height}px`;
-        this.style.transform = `translate(${topX}px, ${topY}px)`;
-        this.x = topX;
-        this.y = topY;
-        this.w = width;
-        this.h = height;
+        window.removeEventListener("mousemove", this.handleMouseMove);
+        window.removeEventListener("mouseup", this.endMouseMove);
     }
 
     private endMouseMove:EventListener = (e:MouseEvent) => {
@@ -133,11 +84,12 @@ export default class CanvasComponent extends HTMLElement{
         };
     }
 
-    private startNewLine(x:number, y:number, id:string){
+    private startNewLine(x:number, y:number, id:string, tableID:string){
         this.openStartPoint = {
             x: x,
             y: y,
             id: id,
+            tableID: tableID,
         };
         this.mousePos = {
             x: x,
@@ -145,9 +97,9 @@ export default class CanvasComponent extends HTMLElement{
         };
     }
 
-    private endLine(id:string){
-        console.log(id);
-        if (this.openStartPoint !== null){
+    private endLine(id:string, tableID:string){
+        console.log(tableID, this.openStartPoint.tableID)
+        if (this.openStartPoint !== null && id !== this.openStartPoint.id && tableID !== this.openStartPoint.tableID){
             console.log(`Create line from ${this.openStartPoint.id} to ${id}`);
             this.lines.push({
                 start: this.openStartPoint.id,
@@ -160,14 +112,11 @@ export default class CanvasComponent extends HTMLElement{
 
     private inbox(e){
         switch(e.type){
-            case "render":
-                this.calcSize();
-                break;
             case "start":
-                this.startNewLine(e.x, e.y, e.id);
+                this.startNewLine(e.x, e.y, e.id, e.tableID);
                 break;
             case "end":
-                this.endLine(e.id);
+                this.endLine(e.id, e.tableID);
                 break;
             default:
                 console.warn(`Invalid 'canvas' message type: ${e.type}`);
@@ -221,7 +170,7 @@ export default class CanvasComponent extends HTMLElement{
                 let offsetX;
                 if (endX <= startX){
                     offsetY = endY >= startY ? -8 : 8;
-                    offsetX = endX <= startX ? 8 : -8;
+                    offsetX = endX <= startX ? -8 : 8;
                 }
                 else {
                     offsetY = endY >= startY ? -8 : 8;

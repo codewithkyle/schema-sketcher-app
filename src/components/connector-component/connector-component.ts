@@ -4,12 +4,14 @@ import { publish } from "~lib/pubsub";
 
 export default class ConnectorComponent extends HTMLElement{
     private columnID:string;
+    private tableID:string;
 
-    constructor(style:string, columnID:string, side:string){
+    constructor(style:string, columnID:string, side:string, tableID:string){
         super();
         this.style.cssText = style;
         this.columnID = columnID;
         this.id = `${columnID}_${side}`;
+        this.tableID = tableID;
         css(["connector-component"]);
     }
 
@@ -27,6 +29,7 @@ export default class ConnectorComponent extends HTMLElement{
             x: bounds.x,
             y: bounds.y,
             id: this.columnID,
+            tableID: this.tableID,
         });
     }
 
@@ -36,6 +39,7 @@ export default class ConnectorComponent extends HTMLElement{
         publish("canvas", {
             type: "end",
             id: this.columnID,
+            tableID: this.tableID,
         });
     }
 }

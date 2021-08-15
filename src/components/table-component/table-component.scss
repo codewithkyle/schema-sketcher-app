@@ -7,7 +7,6 @@ table-component{
     width: 320px;
     border-radius: 0.25rem;
     transition: box-shadow 80ms var(--ease-in-out);
-    opacity: 0.6;
 
     &:hover{
         box-shadow: var(--shadow-xl);

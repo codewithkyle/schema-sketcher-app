@@ -229,6 +229,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         publish("canvas", {
             type: "end",
             id: this.id,
+            tableID: this.tableID,
         });
     }
 
@@ -237,7 +238,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         this.tabIndex = 0;
         this.id = `${this.tableID}_${this.model.name.replace(/\s+/, "_")}`;
         const view = html`
-            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -6px;`, this.id, "left")}
+            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -6px;`, this.id, "left", this.tableID)}
             <div @mouseup=${this.endDraw} tabindex="0" draggable="true" class="w-full" flex="row nowrap items-center" @drag=${this.handleDragStart} @dragover=${this.handleDragOver} @dragend=${this.handleDragEnd} @drop=${this.handleDrop} @dragleave=${this.handleDragLeave}>
                 <div flex="row nowrap items-center" style="flex:1;width:100%">
                     ${this.renderPrimaryKey()}
@@ -254,7 +255,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
                     ${this.renderDelete()}
                 </div>
             </div>
-            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 6px);`, this.id, "right")}
+            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 6px);`, this.id, "right", this.tableID)}
         `;
         render(view, this);
     }

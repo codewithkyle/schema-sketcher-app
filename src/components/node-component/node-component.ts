@@ -93,9 +93,6 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
                 this.dataset.left = `${x}`;
                 this.prevX = x;
                 this.prevY = y;
-                publish("canvas", {
-                    type: "render",
-                });
             }
             else if (moveY) {
                 const x = parseInt(this.dataset.left);
@@ -106,9 +103,6 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
                 this.dataset.left = `${x}`;
                 this.prevX = x;
                 this.prevY = y;
-                publish("canvas", {
-                    type: "render",
-                });
             }
         }
     }

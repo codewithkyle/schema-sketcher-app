@@ -254,10 +254,10 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                     ${Object.keys(this.model.diagram.nodes).map(key => {
                         return new NodeComponent(this.model.diagram.nodes[key], this.model.diagram.uid);
                     })}
-                    ${new CanvasComponent()}
                 </div>
             </div>
             ${new EditorControls(this.isMoving, this.scale, this.toggleMoveCallback.bind(this), this.scaleCallback.bind(this))}
+            ${new CanvasComponent()}
         `;
         render(view, this);
     }
