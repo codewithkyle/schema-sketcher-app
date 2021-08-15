@@ -114,7 +114,30 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
 
     private handleInputKeyboard:EventListener = (e:KeyboardEvent) => {
         if (e instanceof KeyboardEvent && (e.metaKey || e.ctrlKey)){
+            let moveX = false;
+            let moveY = false;
+            let direction = 0;
             switch(e.key){
+                case "ArrowUp":
+                    e.preventDefault();
+                    moveY = true;
+                    direction = -1;
+                    break;
+                case "ArrowDown":
+                    e.preventDefault();
+                    moveY = true;
+                    direction = 1;
+                    break;
+                case "ArrowLeft":
+                    e.preventDefault();
+                    moveX = true;
+                    direction = -1;
+                    break;
+                case "ArrowRight":
+                    e.preventDefault();
+                    moveX = true;
+                    direction = 1;
+                    break;
                 case "Delete":
                     e.preventDefault();
                     this.confirmDelete();
@@ -127,6 +150,29 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
                     break;
                 default:
                     break;
+            }
+            if (e.shiftKey){
+                direction *= 10;
+            }
+            if (moveX){
+                const x = parseInt(this.dataset.left) + direction;
+                const y = parseInt(this.dataset.top);
+                this.style.transform = `translate(${x}px, ${y}px)`;
+                this.style.transform = `translate(${x}px, ${y}px)`;
+                this.dataset.top = `${y}`;
+                this.dataset.left = `${x}`;
+                this.prevX = x;
+                this.prevY = y;
+            }
+            else if (moveY) {
+                const x = parseInt(this.dataset.left);
+                const y = parseInt(this.dataset.top) + direction;
+                this.style.transform = `translate(${x}px, ${y}px)`;
+                this.style.transform = `translate(${x}px, ${y}px)`;
+                this.dataset.top = `${y}`;
+                this.dataset.left = `${x}`;
+                this.prevX = x;
+                this.prevY = y;
             }
         }
     }
