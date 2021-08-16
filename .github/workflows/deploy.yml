@@ -40,4 +40,4 @@ jobs:
         USERNAME: ${{ secrets.USERNAME }}
         PORT: 22
         KEY: ${{ secrets.SSHKEY }}
-        script: /home/gpcdocs/.nvm/versions/node/v14.17.0/bin/pm2 restart 0
+        script: /home/ubuntu/.nvm/versions/node/v14.17.5/bin/pm2 restart 0
