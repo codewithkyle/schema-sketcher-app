@@ -5,8 +5,7 @@ const cwd = process.cwd();
 const path = require("path");
 const fs = require("fs");
 
-const serverDir = path.join(cwd, "server");
-const log = path.join(serverDir, "404.log");
+const log = path.join(__dirname, "404.log");
 if (!fs.existsSync(log)){
     fs.writeFileSync(log, "");
 }
