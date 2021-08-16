@@ -262,6 +262,7 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX, endY);
             }
         }
+        // TODO: add support for top and bottom connections
         this.ctx.stroke();
     }
 
@@ -326,33 +327,65 @@ export default class CanvasComponent extends HTMLElement{
 
                 let startSide;
                 let endSide;
-                if (endColumnBounds.x >= startColumnBounds.x && endColumnBounds.x <= startColumnBounds.x + startColumnBounds.width){
-                    if (endColumnBounds.x > startColumnBounds.x + startColumnBounds.width / 2){
+
+                if (startColumnEL.tagName === "NODE-COMPONENT" && endColumnEL.tagName === "NODE-COMPONENT"){
+                    if (endColumnBounds.x + endColumnBounds.width <= startColumnBounds.x){
                         startSide = "right";
-                        endSide = "left";
+                    }
+                    else if (endColumnBounds.x >= startColumnBounds.x + startColumnBounds.width){
+                        startSide = "left"
+                    }
+                    else if (endColumnBounds.y <= startColumnBounds.y + startColumnBounds.height / 2){
+                        startSide = "top";   
                     }
                     else {
-                        startSide = "right";
+                        startSide = "bottom";
+                    }
+                    if (endColumnBounds.x >= startColumnBounds.x + startColumnBounds.width){
                         endSide = "right";
                     }
-                }
-                else if (startColumnBounds.x >= endColumnBounds.x && startColumnBounds.x <= endColumnBounds.x + endColumnBounds.width){
-                    if (startColumnBounds.x > endColumnBounds.x + endColumnBounds.width / 2){
-                        startSide = "left";
-                        endSide = "right";
-                    }
-                    else {
-                        startSide = "left";
+                    else if (endColumnBounds.x + endColumnBounds.width <= startColumnBounds.x){
                         endSide = "left";
                     }
+                    else if (endColumnBounds.y <= startColumnBounds.y + startColumnBounds.height / 2){
+                        endSide = "bottom";   
+                    }
+                    else {
+                        endSide = "top";
+                    }
                 }
-                else if (startColumnBounds.x < endColumnBounds.x){
-                    startSide = "right";
-                    endSide = "left";
+                else if (startColumnEL.tagName === "NODE-COMPONENT" && endColumnEL.tagName === "COLUMN-COMPONENT"){
+                    console.log("mix");
                 }
                 else {
-                    startSide = "left";
-                    endSide = "right";
+                    if (endColumnBounds.x >= startColumnBounds.x && endColumnBounds.x <= startColumnBounds.x + startColumnBounds.width){
+                        if (endColumnBounds.x > startColumnBounds.x + startColumnBounds.width / 2){
+                            startSide = "right";
+                            endSide = "left";
+                        }
+                        else {
+                            startSide = "right";
+                            endSide = "right";
+                        }
+                    }
+                    else if (startColumnBounds.x >= endColumnBounds.x && startColumnBounds.x <= endColumnBounds.x + endColumnBounds.width){
+                        if (startColumnBounds.x > endColumnBounds.x + endColumnBounds.width / 2){
+                            startSide = "left";
+                            endSide = "right";
+                        }
+                        else {
+                            startSide = "left";
+                            endSide = "left";
+                        }
+                    }
+                    else if (startColumnBounds.x < endColumnBounds.x){
+                        startSide = "right";
+                        endSide = "left";
+                    }
+                    else {
+                        startSide = "left";
+                        endSide = "right";
+                    }
                 }
 
                 const startEl:HTMLElement = await this.getElement(`#${this.lines[i].start}_${startSide}`);
@@ -368,13 +401,14 @@ export default class CanvasComponent extends HTMLElement{
                     x: endBounds.x + (endBounds.width / 2) - bounds.x,
                     y: endBounds.y + (endBounds.height / 2) - bounds.y,
                 };
-                lines.push({
-                    start: start,
-                    end: end,
-                    uid: this.lines[i].uid,
-                    startSide: startSide,
-                    endSide: endSide,
-                });
+                console.log(startSide, endSide);
+                // lines.push({
+                //     start: start,
+                //     end: end,
+                //     uid: this.lines[i].uid,
+                //     startSide: startSide,
+                //     endSide: endSide,
+                // });
                 // const mouseX = this.mousePos.x - bounds.x;
                 // const mouseY = this.mousePos.y - bounds.y;
                 // const { x: startX, y: startY } = start;
