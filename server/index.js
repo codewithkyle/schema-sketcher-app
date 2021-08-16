@@ -10,7 +10,7 @@ if (!fs.existsSync(log)){
     fs.writeFileSync(log, "");
 }
 
-const publicDir = path.join(cwd, "public");
+const publicDir = path.resolve(__dirname, "../public");
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(publicDir, "index.html"));
