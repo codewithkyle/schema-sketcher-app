@@ -245,7 +245,7 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX, endY);
             }
         }
-        else {
+        else if (startSide === "right" && endSide === "left") {
             if (Math.abs(startY - endY) >= 16 && Math.abs(startX - endX) >= 16){
                 // round
                 const offsetY = endY >= startY ? -8 : 8;
@@ -262,7 +262,10 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX, endY);
             }
         }
-        // TODO: add support for top and bottom connections
+        else {
+            this.ctx.lineTo(endX, endY);
+            console.warn("missing type: ", startSide, endSide);
+        }
         this.ctx.stroke();
     }
 
@@ -330,10 +333,10 @@ export default class CanvasComponent extends HTMLElement{
 
                 if (startColumnEL.tagName === "NODE-COMPONENT" && endColumnEL.tagName === "NODE-COMPONENT"){
                     if (endColumnBounds.x + endColumnBounds.width <= startColumnBounds.x){
-                        startSide = "right";
+                        startSide = "left";
                     }
                     else if (endColumnBounds.x >= startColumnBounds.x + startColumnBounds.width){
-                        startSide = "left"
+                        startSide = "right"
                     }
                     else if (endColumnBounds.y <= startColumnBounds.y + startColumnBounds.height / 2){
                         startSide = "top";   
@@ -342,10 +345,10 @@ export default class CanvasComponent extends HTMLElement{
                         startSide = "bottom";
                     }
                     if (endColumnBounds.x >= startColumnBounds.x + startColumnBounds.width){
-                        endSide = "right";
+                        endSide = "left";
                     }
                     else if (endColumnBounds.x + endColumnBounds.width <= startColumnBounds.x){
-                        endSide = "left";
+                        endSide = "right";
                     }
                     else if (endColumnBounds.y <= startColumnBounds.y + startColumnBounds.height / 2){
                         endSide = "bottom";   
@@ -394,7 +397,7 @@ export default class CanvasComponent extends HTMLElement{
                             }
                         }
                         else {
-                            endSide = "right";
+                            endSide = "left";
                         }
                     }
                     else if (endColumnBounds.x <= startColumnBounds.x){
@@ -455,69 +458,67 @@ export default class CanvasComponent extends HTMLElement{
                     endSide = "NO-CONNECTION"
                 }
 
-                console.log(startSide, endSide);
+                const startEl:HTMLElement = this.getElement(`#${this.lines[i].start}_${startSide}`);
+                const endEL:HTMLElement = this.getElement(`#${this.lines[i].end}_${endSide}`);
 
-                // const startEl:HTMLElement = this.getElement(`#${this.lines[i].start}_${startSide}`);
-                // const endEL:HTMLElement = this.getElement(`#${this.lines[i].end}_${endSide}`);
-
-                // const startBounds = startEl.getBoundingClientRect();
-                // const endBounds = endEL.getBoundingClientRect();
-                // const start = {
-                //     x: startBounds.x + (startBounds.width / 2) - bounds.x,
-                //     y: startBounds.y + (startBounds.height / 2) - bounds.y,
-                // },
-                // end = {
-                //     x: endBounds.x + (endBounds.width / 2) - bounds.x,
-                //     y: endBounds.y + (endBounds.height / 2) - bounds.y,
-                // };
+                const startBounds = startEl.getBoundingClientRect();
+                const endBounds = endEL.getBoundingClientRect();
+                const start = {
+                    x: startBounds.x + (startBounds.width / 2) - bounds.x,
+                    y: startBounds.y + (startBounds.height / 2) - bounds.y,
+                },
+                end = {
+                    x: endBounds.x + (endBounds.width / 2) - bounds.x,
+                    y: endBounds.y + (endBounds.height / 2) - bounds.y,
+                };
                 
-                // lines.push({
-                //     start: start,
-                //     end: end,
-                //     uid: this.lines[i].uid,
-                //     startSide: startSide,
-                //     endSide: endSide,
-                // });
-                // const mouseX = this.mousePos.x - bounds.x;
-                // const mouseY = this.mousePos.y - bounds.y;
-                // const { x: startX, y: startY } = start;
-                // const { x: endX, y: endY } = end;
-                // const aX = startX <= endX ? startX : endX;
-                // const aY = startY <= endY ? startY : endY;
-                // const bX = startX >= endX ? startX : endX;
-                // const bY = startY >= endY ? startY : endY;
-                // if (
-                //     mouseX >= aX && mouseX <= bX &&
-                //     mouseY >= aY && mouseY <= bY
-                // ) {
-                //     const centerX = (startX + endX) / 2;
-                //     const direction = startX <= endX ? -1 : 1;
-                //     if (mouseX >= centerX - 8 && mouseX <= centerX + 8){
-                //         this.highlightedLines.push(this.lines[i].uid);
-                //     }
-                //     else if (mouseY >= startY - 8 && mouseY <= startY + 8){
-                //         if (direction === -1){
-                //             if (mouseX <= centerX){
-                //                 this.highlightedLines.push(this.lines[i].uid);
-                //             }
-                //         } else {
-                //             if (mouseX >= centerX){
-                //                 this.highlightedLines.push(this.lines[i].uid);
-                //             }
-                //         }
-                //     }
-                //     else if (mouseY >= endY - 8 && mouseY <= endY + 8){
-                //         if (direction === -1){
-                //             if (mouseX >= centerX){
-                //                 this.highlightedLines.push(this.lines[i].uid);
-                //             }
-                //         } else {
-                //             if (mouseX <= centerX){
-                //                 this.highlightedLines.push(this.lines[i].uid);
-                //             }
-                //         }
-                //     }
-                // }
+                lines.push({
+                    start: start,
+                    end: end,
+                    uid: this.lines[i].uid,
+                    startSide: startSide,
+                    endSide: endSide,
+                });
+                const mouseX = this.mousePos.x - bounds.x;
+                const mouseY = this.mousePos.y - bounds.y;
+                const { x: startX, y: startY } = start;
+                const { x: endX, y: endY } = end;
+                const aX = startX <= endX ? startX : endX;
+                const aY = startY <= endY ? startY : endY;
+                const bX = startX >= endX ? startX : endX;
+                const bY = startY >= endY ? startY : endY;
+                if (
+                    mouseX >= aX && mouseX <= bX &&
+                    mouseY >= aY && mouseY <= bY
+                ) {
+                    const centerX = (startX + endX) / 2;
+                    const direction = startX <= endX ? -1 : 1;
+                    if (mouseX >= centerX - 8 && mouseX <= centerX + 8){
+                        this.highlightedLines.push(this.lines[i].uid);
+                    }
+                    else if (mouseY >= startY - 8 && mouseY <= startY + 8){
+                        if (direction === -1){
+                            if (mouseX <= centerX){
+                                this.highlightedLines.push(this.lines[i].uid);
+                            }
+                        } else {
+                            if (mouseX >= centerX){
+                                this.highlightedLines.push(this.lines[i].uid);
+                            }
+                        }
+                    }
+                    else if (mouseY >= endY - 8 && mouseY <= endY + 8){
+                        if (direction === -1){
+                            if (mouseX >= centerX){
+                                this.highlightedLines.push(this.lines[i].uid);
+                            }
+                        } else {
+                            if (mouseX <= centerX){
+                                this.highlightedLines.push(this.lines[i].uid);
+                            }
+                        }
+                    }
+                }
             }
             
             for (let i = 0; i < lines.length; i++){
