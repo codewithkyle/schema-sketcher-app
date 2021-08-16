@@ -1,0 +1,43 @@
+name: Platform Deployment
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Setup Node and NPM
+      uses: actions/setup-node@v1
+      with:
+        node-version: 14.5.0
+
+    - name: Install NPM Packages
+      run: npm ci
+
+    - name: Compile
+      run: npm run production
+
+    - name: Load SSH Key
+      uses: webfactory/ssh-agent@v0.4.1
+      with:
+        ssh-private-key: ${{ secrets.SSHKEY }}
+
+    - name: Deploy
+      run: rsync -azh --delete-after --exclude={'config.js','.env','/src/','/build/','/.github/','.gitignore','package.json','package-lock.json','tsconfig.json','asset-manager.config.js','brixi.config.js','cssmosnter.config.js'} -e "ssh -o StrictHostKeyChecking=no" ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/schema-sketcher/
+
+    - name: Post Deployment
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        USERNAME: ${{ secrets.USERNAME }}
+        PORT: 22
+        KEY: ${{ secrets.SSHKEY }}
+        script: /home/gpcdocs/.nvm/versions/node/v14.17.0/bin/pm2 restart 0
