@@ -266,12 +266,12 @@ export default class CanvasComponent extends HTMLElement{
         this.ctx.stroke();
     }
 
-    private async getElement(id:string):Promise<HTMLElement>{
+    private getElement(id:string):HTMLElement{
         let el = document.body.querySelector(id);
         return el as HTMLElement;
     }
 
-    private async eventLoop() {
+    private eventLoop() {
         const newTime = performance.now();
         const deltaTime = (newTime - this.oldTime) / 1000;
         this.oldTime = newTime;
@@ -284,7 +284,7 @@ export default class CanvasComponent extends HTMLElement{
         
             if (this.openStartPoint !== null){
                 this.ctx.strokeStyle = LINE_COLOUR;
-                const startColumnEl:HTMLElement = document.body.querySelector(`#${this.openStartPoint.id}`); 
+                const startColumnEl:HTMLElement = this.getElement(`#${this.openStartPoint.id}`); 
                 const startColumnBounds = startColumnEl.getBoundingClientRect();
                 const { x: endX, y: endY } = this.mousePos;
                 let startSide;
@@ -310,7 +310,7 @@ export default class CanvasComponent extends HTMLElement{
                     startSide = "left";
                     endSide = "right";
                 }
-                const startEl:HTMLElement = await this.getElement(`#${this.openStartPoint.id}_${startSide}`);
+                const startEl:HTMLElement = this.getElement(`#${this.openStartPoint.id}_${startSide}`);
                 const startBounds = startEl.getBoundingClientRect();
                 const startX = startBounds.x - bounds.x + startBounds.width / 2;
                 const startY = startBounds.y - bounds.y + startBounds.height / 2;
@@ -319,8 +319,8 @@ export default class CanvasComponent extends HTMLElement{
         
             const lines = [];
             for (let i = 0; i < this.lines.length; i++){
-                const startColumnEL:HTMLElement = await this.getElement(`#${this.lines[i].start}`);
-                const endColumnEL:HTMLElement = await this.getElement(`#${this.lines[i].end}`);
+                const startColumnEL:HTMLElement = this.getElement(`#${this.lines[i].start}`);
+                const endColumnEL:HTMLElement = this.getElement(`#${this.lines[i].end}`);
 
                 const startColumnBounds = startColumnEL.getBoundingClientRect();
                 const endColumnBounds = endColumnEL.getBoundingClientRect();
@@ -355,9 +355,72 @@ export default class CanvasComponent extends HTMLElement{
                     }
                 }
                 else if (startColumnEL.tagName === "NODE-COMPONENT" && endColumnEL.tagName === "COLUMN-COMPONENT"){
-                    console.log("mix");
+                    if (endColumnBounds.x >= startColumnBounds.x + startColumnBounds.width && Math.abs(endColumnBounds.x - (startColumnBounds.width + startColumnBounds.x)) >= 64){
+                        startSide = "right";
+                        endSide = "left";
+                    }
+                    else if (endColumnBounds.x + endColumnBounds.width <= startColumnBounds.x && Math.abs(endColumnBounds.x + endColumnBounds.width - startColumnBounds.x) >= 64){
+                        startSide = "left";
+                        endSide = "right";
+                    }
+                    else if (endColumnBounds.x + endColumnBounds.width / 2 >= startColumnBounds.x + startColumnBounds.width / 2){
+                        endSide = "left";
+                        if (endColumnBounds.y <= startColumnBounds.y + startColumnBounds.height / 2){
+                            startSide = "top";
+                        }
+                        else {
+                            startSide = "bottom";
+                        }
+                    }
+                    else {
+                        endSide = "right";
+                        if (endColumnBounds.y <= startColumnBounds.y + startColumnBounds.height / 2){
+                            startSide = "top";
+                        }
+                        else {
+                            startSide = "bottom";
+                        }
+                    }
                 }
-                else {
+                else if (startColumnEL.tagName === "COLUMN-COMPONENT" && endColumnEL.tagName === "NODE-COMPONENT"){
+                    if (endColumnBounds.x >= startColumnBounds.x + startColumnBounds.width){
+                        startSide = "right";
+                        if (Math.abs(startColumnBounds.y - endColumnBounds.y) >= 64){
+                            if (endColumnBounds.y <= startColumnBounds.y + startColumnBounds.height / 2) {
+                                endSide = "bottom";
+                            }
+                            else {
+                                endSide = "top";
+                            }
+                        }
+                        else {
+                            endSide = "right";
+                        }
+                    }
+                    else if (endColumnBounds.x <= startColumnBounds.x){
+                        startSide = "left";
+                        if (Math.abs(startColumnBounds.y - endColumnBounds.y) >= 64){
+                            if (endColumnBounds.y <= startColumnBounds.y + startColumnBounds.height / 2) {
+                                endSide = "bottom";
+                            }
+                            else {
+                                endSide = "top";
+                            }
+                        }
+                        else {
+                            endSide = "right";
+                        }
+                    }
+                    else if (endColumnBounds.x <= startColumnBounds.x + startColumnBounds.width / 2){
+                        startSide = "left";
+                        endSide = "left";
+                    }
+                    else {
+                        startSide = "right";
+                        endSide = "right";
+                    }
+                }
+                else if (startColumnEL.tagName === "COLUMN-COMPONENT" && endColumnEL.tagName === "COLUMN-COMPONENT"){
                     if (endColumnBounds.x >= startColumnBounds.x && endColumnBounds.x <= startColumnBounds.x + startColumnBounds.width){
                         if (endColumnBounds.x > startColumnBounds.x + startColumnBounds.width / 2){
                             startSide = "right";
@@ -387,21 +450,27 @@ export default class CanvasComponent extends HTMLElement{
                         endSide = "right";
                     }
                 }
+                else {
+                    startSide = "NO-CONNECTION";
+                    endSide = "NO-CONNECTION"
+                }
 
-                const startEl:HTMLElement = await this.getElement(`#${this.lines[i].start}_${startSide}`);
-                const endEL:HTMLElement = await this.getElement(`#${this.lines[i].end}_${endSide}`);
-
-                const startBounds = startEl.getBoundingClientRect();
-                const endBounds = endEL.getBoundingClientRect();
-                const start = {
-                    x: startBounds.x + (startBounds.width / 2) - bounds.x,
-                    y: startBounds.y + (startBounds.height / 2) - bounds.y,
-                },
-                end = {
-                    x: endBounds.x + (endBounds.width / 2) - bounds.x,
-                    y: endBounds.y + (endBounds.height / 2) - bounds.y,
-                };
                 console.log(startSide, endSide);
+
+                // const startEl:HTMLElement = this.getElement(`#${this.lines[i].start}_${startSide}`);
+                // const endEL:HTMLElement = this.getElement(`#${this.lines[i].end}_${endSide}`);
+
+                // const startBounds = startEl.getBoundingClientRect();
+                // const endBounds = endEL.getBoundingClientRect();
+                // const start = {
+                //     x: startBounds.x + (startBounds.width / 2) - bounds.x,
+                //     y: startBounds.y + (startBounds.height / 2) - bounds.y,
+                // },
+                // end = {
+                //     x: endBounds.x + (endBounds.width / 2) - bounds.x,
+                //     y: endBounds.y + (endBounds.height / 2) - bounds.y,
+                // };
+                
                 // lines.push({
                 //     start: start,
                 //     end: end,
@@ -463,6 +532,7 @@ export default class CanvasComponent extends HTMLElement{
                 this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide);
             }            
         } catch(e) {
+            console.error(e);
             console.log("Something went wrong, skipping frame.");
         }
 
