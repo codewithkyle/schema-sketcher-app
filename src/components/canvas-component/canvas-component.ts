@@ -193,7 +193,6 @@ export default class CanvasComponent extends HTMLElement{
                 centerX = endX - 16;
             }
             if (startY <= endY){
-                console.log("1");
                 this.ctx.lineTo(centerX + 8, startY);
                 this.ctx.arcTo(centerX, startY, centerX, startY + 8, 8);
                 this.ctx.lineTo(centerX, centerY - 8);
@@ -205,7 +204,6 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX, endY);
             }
             else {
-                console.log("2");
                 this.ctx.lineTo(centerX + 8, startY);
                 this.ctx.arcTo(centerX, startY, centerX, startY - 8, 8);
                 this.ctx.lineTo(centerX, centerY + 8);
@@ -225,7 +223,6 @@ export default class CanvasComponent extends HTMLElement{
                 centerX = endX + 16;
             }
             if (startY <= endY){
-                console.log("3");
                 this.ctx.lineTo(centerX - 8, startY);
                 this.ctx.arcTo(centerX, startY, centerX, startY + 8, 8);
                 this.ctx.lineTo(centerX, centerY - 8);
@@ -237,7 +234,6 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX, endY);
             }
             else {
-                console.log("4");
                 this.ctx.lineTo(centerX - 8, startY);
                 this.ctx.arcTo(centerX, startY, centerX, startY - 8, 8);
                 this.ctx.lineTo(centerX, centerY + 8);
@@ -249,7 +245,7 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX, endY);
             }
         }
-        else if (startSide === "right" && endSide === "left") {
+        else if (startSide === "right" && endSide === "left" || startSide = "left" && endSide = "right") {
             if (Math.abs(startY - endY) >= 16 && Math.abs(startX - endX) >= 16){
                 // round
                 const offsetY = endY >= startY ? -8 : 8;
