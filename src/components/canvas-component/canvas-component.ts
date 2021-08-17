@@ -185,7 +185,7 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX, endY);
             }
         }
-        else if (startSide === "left" && endSide === "right" /*&& startX <= endX*/){
+        else if (startSide === "left" && endSide === "right" && startX <= endX){
             if (startX <= endX){
                 centerX = startX - 16;
             }
@@ -217,7 +217,7 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX, endY);
             }
         }
-        else if (startSide === "right" && endSide === "left" /* && endX <= startX*/){
+        else if (startSide === "right" && endSide === "left" && endX <= startX){
             if (startX >= endX){
                 centerX = startX + 16;
             }
