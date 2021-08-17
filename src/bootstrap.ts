@@ -4,7 +4,7 @@ import db from "@codewithkyle/jsql";
     // @ts-ignore
     const { env } = await import("/config.js");
     if (env === "production"){
-        await navigator.serviceWorker.register('/service-worker.js');
+        await navigator.serviceWorker.register(`${location.origin}/service-worker.js`);
     }
 
     // @ts-ignore
