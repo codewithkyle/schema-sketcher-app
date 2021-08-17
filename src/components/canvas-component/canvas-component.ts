@@ -185,7 +185,7 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX, endY);
             }
         }
-        else if (startSide === "left" && endSide === "right" && startX <= endX){
+        else if (startSide === "left" && endSide === "right" /*&& startX <= endX*/){
             if (startX <= endX){
                 centerX = startX - 16;
             }
@@ -215,7 +215,7 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX, endY);
             }
         }
-        else if (startSide === "right" && endSide === "left" && endX <= startX){
+        else if (startSide === "right" && endSide === "left" /* && endX <= startX*/){
             if (startX >= endX){
                 centerX = startX + 16;
             }
@@ -444,12 +444,11 @@ export default class CanvasComponent extends HTMLElement{
                             endSide = "left";
                         }
                     }
-                    else if (startColumnBounds.x + startColumnBounds.width <= endColumnBounds.x){
+                    else if (startColumnBounds.x + startColumnBounds.width >= endColumnBounds.x){
                         startSide = "right";
                         endSide = "left";
                     }
                     else {
-                        console.log("asdf");
                         startSide = "left";
                         endSide = "right";
                     }
