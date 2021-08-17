@@ -7,7 +7,7 @@ self.addEventListener('fetch', event => event.respondWith(onFetch(event)));
 const cacheNamePrefix = 'resource-cache-';
 const cacheName = `${cacheNamePrefix}${self.manifest.version}`;
 
-const STATIC_ASSETS = ["/", "/schema.json", "/config.js", "/stream.worker.js", "/jsql.worker.js"];
+const STATIC_ASSETS = ["/", "/schema.json", "/config.js", "/static/stream.worker.js", "/static/jsql.worker.js"];
 
 // Cache files when the service worker is installed or updated
 async function onInstall(event) {
