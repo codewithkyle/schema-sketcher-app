@@ -12,6 +12,10 @@ node-component{
     display: flex;
     align-items: center;
     flex-flow: row nowrap;
+    
+    .canvas:not([cursor="auto"]) & {
+        pointer-events: none;
+    }
 
     &:hover{
         box-shadow: var(--shadow-xl);
