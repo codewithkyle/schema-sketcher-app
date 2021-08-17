@@ -59,7 +59,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         this.update({
             diagram: diagram,
         });
-        this.setCursor("auto");
     }
 
     private getRandomColor():string{
@@ -244,10 +243,21 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         }
     }
     
+    private getCursorType(){
+        let cursor = "auto";
+        if (isMoving){
+            cursor = "grab";
+        }
+        else if (this.forceMove) {
+            cursor = "hand";   
+        }
+        return cursor;
+    }
+    
     override render(){
         const view = html`
             ${new EditorHeader(this.model.diagram.name, this.updateName.bind(this), this.model.diagram.uid)}
-            <div class="canvas js-canvas" @mousedown=${this.handleMouseDown} @mouseup=${this.handleMouseUp} @mousemove=${this.handleMouseMove} @contextmenu=${this.handleContextMenu}>
+            <div cursor="${this.getCursorType()}" class="canvas js-canvas" @mousedown=${this.handleMouseDown} @mouseup=${this.handleMouseUp} @mousemove=${this.handleMouseMove} @contextmenu=${this.handleContextMenu}>
                 <div data-scale="${this.scale}" data-top="${this.y}" data-left="${this.x}" style="transform: translate(${this.x}px, ${this.y}px) scale(${this.scale});" class="diagram js-anchor">
                     ${Object.keys(this.model.diagram.tables).map((key:string, index:number) => {
                         return new TableComponent(this.model.diagram.tables[key], this.model.diagram.uid);
