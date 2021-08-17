@@ -1,4 +1,4 @@
-export const debounce = (callback, wait) => {
+export default function debounce(callback, wait) {
   let timeoutId = null;
   return (...args) => {
     window.clearTimeout(timeoutId);
