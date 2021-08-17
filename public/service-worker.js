@@ -12,7 +12,7 @@ const STATIC_ASSETS = ["/", "/schema.json", "/config.js"];
 // Cache files when the service worker is installed or updated
 async function onInstall(event) {
     self.skipWaiting();
-    const assets = [...STATIC_ASSETS, ...self.manifest.asset];
+    const assets = [...STATIC_ASSETS, ...self.manifest.assets];
     const assetsRequests = assets.map(asset => {
         return new Request(asset, {
             cache: "reload",
