@@ -15,6 +15,10 @@ table-component{
     &:focus{
         box-shadow: var(--shadow-xl), var(--focus-ring);
     }
+    
+    .canvas:not([cursor="auto"]) & {
+        pointer-events: none;
+    }
 
     header{
         display: flex;
