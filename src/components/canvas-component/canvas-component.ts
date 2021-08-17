@@ -444,7 +444,7 @@ export default class CanvasComponent extends HTMLElement{
                             endSide = "left";
                         }
                     }
-                    else if (startColumnBounds.x < endColumnBounds.x){
+                    else if (startColumnBounds.x + startColumnBounds.width <= endColumnBounds.x){
                         startSide = "right";
                         endSide = "left";
                     }
