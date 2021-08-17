@@ -3,15 +3,15 @@ import db from "@codewithkyle/jsql";
 (async () => {
     // @ts-ignore
     const { env } = await import("/config.js");
-    if (env === "production"){
+    if (env === "asdf"){
         await navigator.serviceWorker.register('service-worker.js');
     }
 
     // @ts-ignore
     db.start({
-        scheam: "/scheam.json",
-        dbWorker: "/static/jsql.worker.js",
-        streamWorker: "/static/stream.worker.js",
+        scheam: `${location.origin}/scheam.json`,
+        dbWorker: `${location.origin}/static/jsql.worker.js`,
+        streamWorker: `${location.origin}/static/stream.worker.js`,
     });
 
     // @ts-ignore
