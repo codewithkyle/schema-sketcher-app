@@ -245,7 +245,7 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX, endY);
             }
         }
-        else if (startSide === "right" && endSide === "left" || startSide = "left" && endSide = "right") {
+        else if (startSide === "right" && endSide === "left" || startSide === "left" && endSide === "right") {
             if (Math.abs(startY - endY) >= 16 && Math.abs(startX - endX) >= 16){
                 // round
                 const offsetY = endY >= startY ? -8 : 8;
