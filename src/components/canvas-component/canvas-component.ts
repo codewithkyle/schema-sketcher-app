@@ -2,6 +2,7 @@ import { css, mount } from "~controllers/env";
 import { createSubscription, subscribe, unsubscribe } from "~lib/pubsub";
 import type { Point } from "~types/diagram";
 import { v4 as uuid } from "uuid";
+import debounce from "../../utils/debounce";
 
 const LINE_COLOUR = "#9CA3AF";
 const LINE_HOVER_COLOUR = "#EC4899";
@@ -62,6 +63,10 @@ export default class CanvasComponent extends HTMLElement{
             this.ctx = this.canvas.getContext("2d");
             window.addEventListener("mousemove", this.handleMouseMove);
             window.addEventListener("mouseup", this.endMouseMove);
+            window.addEventListener("resize", debounce(()=>{
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight - 64;
+            }, 300));
             this.oldTime = performance.now();
             this.eventLoop();   
     }
