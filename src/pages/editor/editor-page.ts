@@ -245,7 +245,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     
     private getCursorType(){
         let cursor = "auto";
-        if (isMoving){
+        if (this.isMoving){
             cursor = "grab";
         }
         else if (this.forceMove) {
