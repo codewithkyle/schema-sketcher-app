@@ -264,7 +264,7 @@ export default class CanvasComponent extends HTMLElement{
         }
         else {
             this.ctx.lineTo(endX, endY);
-            console.warn("missing type: ", startSide, endSide);
+            console.warn(`missing type: ${startSide} ${endSide}`);
         }
         this.ctx.stroke();
     }
@@ -449,6 +449,7 @@ export default class CanvasComponent extends HTMLElement{
                         endSide = "left";
                     }
                     else {
+                        console.log("asdf");
                         startSide = "left";
                         endSide = "right";
                     }
