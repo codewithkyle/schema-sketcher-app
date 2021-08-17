@@ -8,7 +8,11 @@ import db from "@codewithkyle/jsql";
     }
 
     // @ts-ignore
-    await db.start();
+    db.start({
+        scheam: "/scheam.json",
+        dbWorker: "/static/jsql.worker.js",
+        streamWorker: "/static/stream.worker.js",
+    });
 
     // @ts-ignore
     const items = await db.query("SELECT name FROM icons");
