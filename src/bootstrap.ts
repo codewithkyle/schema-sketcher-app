@@ -3,7 +3,7 @@ import db from "@codewithkyle/jsql";
 (async () => {
     // @ts-ignore
     const { env } = await import("/config.js");
-    if (env === "asdf"){
+    if (env === "production"){
         await navigator.serviceWorker.register('service-worker.js');
     }
 
