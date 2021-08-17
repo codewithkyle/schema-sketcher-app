@@ -59,6 +59,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         this.update({
             diagram: diagram,
         });
+        this.setCursor("auto");
     }
 
     private getRandomColor():string{
