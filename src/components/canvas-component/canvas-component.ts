@@ -129,10 +129,10 @@ export default class CanvasComponent extends HTMLElement{
                 this.forceHighlight = e.ref;
                 break;
             case "start":
-                this.startNewLine(e.x, e.y, e.id, e.tableID);
+                this.startNewLine(e.x, e.y, e.id, e.tableID, e.refs);
                 break;
             case "end":
-                this.endLine(e.id, e.tableID);
+                this.endLine(e.id, e.tableID, e.refs);
                 break;
             default:
                 console.warn(`Invalid 'canvas' message type: ${e.type}`);
