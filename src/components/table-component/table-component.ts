@@ -54,6 +54,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     private handleMouseLeave:EventListener = (e:Event) => {
         e.preventDefault();
         e.stopImmediatePropagation();
+        console.log(`mouse is over table ${this.model.uid}`);
         publish("canvas", {
             type: "clear-highlight",
             ref: this.model.uid,
