@@ -280,10 +280,10 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
                 ${unsafeHTML(icon)}
             </button>
             <input value="${this.model.text}" type="text" @input=${this.handleInput} @keydown=${this.handleInputKeyboard}>
-            ${new ConnectorComponent(`top: -6px;left: 16px;`, this.id, "top", this.id)}
-            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 6px);`, this.id, "right", this.id)}
-            ${new ConnectorComponent(`top: calc(100% - 6px);left: 16px;`, this.id, "bottom", this.id)}
-            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -6px;`, this.id, "left", this.id)}
+            ${new ConnectorComponent(`top: -6px;left: 16px;`, this.id, "top", this.id, [this.model.uid])}
+            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 6px);`, this.id, "right", this.id, [this.model.uid])}
+            ${new ConnectorComponent(`top: calc(100% - 6px);left: 16px;`, this.id, "bottom", this.id, [this.model.uid])}
+            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -6px;`, this.id, "left", this.id, [this.model.uid])}
         `;
         render(view, this);
     }
