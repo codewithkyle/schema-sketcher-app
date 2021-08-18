@@ -40,6 +40,7 @@ export default class CanvasComponent extends HTMLElement{
     private openStartPoint:StartPoint;
     private mousePos:Point;
     private ticketID: string;
+    private forceHighlight: string;
 
     constructor(){
         super();
@@ -51,6 +52,7 @@ export default class CanvasComponent extends HTMLElement{
         this.lines = [];
         this.openStartPoint = null;
         this.mousePos = null;
+        this.forceHighlight = null;
         css(["canvas-component"]);
         createSubscription("canvas");
         this.ticketID = subscribe("canvas", this.inbox.bind(this));
@@ -120,8 +122,11 @@ export default class CanvasComponent extends HTMLElement{
 
     private inbox(e){
         switch(e.type){
+            case "clear-highlight":
+                this.forceHighlight = null;
+                break;
             case "highlight":
-                console.log(e.ref);
+                this.forceHighlight = e.ref;
                 break;
             case "start":
                 this.startNewLine(e.x, e.y, e.id, e.tableID);
@@ -575,6 +580,7 @@ export default class CanvasComponent extends HTMLElement{
                     uid: this.lines[i].uid,
                     startSide: startSide,
                     endSide: endSide,
+                    refs: this.lines[i].refs,
                 });
                 // Highlight logic
                 // const mouseX = this.mousePos.x - bounds.x;
@@ -623,7 +629,7 @@ export default class CanvasComponent extends HTMLElement{
                 const line = lines[i];
                 const { x: startX, y: startY } = line.start;
                 const { x: endX, y: endY } = line.end;
-                if (this.highlightedLines.includes(line.uid)){
+                if (this.highlightedLines.includes(line.uid) || this.forceHighlight !== null && line.refs.includes(this.forceHighlight)){
                     this.ctx.strokeStyle = LINE_HOVER_COLOUR;
                 } else {
                     this.ctx.strokeStyle = LINE_COLOUR;
