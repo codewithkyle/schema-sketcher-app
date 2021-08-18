@@ -10,17 +10,20 @@ const LINE_HOVER_COLOUR = "#EC4899";
 interface StartPoint extends Point {
     id: string,
     tableID: string,
+    refs: Array<string>,
 }
 
 class Line {
     public start: string;
     public end: string;
     public uid: string;
+    public refs: Array<string>;
     
     constructor(start:string, end:string, uid:string){
         this.start = start;
         this.end = end;
         this.uid = uid;
+        this.refs = [];
     }
 }
 
@@ -89,12 +92,13 @@ export default class CanvasComponent extends HTMLElement{
         };
     }
 
-    private startNewLine(x:number, y:number, id:string, tableID:string){
+    private startNewLine(x:number, y:number, id:string, tableID:string, refs: Array<string> = []){
         this.openStartPoint = {
             x: x,
             y: y,
             id: id,
             tableID: tableID,
+            refs: refs,
         };
         this.mousePos = {
             x: x,
@@ -102,12 +106,13 @@ export default class CanvasComponent extends HTMLElement{
         };
     }
 
-    private endLine(id:string, tableID:string){
+    private endLine(id:string, tableID:string, refs:Array<string> = []){
         if (this.openStartPoint !== null && id !== this.openStartPoint.id && tableID !== this.openStartPoint.tableID){
             this.lines.push({
                 start: this.openStartPoint.id,
                 end: id,
                 uid: uuid(),
+                refs: [...this.openStartPoint.refs, ...refs],
             });
             this.openStartPoint = null;
         }
@@ -115,6 +120,9 @@ export default class CanvasComponent extends HTMLElement{
 
     private inbox(e){
         switch(e.type){
+            case "highlight":
+                console.log(e.ref);
+                break;
             case "start":
                 this.startNewLine(e.x, e.y, e.id, e.tableID);
                 break;
