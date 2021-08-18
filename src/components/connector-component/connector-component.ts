@@ -6,19 +6,17 @@ import { v4 as uuid } from "uuid";
 export default class ConnectorComponent extends HTMLElement{
     private columnID:string;
     private tableID:string;
-    private tableUID:string;
-    private columnUID:string;
+    private refs: Array<string>;
     private uid:string;
     
-    constructor(style:string, columnID:string, side:string, tableID:string, tableUID:string, columnUID:string){
+    constructor(style:string, columnID:string, side:string, tableID:string, refs:Array<string> = []){
         super();
         this.uid = uuid();
         this.style.cssText = style;
         this.columnID = columnID;
         this.id = `${columnID}_${side}`;
         this.tableID = tableID;
-        this.tableUID = tableUID;
-        this.columnUID = columnUID;
+        this.refs = refs;
         css(["connector-component"]);
     }
 
@@ -57,7 +55,7 @@ export default class ConnectorComponent extends HTMLElement{
             y: bounds.y,
             id: this.columnID,
             tableID: this.tableID,
-            refs: [this.tableUID, this.columnUID, this.uid],
+            refs: [...this.refs, this.uid],
         });
     }
 
@@ -68,7 +66,7 @@ export default class ConnectorComponent extends HTMLElement{
             type: "end",
             id: this.columnID,
             tableID: this.tableID,
-            refs: [this.tableUID, this.columnUID, this.uid],
+            refs: [...this.refs, this.uid],
         });
     }
 }
