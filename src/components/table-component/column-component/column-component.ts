@@ -18,14 +18,16 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
     private addColumnCallback:Function;
     private diagramID: string;
     private tableID: string;
+    private tableUID: string,
 
-    constructor(data:Column, moveCallback:Function, startMoveCallback:Function, renderAllOptions:boolean, addColumnCallback:Function, diagramID:string, tableID:string){
+    constructor(data:Column, moveCallback:Function, startMoveCallback:Function, renderAllOptions:boolean, addColumnCallback:Function, diagramID:string, tableID:string, tableUID:string){
         super();
         this.moveCallback = moveCallback;
         this.startMoveCallback = startMoveCallback;
         this.addColumnCallback = addColumnCallback;
         this.diagramID = diagramID;
         this.tableID = tableID;
+        this.tableUID = tableUID;
         this.model = {...data, ...{
             renderAllOptions: renderAllOptions,
             columnTypes: [],
@@ -255,7 +257,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
                     ${this.renderDelete()}
                 </div>
             </div>
-            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 6px);`, this.id, "right", this.tableID)}
+            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 6px);`, this.id, "right", this.tableID, this.tableUID, this.model.uid)}
         `;
         render(view, this);
     }
