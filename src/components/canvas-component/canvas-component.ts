@@ -631,6 +631,7 @@ export default class CanvasComponent extends HTMLElement{
                 const line = lines[i];
                 const { x: startX, y: startY } = line.start;
                 const { x: endX, y: endY } = line.end;
+                console.log(line.refs);
                 if (this.highlightedLines.includes(line.uid) || this.forceHighlight !== null && line.refs.includes(this.forceHighlight)){
                     this.ctx.strokeStyle = LINE_HOVER_COLOUR;
                 } else {
