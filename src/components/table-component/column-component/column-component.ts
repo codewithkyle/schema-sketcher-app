@@ -18,7 +18,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
     private addColumnCallback:Function;
     private diagramID: string;
     private tableID: string;
-    private tableUID: string,
+    private tableUID: string;
 
     constructor(data:Column, moveCallback:Function, startMoveCallback:Function, renderAllOptions:boolean, addColumnCallback:Function, diagramID:string, tableID:string, tableUID:string){
         super();
