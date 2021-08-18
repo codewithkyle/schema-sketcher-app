@@ -54,6 +54,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
     private handleMouseEnter:EventListener = (e:Event) => {
         e.preventDefault();
         e.stopImmediatePropagation();
+        console.log(`mouse is over column ${this.model.uid}`);
         publish("canvas", {
             type: "highlight",
             ref: this.model.uid,
