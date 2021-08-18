@@ -1,5 +1,6 @@
 import { css, mount } from "~controllers/env";
 import { publish } from "~lib/pubsub";
+import { v4 as uuid } from "uuid";
 
 
 export default class ConnectorComponent extends HTMLElement{
@@ -7,9 +8,11 @@ export default class ConnectorComponent extends HTMLElement{
     private tableID:string;
     private tableUID:string;
     private columnUID:string;
-
+    private uid:string;
+    
     constructor(style:string, columnID:string, side:string, tableID:string, tableUID:string, columnUID:string){
         super();
+        this.uid = uuid();
         this.style.cssText = style;
         this.columnID = columnID;
         this.id = `${columnID}_${side}`;
@@ -22,6 +25,26 @@ export default class ConnectorComponent extends HTMLElement{
     connectedCallback(){
         this.addEventListener("mousedown", this.startDraw);
         this.addEventListener("mouseup", this.endDraw);
+        this.addEventListener("mouseenter", this.handleMouseEnter);
+        this.addEventListener("mouseleave", this.handleMouseLeave);
+    }
+    
+    private handleMouseEnter:EventListener = (e:Event) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        publish("canvas", {
+            type: "highlight",
+            ref: this.uid,
+        });
+    }
+    
+    private handleMouseLeave:EventListener = (e:Event) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        publish("canvas", {
+            type: "clear-highlight",
+            target: this.uid,
+        });
     }
 
     private startDraw:EventListener = (e:Event) => {
@@ -34,7 +57,7 @@ export default class ConnectorComponent extends HTMLElement{
             y: bounds.y,
             id: this.columnID,
             tableID: this.tableID,
-            refs: [this.tableUID, this.columnUID],
+            refs: [this.tableUID, this.columnUID, this.uid],
         });
     }
 
@@ -45,7 +68,7 @@ export default class ConnectorComponent extends HTMLElement{
             type: "end",
             id: this.columnID,
             tableID: this.tableID,
-            refs: [this.tableUID, this.columnUID],
+            refs: [this.tableUID, this.columnUID, this.uid],
         });
     }
 }
