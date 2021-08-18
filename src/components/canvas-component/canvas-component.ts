@@ -486,12 +486,11 @@ export default class CanvasComponent extends HTMLElement{
                     }
                     else if (endColumnBounds.x <= startColumnBounds.x){
                         startSide = "left";
-                        if (endColumnBounds.x + 32 < startColumnBounds.x){
+                        if (endColumnBounds.x + 32 < startColumnBounds.x && Math.abs(startColumnBounds.y - endColumnBounds.y) >= 64){
                             if (endColumnBounds.y <= startColumnBounds.y + startColumnBounds.height / 2) {
                                 endSide = "bottom";
                             }
                             else {
-                                console.log(endColumnBounds, startColumnBounds);
                                 endSide = "top";
                             }
                         }
