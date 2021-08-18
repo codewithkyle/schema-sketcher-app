@@ -497,6 +497,7 @@ export default class CanvasComponent extends HTMLElement{
                             }
                             else {
                                 endSide = "right";
+                            }
                         }
                         else {
                             endSide = "left";
