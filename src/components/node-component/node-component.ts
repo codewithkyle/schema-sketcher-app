@@ -37,7 +37,27 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         this.addEventListener("mouseup", this.mouseUp);
         document.addEventListener("keydown", this.handleKeyboard);
         document.addEventListener("mousemove", this.mouseMove);
+        this.addEventListener("mouseenter", this.handleMouseEnter);
+        this.addEventListener("mouseleave", this.handleMouseLeave);
         this.render();
+    }
+    
+    private handleMouseEnter:EventListener = (e:Event) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        publish("canvas", {
+            type: "highlight",
+            ref: this.model.uid,
+        });
+    }
+    
+    private handleMouseLeave:EventListener = (e:Event) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        publish("canvas", {
+            type: "clear-highlight",
+            ref: this.model.uid
+        });
     }
 
     private confirmDelete(){
