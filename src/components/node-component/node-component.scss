@@ -12,6 +12,13 @@ node-component{
     display: flex;
     align-items: center;
     flex-flow: row nowrap;
+        
+    &[state="moving"]{
+        input{
+            user-select: none;
+            pointer-events: none;
+        }
+    }
     
     .canvas:not([cursor="auto"]) & {
         pointer-events: none;
