@@ -35,11 +35,8 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
     }
 
     override async connected(){
-        // this.addEventListener("dragover", this.handleDragOver);
-        // this.addEventListener("dragleave", this.handleDragLeave);
-        // this.addEventListener("drop", this.handleDrop);
-        // this.addEventListener("drag", this.handleDragStart);
-        // this.addEventListener("dragend", this.handleDragEnd);
+        this.addEventListener("mouseenter", this.handleMouseEnter);
+        this.addEventListener("mouseleave", this.handleMouseLeave);
         await css(["column-component"]);
         // @ts-ignore
         const types = await db.query("SELECT types FROM diagrams WHERE uid = $uid", {
@@ -52,6 +49,24 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
             });
         });
         this.render();
+    }
+    
+    private handleMouseEnter:EventListener = (e:Event) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        publish("canvas", {
+            type: "highlight",
+            ref: this.model.uid,
+        });
+    }
+    
+    private handleMouseLeave:EventListener = (e:Event) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        publish("canvas", {
+            type: "clear-highlight",
+            ref: this.model.uid,
+        });
     }
 
     private handleDragStart:EventListener = (e:DragEvent) => {
