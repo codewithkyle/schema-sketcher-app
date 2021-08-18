@@ -36,7 +36,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         this.setAttribute("aria-label", `use arrow keys to nudge table ${this.model.name}`);
         document.addEventListener("keydown", this.handleKeyboard);
         document.addEventListener("mousemove", this.mouseMove);
-        this.addEventListener("mouseenter", this.handleMouseEnter);
+        this.addEventListener("mosueover", this.handleMouseEnter);
         this.addEventListener("mouseleave", this.handleMouseLeave);
         await css(["table-component", "overflow-menu"]);
         this.render();
