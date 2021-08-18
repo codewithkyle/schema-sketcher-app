@@ -56,7 +56,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         e.stopImmediatePropagation();
         publish("canvas", {
             type: "clear-highlight",
-            target: this.id,
+            ref: this.model.uid,
         });
     }
 
