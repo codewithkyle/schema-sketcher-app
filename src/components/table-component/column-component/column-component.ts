@@ -232,6 +232,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
             type: "end",
             id: this.id,
             tableID: this.tableID,
+            refs: [this.tableUID, this.model.uid],
         });
     }
 
