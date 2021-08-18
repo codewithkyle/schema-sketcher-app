@@ -205,6 +205,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
                 type: "end",
                 id: this.id,
                 tableID: this.id,
+                refs: [this.model.uid],
             });
         }
     }
