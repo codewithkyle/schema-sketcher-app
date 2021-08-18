@@ -311,7 +311,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             </header>
             <columns-container>
                 ${orderedColumns.map((column) => {
-                    return new ColumnComponent(column, this.moveCallback.bind(this), this.startMoveCallback.bind(this), this.model.showAllColumnOptions, this.addColumn.bind(this), this.diagramID, this.id);
+                    return new ColumnComponent(column, this.moveCallback.bind(this), this.startMoveCallback.bind(this), this.model.showAllColumnOptions, this.addColumn.bind(this), this.diagramID, this.id, this.model.uid);
                 })}
             </columns-container>
         `;
