@@ -213,6 +213,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             this.isMoving = true;
             this.prevX = e.clientX;
             this.prevY = e.clientY;
+            this.setAttribute("state", "moving");
         }
     }
 
@@ -221,6 +222,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             this.isMoving = false;
             this.prevX = parseInt(this.dataset.left);
             this.prevY = parseInt(this.dataset.top);
+            this.setAttribute("state", "idling");
             publish("canvas", {
                 type: "end",
                 id: this.id,
