@@ -123,7 +123,9 @@ export default class CanvasComponent extends HTMLElement{
     private inbox(e){
         switch(e.type){
             case "clear-highlight":
-                this.forceHighlight = null;
+                if (e.ref === this.forceHighlight){
+                    this.forceHighlight = null;
+                }
                 break;
             case "highlight":
                 this.forceHighlight = e.ref;
