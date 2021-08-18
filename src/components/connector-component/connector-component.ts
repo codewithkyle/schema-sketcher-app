@@ -43,7 +43,7 @@ export default class ConnectorComponent extends HTMLElement{
         e.stopImmediatePropagation();
         publish("canvas", {
             type: "clear-highlight",
-            target: this.uid,
+            ref: this.uid,
         });
     }
 
