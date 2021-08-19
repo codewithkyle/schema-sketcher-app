@@ -66,7 +66,7 @@ class ControlCenter {
         };
     }
 
-    public async delete(table:string, key:string):Promise<Delete>{
+    public delete(table:string, key:string):Promise<Delete>{
         return {
             uid: uuid(),
             op: "DELETE",
