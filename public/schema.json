@@ -45,9 +45,6 @@
                     "key": "op"
                 },
                 {
-                    "key": "timestamp"
-                },
-                {
                     "key": "table"
                 },
                 {
