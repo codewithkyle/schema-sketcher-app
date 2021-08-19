@@ -80,10 +80,10 @@
             "columns": [
                 {
                     "key": "uid",
-                    "unique": true,
+                    "unique": true
                 },
                 {
-                    "key": "opcode",   
+                    "key": "opcode"
                 }
             ]
         }
