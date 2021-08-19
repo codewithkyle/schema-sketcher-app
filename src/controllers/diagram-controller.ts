@@ -2,6 +2,7 @@ import { v4 as uuid } from "uuid";
 import db from "@codewithkyle/jsql";
 import { navigateTo } from "@codewithkyle/router";
 import { Diagram } from "~types/diagram";
+import cc from "~controllers/control-center";
 
 const TYPES = ["int", "bigint", "binary", "blob", "boolean", "char", "date", "datetime", "decimal", "double", "enum", "float", "geometry", "json", "bson", "longtext", "mediumint", "mediumtext", "multipoint", "point", "smallint", "time", "text", "timestamp", "tinyint", "uuid", "varchar"];
 
@@ -21,10 +22,8 @@ class DiagramController {
             connections: {},
             nodes: {},
         };
-        // @ts-ignore
-        await db.query("INSERT INTO diagrams VALUES ($diagram)", {
-            diagram: diagram,
-        });
+        const op = cc.insert("diagrams", uid, diagram);
+        await cc.perform(op);
         navigateTo(`/diagram/${uid}`);
     }
 
