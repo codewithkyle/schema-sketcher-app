@@ -1,12 +1,11 @@
 export type OP = "INSERT" | "DELETE" | "SET" | "UNSET";
 
 export interface OPCode{
-    id: string,
+    uid: string,
     op: OP,
     timestamp: number,
     table: string,
     key: string,
-    etag?: string,
 }
 
 export interface Insert extends OPCode{
