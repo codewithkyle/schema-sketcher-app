@@ -177,8 +177,9 @@ class ControlCenter {
             // @ts-ignore
             const { op, uid, table, key, value, keypath, timestamp } = operation;
 
-            const results = await db.query("SELECT * FROM ledger WHERE uid = $uid", {
+            const results = await db.query("SELECT * FROM $table WHERE uid = $uid", {
                 uid: uid,
+                table: table,
             });
             const existingModel = results.length > 0;
 
