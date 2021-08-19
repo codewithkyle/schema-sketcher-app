@@ -7,9 +7,8 @@ import db from "@codewithkyle/jsql";
         await navigator.serviceWorker.register(`${location.origin}/service-worker.js`);
     }
 
-    // @ts-ignore
     db.start({
-        scheam: `${location.origin}/scheam.json`,
+        schema: `${location.origin}/static/schema.json`,
         dbWorker: `${location.origin}/static/jsql.worker.js`,
         streamWorker: `${location.origin}/static/stream.worker.js`,
     });
@@ -18,7 +17,7 @@ import db from "@codewithkyle/jsql";
     const items = await db.query("SELECT name FROM icons");
     if (items.length !== 2681){
         // @ts-ignore
-        db.ingest(`${location.origin}/icons.ndjson`, "icons");
+        db.ingest(`${location.origin}/static/icons.ndjson`, "icons");
     }
 
     //@ts-ignore

@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@codewithkyle/asset-manager": "^1.0.1",
-    "@codewithkyle/jsql": "^1.0.6",
+    "@codewithkyle/jsql": "^1.0.10",
     "@codewithkyle/pubsub": "^1.1.1",
     "@codewithkyle/router": "^1.1.0",
     "@codewithkyle/supercomponent": "^1.1.0",
