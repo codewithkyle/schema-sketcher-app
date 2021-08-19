@@ -98,11 +98,17 @@ column-component{
         cursor: pointer;
         font-size: var(--font-base);
         transition: all 80ms var(--ease-in-out);
+        color: var(--grey-500);
         text-align: right;
         text-align-last: right;
+        
+        &:hover{
+            color: var(--grey-700);
+        }
 
         &:focus{
             box-shadow: var(--focus-ring);
+            color: var(--primary-500);
         }
     }
 
