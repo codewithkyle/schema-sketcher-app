@@ -56,7 +56,7 @@ class ControlCenter {
 
     public insert(table:string, key:string, value:any):Insert{
         return {
-            id: uuid(),
+            uid: uuid(),
             op: "INSERT",
             table: table,
             key: key,
@@ -67,7 +67,7 @@ class ControlCenter {
 
     public async delete(table:string, key:string):Promise<Delete>{
         return {
-            id: uuid(),
+            uid: uuid(),
             op: "DELETE",
             table: table,
             key: key,
@@ -77,7 +77,7 @@ class ControlCenter {
 
     public set(table:string, key:string, keypath:string, value:any):Set{
         return {
-            id: uuid(),
+            uid: uuid(),
             op: "SET",
             table: table,
             key: key,
@@ -89,7 +89,7 @@ class ControlCenter {
 
     public unset(table:string, key:string, keypath:string):Unset{
         return {
-            id: uuid(),
+            uid: uuid(),
             op: "UNSET",
             table: table,
             key: key,
