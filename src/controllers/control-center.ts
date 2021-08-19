@@ -1,5 +1,5 @@
 import { v4 as uuid } from "uuid";
-import { Delete, Insert, OPCode, Set, Unset } from "../types/ops";
+import { Delete, Insert, OPCode, Set, Unset } from "~types/ops";
 import { createSubscription, publish } from "@codewithkyle/pubsub";
 import db from "@codewithkyle/jsql";
 
@@ -66,7 +66,7 @@ class ControlCenter {
         };
     }
 
-    public delete(table:string, key:string):Promise<Delete>{
+    public delete(table:string, key:string):Delete{
         return {
             uid: uuid(),
             op: "DELETE",
@@ -109,46 +109,42 @@ class ControlCenter {
             if (!bypassOutbox){
                 // TODO: insert failures into outbox table
             }
-            disconnect();
+            // disconnect();
         }
         return success;
     }
 
     public async perform(operation:OPCode, disbatchToUI = false){
-        try {
-            // @ts-ignore
-            const { op, uid, table, key, value, keypath, timestamp } = operation;
+        // @ts-ignore
+        const { op, uid, table, key, value, keypath, timestamp } = operation;
 
-            // Ignore web socket OPs if they originated from this client
-            const results = await db.query("SELECT * FROM ledger WHERE uid = $uid", {
-                uid: uid,
-            });
-            const alreadyInLedger = results.length > 0;
-            if (alreadyInLedger){
-                return;
+        // Ignore web socket OPs if they originated from this client
+        const results = await db.query("SELECT * FROM ledger WHERE uid = $uid", {
+            uid: uid,
+        });
+        const alreadyInLedger = results.length > 0;
+        if (alreadyInLedger){
+            return;
+        }
+
+        // Insert OP into the ledger
+        await db.query("INSERT INTO ledger VALUES ($op)", {
+            op: operation,
+        });
+        
+        // Get all past operations & select ops to be performed based on new op timestamp
+        const ops = await db.query("SELECT * FROM ledger WHERE table = $table AND key = $key AND timestamp >= $timestamp ORDER BY timestamp", {
+            table: table,
+            key: key,
+            timestamp: timestamp,
+        });
+
+        // Perform ops
+        for (const op of ops){
+            await this.op(op);
+            if (disbatchToUI){
+                publish("sync", op);
             }
-
-            // Insert OP into the ledger
-            await db.query("INSERT INTO ledger VALUES ($op)", {
-                op: operation,
-            });
-            
-            // Get all past operations & select ops to be performed based on new op timestamp
-            const ops = await db.query("SELECT * FROM ledger WHERE table = $table AND key = $key AND timestamp > $timestamp ORDER BY timestamp", {
-                table: table,
-                key: key,
-                timestamp: timestamp,
-            });
-
-            // Perform ops
-            for (const op of ops){
-                await this.op(op);
-                if (disbatchToUI){
-                    publish("sync", op);
-                }
-            }
-        } catch (e) {
-            console.error(e);
         }
     }
 
@@ -173,74 +169,70 @@ class ControlCenter {
     }
 
     private async op(operation):Promise<any>{
-        try {
-            // @ts-ignore
-            const { op, uid, table, key, value, keypath, timestamp } = operation;
+        // @ts-ignore
+        const { op, uid, table, key, value, keypath, timestamp } = operation;
 
-            const results = await db.query("SELECT * FROM $table WHERE uid = $uid", {
-                uid: uid,
-                table: table,
-            });
-            const existingModel = results.length > 0;
+        const results = await db.query("SELECT * FROM $table WHERE uid = $uid", {
+            uid: uid,
+            table: table,
+        });
+        const existingModel = results.length > 0;
 
-            // Skip inserts when we already have the data && skip non-insert ops when we don't have the data
-            if (existingModel && op === "INSERT" || !existingModel && op !== "INSERT"){
-                return;
-            }
+        // Skip inserts when we already have the data && skip non-insert ops when we don't have the data
+        if (existingModel && op === "INSERT" || !existingModel && op !== "INSERT"){
+            return;
+        }
 
-            switch (op){
-                case "INSERT":
-                    return db.query("INSERT INTO $table VALLUES ($value)", {
-                        value: value,
-                        table: table,
-                    });
-                case "DELETE":
-                    return db.query("DELETE FROM $table WHERE uid = $uid", {
+        switch (op){
+            case "INSERT":
+                return db.query("INSERT INTO $table VALUES ($value)", {
+                    value: value,
+                    table: table,
+                });
+            case "DELETE":
+                return db.query("DELETE FROM $table WHERE uid = $uid", {
+                    uid: key,
+                    table: table,
+                });
+            case "SET":
+                return new Promise(async (resolve, reject) => {
+                    const results = await db.query("SELECT * FROM $table WHERE uid = $uid", {
                         uid: key,
                         table: table,
                     });
-                case "SET":
-                    return new Promise(async (resolve, reject) => {
-                        const results = await db.query("SELECT * FROM $table WHERE uid = $uid", {
-                            uid: key,
-                            table: table,
-                        });
-                        const obj = results?.[0] ?? null;
-                        if (obj === null){
-                            reject();
-                        }
-                        this.setValueFromKeypath(obj, keypath, value);
-                        await db.query("UPDATE $table SET $value WHERE uid = $uid", {
-                            table: table,
-                            uid: key,
-                            value: obj,
-                        });
-                        resolve();
+                    const obj = results?.[0] ?? null;
+                    if (obj === null){
+                        reject();
+                    }
+                    this.setValueFromKeypath(obj, keypath, value);
+                    await db.query("UPDATE $table SET $value WHERE uid = $uid", {
+                        table: table,
+                        uid: key,
+                        value: obj,
                     });
-                case "UNSET":
-                    return new Promise(async (resolve, reject) => {
-                        const results = await db.query("SELECT * FROM $table WHERE uid = $uid", {
-                            uid: key,
-                            table: table,
-                        });
-                        const obj = results?.[0] ?? null;
-                        if (obj === null){
-                            reject();
-                        }
-                        this.unsetValueFromKeypath(obj, keypath);
-                        await db.query("UPDATE $table SET $value WHERE uid = $uid", {
-                            table: table,
-                            uid: key,
-                            value: obj,
-                        });
-                        resolve();
+                    resolve();
+                });
+            case "UNSET":
+                return new Promise(async (resolve, reject) => {
+                    const results = await db.query("SELECT * FROM $table WHERE uid = $uid", {
+                        uid: key,
+                        table: table,
                     });
-                default:
-                    console.error(`Unknown OP: ${op}`);
-                    break;
-            }
-        } catch (e) {
-            console.error(e);
+                    const obj = results?.[0] ?? null;
+                    if (obj === null){
+                        reject();
+                    }
+                    this.unsetValueFromKeypath(obj, keypath);
+                    await db.query("UPDATE $table SET $value WHERE uid = $uid", {
+                        table: table,
+                        uid: key,
+                        value: obj,
+                    });
+                    resolve();
+                });
+            default:
+                console.error(`Unknown OP: ${op}`);
+                break;
         }
     }
 }

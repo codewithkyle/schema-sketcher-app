@@ -34,7 +34,7 @@ class DiagramController {
             timestamp: Date.now(),
         });
         // @ts-ignore
-        const ops = await db.query("SELECT * FROM oplog WHERE diagramID = $uid", {
+        const ops = await db.query("SELECT * FROM ledger WHERE diagramID = $uid", {
             uid: uid,
         });
         // @ts-ignore

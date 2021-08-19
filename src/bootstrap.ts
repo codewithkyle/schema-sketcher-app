@@ -7,7 +7,7 @@ import db from "@codewithkyle/jsql";
         await navigator.serviceWorker.register(`${location.origin}/service-worker.js`);
     }
 
-    db.start({
+    await db.start({
         schema: `${location.origin}/static/schema.json`,
         dbWorker: `${location.origin}/static/jsql.worker.js`,
         streamWorker: `${location.origin}/static/stream.worker.js`,
