@@ -15,9 +15,6 @@ import NodeComponent from "~components/node-component/node-component";
 import CanvasComponent from "~components/canvas-component/canvas-component";
 import cc from "~controllers/control-center";
 
-const COLORS = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "light-blue", "indigo", "violet", "purple", "pink", "rose"];
-const SHADES = ["200", "300", "400", "500", "600"];
-
 interface IEditorPage {
     diagram: Diagram,
 }
@@ -60,18 +57,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         this.update({
             diagram: diagram,
         });
-    }
-
-    private getRandomColor():string{
-        const color = this.getRandomInt(0, COLORS.length - 1);
-        const shade = this.getRandomInt(0, SHADES.length - 1);
-        return `var(--${COLORS[color]}-${SHADES[shade]})`;
-    }
-
-    private getRandomInt(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     private setCursor(type:"auto"|"hand"|"grabbing"){
