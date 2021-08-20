@@ -157,6 +157,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     private async spawn(type:"table"|"node"){
         const uid = uuid();
         const updatedModel = {...this.model};
+        let op;
         switch(type){
             case "table":
                 const tableCount = Object.keys(updatedModel.diagram.tables).length + 1;
@@ -185,7 +186,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                     },
                 };
                 updatedModel.diagram.tables[uid] = diagram;
-                const op = cc.set("diagrams", this.model.diagram.uid, ["tables", uid], diagram);
+                op = cc.set("diagrams", this.model.diagram.uid, ["tables", uid], diagram);
                 cc.perform(op);
                 break;
             case "node":
@@ -198,7 +199,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                     icon: "function",
                 };
                 updatedModel.diagram.nodes[uid] = node;
-                const op = cc.set("diagrams", this.model.diagram.uid, ["nodes", uid], node);
+                op = cc.set("diagrams", this.model.diagram.uid, ["nodes", uid], node);
                 cc.perform(op);
                 break;
             default:
