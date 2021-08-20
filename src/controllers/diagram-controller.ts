@@ -70,19 +70,19 @@ class DiagramController {
         cc.perform(op);
     }
     
-    public async createTable(uid:string){
+    public async createTable(uid:string, placeX:number, placeY:number){
         const tableCount = Object.keys(this.diagram.tables).length + 1;
         const columnUid = uuid();
         // @ts-ignore
-        const types = await db.query("SELECT UNIQUE types FROM diagrams WHERE uid = $uid LIMIT 1", {
+        const types = await db.query("SELECT types FROM diagrams WHERE uid = $uid LIMIT 1", {
             uid: this.diagram.uid,
         });
         const diagram:Diagram = {
             uid: uid,
             name: `table_${tableCount}`,
             color: this.getRandomColor(),
-            x: this.placeX,
-            y: this.placeY,
+            x: placeX,
+            y: placeY,
             columns: {
                 [columnUid]: {
                     name: "id",
@@ -102,12 +102,12 @@ class DiagramController {
         return diagram
     }
     
-    public async createNode(uid:string){
+    public async createNode(uid:string, placeX:number, placeY:number){
         const node = {
             uid: uid,
             text: "New node",
-            x: this.placeX,
-            y: this.placeY,
+            x: placeX,
+            y: placeY,
             color: "grey",
             icon: "function",
         };
