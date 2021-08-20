@@ -2,6 +2,7 @@ import SuperComponent from "@codewithkyle/supercomponent";
 import { render, html } from "lit-html";
 import SettingsModal from "~components/settings-modal/settings-modal";
 import { css, mount } from "~controllers/env";
+import diagramController from "~controllers/diagram-controller";
 
 interface IEditorHeader {
     name: string,
