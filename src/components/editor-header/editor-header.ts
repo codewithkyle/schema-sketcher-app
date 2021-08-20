@@ -5,15 +5,13 @@ import { css, mount } from "~controllers/env";
 
 interface IEditorHeader {
     name: string,
-    callback: Function,
     diagramID: string;
 }
 export default class EditorHeader extends SuperComponent<IEditorHeader>{
-    constructor(name:string, callback:Function, diagramID:string){
+    constructor(name:string, diagramID:string){
         super();
         this.model = {
             name: name,
-            callback: callback,
             diagramID: diagramID,
         };
         css(["editor-header", "buttons"]).then(() => {
@@ -29,7 +27,7 @@ export default class EditorHeader extends SuperComponent<IEditorHeader>{
         if (!value.length){
             value = "UNTITLED";
         }
-        this.model.callback(value);
+        diagramController.renameDiagram(this.model.diagramID, value);
         this.update({
             name: value,
         });
