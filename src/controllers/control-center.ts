@@ -138,6 +138,7 @@ class ControlCenter {
             key: key,
             timestamp: timestamp,
         });
+        console.log("OPs to perform:" , ops);
 
         // Perform ops
         for (const op of ops){
@@ -157,6 +158,7 @@ class ControlCenter {
         if (keypath.length){
             this.setValueFromKeypath(object[key], keypath, value);
         } else {
+            console.log(`Setting ${key} to ${vlaue} for`, object);
             object[key] = value;
         }
     }
@@ -170,6 +172,7 @@ class ControlCenter {
         if (keypath.length){
             this.unsetValueFromKeypath(object[key], keypath);
         } else {
+            console.log(`Unsetting ${key} for`, object);
             delete object[key];
         }
     }
