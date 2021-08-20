@@ -160,47 +160,10 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         let op;
         switch(type){
             case "table":
-                const tableCount = Object.keys(updatedModel.diagram.tables).length + 1;
-                const columnUid = uuid();
-                // @ts-ignore
-                const types = await db.query("SELECT types FROM diagrams WHERE uid = $uid LIMIT 1", {
-                    uid: this.model.diagram.uid,
-                });
-                const diagrams:Diagram = {
-                    uid: uid,
-                    name: `table_${tableCount}`,
-                    color: this.getRandomColor(),
-                    x: this.placeX,
-                    y: this.placeY,
-                    columns: {
-                        [columnUid]: {
-                            name: "id",
-                            type: Object.keys(types[0].types)[0],
-                            isNullable: false,
-                            isUnique: false,
-                            isIndex: false,
-                            isPrimaryKey: true,
-                            order: 0,
-                            uid: columnUid,
-                        },
-                    },
-                };
-                updatedModel.diagram.tables[uid] = diagram;
-                op = cc.set("diagrams", this.model.diagram.uid, ["tables", uid], diagram);
-                cc.perform(op);
+                updatedModel.diagram.tables[uid] = await diagramController.createTable();
                 break;
             case "node":
-                const node = {
-                    uid: uid,
-                    text: "New node",
-                    x: this.placeX,
-                    y: this.placeY,
-                    color: "grey",
-                    icon: "function",
-                };
-                updatedModel.diagram.nodes[uid] = node;
-                op = cc.set("diagrams", this.model.diagram.uid, ["nodes", uid], node);
-                cc.perform(op);
+                updatedModel.diagram.nodes[uid] = await diagramController.createNode();
                 break;
             default:
                 break;
