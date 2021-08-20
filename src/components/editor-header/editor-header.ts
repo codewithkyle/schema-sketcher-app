@@ -28,7 +28,7 @@ export default class EditorHeader extends SuperComponent<IEditorHeader>{
         if (!value.length){
             value = "UNTITLED";
         }
-        diagramController.renameDiagram(this.model.diagramID, value);
+        diagramController.renameDiagram(value);
         this.update({
             name: value,
         });
