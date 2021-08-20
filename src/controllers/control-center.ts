@@ -150,7 +150,6 @@ class ControlCenter {
     }
 
     public setValueFromKeypath(object, keypath, value){
-        console.log(`Setting value`, object, keypath, value);
         if (!Array.isArray(keypath)){
             keypath = keypath.split(".");
         }
@@ -159,13 +158,11 @@ class ControlCenter {
         if (keypath.length){
             this.setValueFromKeypath(object[key], keypath, value);
         } else {
-            console.log(`Setting ${key} to ${vlaue} for`, object);
             object[key] = value;
         }
     }
     
     public unsetValueFromKeypath(object, keypath){
-        console.log(`Unsetting value`, object, keypath, value);
         if (!Array.isArray(keypath)){
             keypath = keypath.split(".");
         }
@@ -174,7 +171,6 @@ class ControlCenter {
         if (keypath.length){
             this.unsetValueFromKeypath(object[key], keypath);
         } else {
-            console.log(`Unsetting ${key} for`, object);
             delete object[key];
         }
     }
