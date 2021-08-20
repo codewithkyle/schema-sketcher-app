@@ -184,7 +184,7 @@ class ControlCenter {
         const { op, uid, table, key, value, keypath, timestamp } = operation;
 
         const results = await db.query("SELECT * FROM $table WHERE uid = $uid", {
-            uid: uid,
+            uid: key,
             table: table,
         });
         const existingModel = results.length > 0;
