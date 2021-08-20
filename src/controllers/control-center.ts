@@ -150,6 +150,7 @@ class ControlCenter {
     }
 
     public setValueFromKeypath(object, keypath, value){
+        console.log(`Setting value`, object, keypath, value);
         if (!Array.isArray(keypath)){
             keypath = keypath.split(".");
         }
@@ -164,6 +165,7 @@ class ControlCenter {
     }
     
     public unsetValueFromKeypath(object, keypath){
+        console.log(`Unsetting value`, object, keypath, value);
         if (!Array.isArray(keypath)){
             keypath = keypath.split(".");
         }
