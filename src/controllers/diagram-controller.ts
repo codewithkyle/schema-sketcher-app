@@ -7,13 +7,15 @@ import cc from "~controllers/control-center";
 const TYPES = ["int", "bigint", "binary", "blob", "boolean", "char", "date", "datetime", "decimal", "double", "enum", "float", "geometry", "json", "bson", "longtext", "mediumint", "mediumtext", "multipoint", "point", "smallint", "time", "text", "timestamp", "tinyint", "uuid", "varchar"];
 
 class DiagramController {
+    private diagram:Diagram;
+    
     public async createDiagram(type:"local"|"cloud"){
         const uid = uuid();
         const types = {};
         TYPES.map(type => {
             types[uuid()] = type;
         });
-        const diagram:Diagram = {
+        this.diagram:Diagram = {
             uid: uid,
             name: "UNTITLED",
             timestamp: Date.now(),
@@ -22,7 +24,7 @@ class DiagramController {
             connections: {},
             nodes: {},
         };
-        const op = cc.insert("diagrams", uid, diagram);
+        const op = cc.insert("diagrams", uid, this.diagram);
         await cc.perform(op);
         navigateTo(`/diagram/${uid}`);
     }
@@ -38,21 +40,19 @@ class DiagramController {
             uid: uid,
         });
         // @ts-ignore
-        const diagram = await db.query("SELECT * FROM diagrams WHERE uid = $uid", {
+        const results = await db.query("SELECT * FROM diagrams WHERE uid = $uid", {
             uid: uid,
         });
+        this.diagram = results?.[0] ?? null;
         return {
             ops: ops,
-            diagram: diagram?.[0] ?? null,
+            diagram: this.diagram,
         };
     }
 
     public async renameDiagram(uid:string, newName:string){
-        // @ts-ignore
-        await db.query("UPDATE diagrams SET name = $name WHERE uid = $uid", {
-            uid: uid,
-            name: newName,
-        });
+        const op = cc.set("diagrams", uid, "name", newName);
+        cc.perform(op);
     }
 }
 const diagramController = new DiagramController();
