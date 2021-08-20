@@ -149,6 +149,9 @@ class ControlCenter {
     }
 
     public setValueFromKeypath(object, keypath, value){
+        if (!Array.isArray(keypath)){
+            keypath = keypath.split(".");
+        }
         const key = keypath[0];
         keypath.splice(0, 1);
         if (keypath.length){
@@ -159,6 +162,9 @@ class ControlCenter {
     }
     
     public unsetValueFromKeypath(object, keypath){
+        if (!Array.isArray(keypath)){
+            keypath = keypath.split(".");
+        }
         const key = keypath[0];
         keypath.splice(0, 1);
         if (keypath.length){
