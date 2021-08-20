@@ -5,9 +5,23 @@ import { Diagram } from "~types/diagram";
 import cc from "~controllers/control-center";
 
 const TYPES = ["int", "bigint", "binary", "blob", "boolean", "char", "date", "datetime", "decimal", "double", "enum", "float", "geometry", "json", "bson", "longtext", "mediumint", "mediumtext", "multipoint", "point", "smallint", "time", "text", "timestamp", "tinyint", "uuid", "varchar"];
+const COLORS = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "light-blue", "indigo", "violet", "purple", "pink", "rose"];
+const SHADES = ["200", "300", "400", "500", "600"];
 
 class DiagramController {
     private diagram:Diagram;
+    
+    private getRandomColor():string{
+        const color = this.getRandomInt(0, COLORS.length - 1);
+        const shade = this.getRandomInt(0, SHADES.length - 1);
+        return `var(--${COLORS[color]}-${SHADES[shade]})`;
+    }
+
+    private getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
     
     public async createDiagram(type:"local"|"cloud"){
         const uid = uuid();
