@@ -119,13 +119,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         }
     }
 
-    private updateName(newName:string){
-        diagramController.renameDiagram(this.uid, newName);
-        const updatedModel = {...this.model};
-        updatedModel.diagram.name = newName;
-        this.update(updatedModel);
-    }
-
     private handleMouseDown:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent && (this.canMove || this.forceMove)){
             this.isMoving = true;
@@ -263,7 +256,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     
     override render(){
         const view = html`
-            ${new EditorHeader(this.model.diagram.name, this.updateName.bind(this), this.model.diagram.uid)}
+            ${new EditorHeader(this.model.diagram.name, this.model.diagram.uid)}
             <div cursor="${this.getCursorType()}" class="canvas js-canvas" @mousedown=${this.handleMouseDown} @mouseup=${this.handleMouseUp} @mousemove=${this.handleMouseMove} @contextmenu=${this.handleContextMenu}>
                 <div data-scale="${this.scale}" data-top="${this.y}" data-left="${this.x}" style="transform: translate(${this.x}px, ${this.y}px) scale(${this.scale});" class="diagram js-anchor">
                     ${Object.keys(this.model.diagram.tables).map((key:string, index:number) => {
