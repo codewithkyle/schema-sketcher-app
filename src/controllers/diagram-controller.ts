@@ -50,9 +50,9 @@ class DiagramController {
         };
     }
 
-    public async renameDiagram(uid:string, newName:string){
+    public async renameDiagram(newName:string){
         this.diagram.name = newName;
-        const op = cc.set("diagrams", uid, "name", newName);
+        const op = cc.set("diagrams", this.diagram.uid, "name", newName);
         cc.perform(op);
     }
     
