@@ -97,7 +97,7 @@ class DiagramController {
             },
         };
         this.diagram.tables[uid] = diagram;
-        op = cc.set("diagrams", this.diagram.uid, ["tables", uid], diagram);
+        const op = cc.set("diagrams", this.diagram.uid, ["tables", uid], diagram);
         cc.perform(op);
         return diagram
     }
@@ -112,7 +112,7 @@ class DiagramController {
             icon: "function",
         };
         this.diagram.nodes[uid] = node;
-        op = cc.set("diagrams", this.diagram.uid, ["nodes", uid], node);
+        const op = cc.set("diagrams", this.diagram.uid, ["nodes", uid], node);
         cc.perform(op);
         return node;
     }
