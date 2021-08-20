@@ -56,7 +56,7 @@ class DiagramController {
         cc.perform(op);
     }
     
-    public async createTable(){
+    public async createTable(uid:string){
         const tableCount = Object.keys(this.diagram.tables).length + 1;
         const columnUid = uuid();
         // @ts-ignore
@@ -88,7 +88,7 @@ class DiagramController {
         return diagram
     }
     
-    public async createNode(){
+    public async createNode(uid:string){
         const node = {
             uid: uid,
             text: "New node",
