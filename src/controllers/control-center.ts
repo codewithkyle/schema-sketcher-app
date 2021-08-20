@@ -212,9 +212,8 @@ class ControlCenter {
                         reject();
                     }
                     this.setValueFromKeypath(obj, keypath, value);
-                    await db.query("UPDATE $table SET $value WHERE uid = $uid", {
+                    await db.query("INSERT INTO $table VALUES ($value)", {
                         table: table,
-                        uid: key,
                         value: obj,
                     });
                     resolve();
