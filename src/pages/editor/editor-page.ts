@@ -160,10 +160,10 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         let op;
         switch(type){
             case "table":
-                updatedModel.diagram.tables[uid] = await diagramController.createTable();
+                updatedModel.diagram.tables[uid] = await diagramController.createTable(uid);
                 break;
             case "node":
-                updatedModel.diagram.nodes[uid] = await diagramController.createNode();
+                updatedModel.diagram.nodes[uid] = await diagramController.createNode(uid);
                 break;
             default:
                 break;
