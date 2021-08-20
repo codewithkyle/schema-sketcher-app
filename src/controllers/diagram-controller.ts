@@ -15,7 +15,7 @@ class DiagramController {
         TYPES.map(type => {
             types[uuid()] = type;
         });
-        this.diagram:Diagram = {
+        this.diagram = {
             uid: uid,
             name: "UNTITLED",
             timestamp: Date.now(),
@@ -51,8 +51,56 @@ class DiagramController {
     }
 
     public async renameDiagram(uid:string, newName:string){
+        this.diagram.name = newName;
         const op = cc.set("diagrams", uid, "name", newName);
         cc.perform(op);
+    }
+    
+    public async createTable(){
+        const tableCount = Object.keys(this.diagram.tables).length + 1;
+        const columnUid = uuid();
+        // @ts-ignore
+        const types = await db.query("SELECT UNIQUE types FROM diagrams WHERE uid = $uid LIMIT 1", {
+            uid: this.diagram.uid,
+        });
+        const diagram:Diagram = {
+            uid: uid,
+            name: `table_${tableCount}`,
+            color: this.getRandomColor(),
+            x: this.placeX,
+            y: this.placeY,
+            columns: {
+                [columnUid]: {
+                    name: "id",
+                    type: Object.keys(types[0].types)[0],
+                    isNullable: false,
+                    isUnique: false,
+                    isIndex: false,
+                    isPrimaryKey: true,
+                    order: 0,
+                    uid: columnUid,
+                },
+            },
+        };
+        this.diagram.tables[uid] = diagram;
+        op = cc.set("diagrams", this.model.diagram.uid, ["tables", uid], diagram);
+        cc.perform(op);
+        return diagram
+    }
+    
+    public async createNode(){
+        const node = {
+            uid: uid,
+            text: "New node",
+            x: this.placeX,
+            y: this.placeY,
+            color: "grey",
+            icon: "function",
+        };
+        this.diagram.nodes[uid] = node;
+        op = cc.set("diagrams", this.model.diagram.uid, ["nodes", uid], node);
+        cc.perform(op);
+        return node;
     }
 }
 const diagramController = new DiagramController();
