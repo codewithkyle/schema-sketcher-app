@@ -13,6 +13,7 @@ import EditorControls from "~components/editor-controls/editor-controls";
 import { createSubscription, publish } from "~lib/pubsub";
 import NodeComponent from "~components/node-component/node-component";
 import CanvasComponent from "~components/canvas-component/canvas-component";
+import cc from "~controllers/control-center";
 
 const COLORS = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "light-blue", "indigo", "violet", "purple", "pink", "rose"];
 const SHADES = ["200", "300", "400", "500", "600"];
@@ -171,7 +172,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                 const types = await db.query("SELECT types FROM diagrams WHERE uid = $uid LIMIT 1", {
                     uid: this.model.diagram.uid,
                 });
-                updatedModel.diagram.tables[uid] = {
+                const diagrams:Diagram = {
                     uid: uid,
                     name: `table_${tableCount}`,
                     color: this.getRandomColor(),
@@ -190,9 +191,12 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                         },
                     },
                 };
+                updatedModel.diagram.tables[uid] = diagram;
+                const op = cc.set("diagrams", this.model.diagram.uid, ["tables", uid], diagram);
+                cc.perform(op);
                 break;
             case "node":
-                updatedModel.diagram.nodes[uid] = {
+                const node = {
                     uid: uid,
                     text: "New node",
                     x: this.placeX,
@@ -200,6 +204,9 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                     color: "grey",
                     icon: "function",
                 };
+                updatedModel.diagram.nodes[uid] = node;
+                const op = cc.set("diagrams", this.model.diagram.uid, ["nodes", uid], node);
+                cc.perform(op);
                 break;
             default:
                 break;
