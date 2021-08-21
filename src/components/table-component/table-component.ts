@@ -5,6 +5,7 @@ import ColumnComponent from "./column-component/column-component";
 import { css, mount } from "~controllers/env";
 import { publish } from "~lib/pubsub";
 import type { Column, Table } from "~types/diagram";
+import cc from "~controllers/control-center";
 
 
 interface ITableComponent extends Table {
@@ -52,7 +53,6 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     private handleMouseLeave:EventListener = (e:Event) => {
         e.preventDefault();
         e.stopImmediatePropagation();
-        console.log(`mouse is over table ${this.model.uid}`);
         publish("canvas", {
             type: "clear-highlight",
             ref: this.model.uid,
@@ -66,6 +66,21 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         }
     }
 
+    private broadcastMove(){
+        const x = parseInt(this.dataset.left);
+        const y = parseInt(this.dataset.top);
+        const op1 = cc.set("diagrams", this.diagramID, ["tables", this.model.uid, "x"], x);
+        cc.perform(op1);
+        const op2 = cc.set("diagrams", this.diagramID, ["tables", this.model.uid, "y"], y);
+        cc.perform(op2);
+    }
+
+    private move(x:number, y:number){
+        this.style.transform = `translate(${x}px, ${y}px)`;
+        this.dataset.top = `${y}`;
+        this.dataset.left = `${x}`;
+    }
+
     private mouseDown:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent){
             this.isMoving = true;
@@ -75,10 +90,11 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     }
 
     private mouseUp:EventListener = (e:MouseEvent) => {
-        if (e instanceof MouseEvent){
+        if (e instanceof MouseEvent && this.isMoving){
             this.isMoving = false;
             this.prevX = parseInt(this.dataset.left);
             this.prevY = parseInt(this.dataset.top);
+            this.broadcastMove();
         }
     }
 
@@ -88,9 +104,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             const moveY = this.prevY - e.clientY;
             const x = parseInt(this.dataset.left) - moveX;
             const y = parseInt(this.dataset.top) - moveY;
-            this.style.transform = `translate(${x}px, ${y}px)`;
-            this.dataset.top = `${y}`;
-            this.dataset.left = `${x}`;
+            this.move(x, y);
             this.prevX = e.clientX;
             this.prevY = e.clientY;
         }
@@ -141,22 +155,18 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             if (moveX){
                 const x = parseInt(this.dataset.left) + direction;
                 const y = parseInt(this.dataset.top);
-                this.style.transform = `translate(${x}px, ${y}px)`;
-                this.style.transform = `translate(${x}px, ${y}px)`;
-                this.dataset.top = `${y}`;
-                this.dataset.left = `${x}`;
+                this.move(x, y);
                 this.prevX = x;
                 this.prevY = y;
+                this.broadcastMove();
             }
             else if (moveY) {
                 const x = parseInt(this.dataset.left);
                 const y = parseInt(this.dataset.top) + direction;
-                this.style.transform = `translate(${x}px, ${y}px)`;
-                this.style.transform = `translate(${x}px, ${y}px)`;
-                this.dataset.top = `${y}`;
-                this.dataset.left = `${x}`;
+                this.move(x, y);
                 this.prevX = x;
                 this.prevY = y;
+                this.broadcastMove();
             }
         }
     }

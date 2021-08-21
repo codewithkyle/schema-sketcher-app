@@ -76,7 +76,7 @@ class ControlCenter {
         };
     }
 
-    public set(table:string, key:string, keypath:string, value:any):Set{
+    public set(table:string, key:string, keypath:string|string[], value:any):Set{
         return {
             uid: uuid(),
             op: "SET",
@@ -88,7 +88,7 @@ class ControlCenter {
         };
     }
 
-    public unset(table:string, key:string, keypath:string):Unset{
+    public unset(table:string, key:string, keypath:string|string[]):Unset{
         return {
             uid: uuid(),
             op: "UNSET",

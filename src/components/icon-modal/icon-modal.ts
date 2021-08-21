@@ -92,12 +92,12 @@ export default class IconModal extends SuperComponent<IIconModal>{
     private changePage:EventListener = (e:Event) => {
         const target = e.currentTarget as HTMLElement;
         this.update({
-            offset: parseInt(target.dataset.offset) * 50,
-        })
+            offset: parseInt(target.dataset.offset),
+        });
     }
 
     private async renderTabContent(){
-        const icons = await db.query(`SELECT * FROM icons ${this.model.query.length ? "WHERE name LIKE $query" : `LIMIT 50 OFFSET ${this.model.offset}`}`, {
+        const icons = await db.query(`SELECT * FROM icons ${this.model.query.length ? "WHERE name LIKE $query" : "" } LIMIT 50 OFFSET ${this.model.offset}`, {
             query: this.model.query,
         });
         switch(this.model.activeTab){
@@ -123,7 +123,7 @@ export default class IconModal extends SuperComponent<IIconModal>{
                                 return html`
                                     <div class="relative inline-block mb-auto">
                                         <input @change=${this.changeIcon} ?checked=${icon.name === this.model.icon} id="${icon.name}" type="radio" name="icon" value="${icon.name}">
-                                        <label for="${icon.name}" class="icon">
+                                        <label for="${icon.name}" class="icon" title="${icon.name}">
                                             ${unsafeHTML(icon.svg)}
                                         </label>
                                     </div>
@@ -133,7 +133,7 @@ export default class IconModal extends SuperComponent<IIconModal>{
                         <div class="pages">
                             ${new Array(this.model.totalPages).fill(null).map((value, index) => {
                                 return html`
-                                    <button @click=${this.changePage} class="${index * 50 === this.model.offset ? "is-active" : ""}" data-offset=${index}>${index + 1}</button>
+                                    <button @click=${this.changePage} class="${index * 50 === this.model.offset ? "is-active" : ""}" data-offset="${index * 50}">${index + 1}</button>
                                 `;
                             })}
                         </div>

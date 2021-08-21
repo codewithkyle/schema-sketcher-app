@@ -7,6 +7,7 @@ import { css, mount } from "~controllers/env";
 import { publish } from "~lib/pubsub";
 import { Node } from "~types/diagram";
 import ConnectorComponent from "~components/connector-component/connector-component";
+import cc from "~controllers/control-center";
 
 interface INodeComponent extends Node {
 
@@ -67,6 +68,21 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         }
     }
 
+    private broadcastMove(){
+        const x = parseInt(this.dataset.left);
+        const y = parseInt(this.dataset.top);
+        const op1 = cc.set("diagrams", this.diagramID, ["nodes", this.model.uid, "x"], x);
+        cc.perform(op1);
+        const op2 = cc.set("diagrams", this.diagramID, ["nodes", this.model.uid, "y"], y);
+        cc.perform(op2);
+    }
+
+    private move(x:number, y:number){
+        this.style.transform = `translate(${x}px, ${y}px)`;
+        this.dataset.top = `${y}`;
+        this.dataset.left = `${x}`;
+    }
+
     private handleKeyboard:EventListener = (e:KeyboardEvent) => {
         if (e instanceof KeyboardEvent && document.activeElement === this){
             let moveX = false;
@@ -112,22 +128,18 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             if (moveX){
                 const x = parseInt(this.dataset.left) + direction;
                 const y = parseInt(this.dataset.top);
-                this.style.transform = `translate(${x}px, ${y}px)`;
-                this.style.transform = `translate(${x}px, ${y}px)`;
-                this.dataset.top = `${y}`;
-                this.dataset.left = `${x}`;
+                this.move(x, y);
                 this.prevX = x;
                 this.prevY = y;
+                this.broadcastMove();
             }
             else if (moveY) {
                 const x = parseInt(this.dataset.left);
                 const y = parseInt(this.dataset.top) + direction;
-                this.style.transform = `translate(${x}px, ${y}px)`;
-                this.style.transform = `translate(${x}px, ${y}px)`;
-                this.dataset.top = `${y}`;
-                this.dataset.left = `${x}`;
+                this.move(x, y);
                 this.prevX = x;
                 this.prevY = y;
+                this.broadcastMove();
             }
         }
     }
@@ -177,22 +189,18 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             if (moveX){
                 const x = parseInt(this.dataset.left) + direction;
                 const y = parseInt(this.dataset.top);
-                this.style.transform = `translate(${x}px, ${y}px)`;
-                this.style.transform = `translate(${x}px, ${y}px)`;
-                this.dataset.top = `${y}`;
-                this.dataset.left = `${x}`;
+                this.move(x, y);
                 this.prevX = x;
                 this.prevY = y;
+                this.broadcastMove();
             }
             else if (moveY) {
                 const x = parseInt(this.dataset.left);
                 const y = parseInt(this.dataset.top) + direction;
-                this.style.transform = `translate(${x}px, ${y}px)`;
-                this.style.transform = `translate(${x}px, ${y}px)`;
-                this.dataset.top = `${y}`;
-                this.dataset.left = `${x}`;
+                this.move(x, y);
                 this.prevX = x;
                 this.prevY = y;
+                this.broadcastMove();
             }
         }
     }
@@ -218,7 +226,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
     }
 
     private mouseUp:EventListener = (e:MouseEvent) => {
-        if (e instanceof MouseEvent){
+        if (e instanceof MouseEvent && this.isMoving){
             this.isMoving = false;
             this.prevX = parseInt(this.dataset.left);
             this.prevY = parseInt(this.dataset.top);
@@ -229,6 +237,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
                 tableID: this.id,
                 refs: [this.model.uid],
             });
+            this.broadcastMove();
         }
     }
 
@@ -238,16 +247,13 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             const moveY = this.prevY - e.clientY;
             const x = parseInt(this.dataset.left) - moveX;
             const y = parseInt(this.dataset.top) - moveY;
-            this.style.transform = `translate(${x}px, ${y}px)`;
-            this.dataset.top = `${y}`;
-            this.dataset.left = `${x}`;
+            this.move(x, y);
             this.prevX = e.clientX;
             this.prevY = e.clientY;
         }
     }
 
     private updateIcon(color:string, icon:string){
-        console.log(color, icon);
         this.update({
             color: color,
             icon: icon,
@@ -274,7 +280,6 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         const result = await db.query("SELECT svg FROM icons WHERE name = $name", {
             name: this.model.icon,
         });
-        console.log(result);
         const icon = result[0].svg;
         const view = html`
             <button @mousedown=${this.noop} @click=${this.openIconMenu} class="font-${this.model.color}-600">

@@ -15,12 +15,12 @@ export interface Insert extends OPCode{
 export interface Delete extends OPCode{}
 
 export interface Set extends OPCode{
-    keypath: string,
+    keypath: string|string[],
     value: any,
 }
 
 export interface Unset extends OPCode{
-    keypath: string,
+    keypath: string|string[],
 }
 
 export interface Batch{
