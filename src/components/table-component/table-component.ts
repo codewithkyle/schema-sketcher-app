@@ -69,9 +69,9 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     private broadcastMove(){
         const x = parseInt(this.dataset.left);
         const y = parseInt(this.dataset.top);
-        const op1 = cc.set("diagrams", this.diagramID, ["tables", this.model.uid, "x"], x);
+        const op1 = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.x`, x);
         cc.perform(op1, true);
-        const op2 = cc.set("diagrams", this.diagramID, ["tables", this.model.uid, "y"], y);
+        const op2 = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.y`, y);
         cc.perform(op2, true);
     }
 
@@ -179,6 +179,8 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             this.update({
                 name: newName,
             });
+            const op = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.name`, newName);
+            cc.perform(op, true);
         }
     }
 
@@ -191,7 +193,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     private addColumn = (focusColumn) => {
         const uid = uuid();
         const updatedModel = {...this.model};
-        updatedModel.columns[uid] = {
+        const column:Column = {
             name: `column_${Object.keys(this.model.columns).length + 1}`,
             type: "int",
             isNullable: false,
@@ -201,7 +203,10 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             order: Object.keys(this.model.columns).length,
             uid: uid,
         };
+        updatedModel.columns[uid] = column;
         this.update(updatedModel);
+        const op = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.columns.${uid}`, column);
+        cc.perform(op, true);
         // @ts-ignore
         document.activeElement?.blur();
         if (typeof focusColumn === "boolean" && focusColumn === true){

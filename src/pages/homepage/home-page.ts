@@ -7,6 +7,9 @@ import db from "@codewithkyle/jsql";
 import dayjs_min from "~lib/dayjs";
 import { navigateTo } from "@codewithkyle/router";
 import { Diagram } from "~types/diagram";
+import cc from "~controllers/control-center";
+import { subscribe } from "~lib/pubsub";
+import { setValueFromKeypath, unsetValueFromKeypath } from "~utils/sync";
 
 type Tabs = "all" | "cloud" | "local";
 
@@ -27,7 +30,41 @@ export default class Homepage extends SuperComponent<IHomepage>{
         await css(["homepage", "overflow-menu"]);
         // @ts-ignore
         this.model.diagrams = await db.query("SELECT * FROM diagrams ORDER BY timestamp DESC");
+        subscribe("sync", this.syncInbox.bind(this));
         this.render();
+    }
+
+    private syncInbox(e) {
+        const { op, uid, table, key, value, keypath, timestamp } = e;
+        if (table === "diagrams"){
+            const updatedModel = {...this.model};
+            let index = 0;
+            let diagram = null;
+            for (let i = 0; i < updatedModel.diagrams.length; i++){
+                if (updatedModel.diagrams[i].uid === key){
+                    diagram = updatedModel.diagrams[i];
+                    index = i;
+                    break;
+                }
+            }
+            let requiresUpdate = false;
+            switch(op){
+                case "SET":
+                    setValueFromKeypath(diagram, keypath, value);
+                    requiresUpdate = true;
+                    break;
+                case "UNSET":
+                    unsetValueFromKeypath(diagram, keypath);
+                    requiresUpdate = true;
+                    break;
+                default:
+                    break;
+            }
+            if (requiresUpdate){
+                updatedModel.diagrams[index] = diagram;
+                this.update(updatedModel);
+            }
+        }
     }
 
     private switchTabClick:EventListener = (e:Event) => {
@@ -67,16 +104,8 @@ export default class Homepage extends SuperComponent<IHomepage>{
     private renameDiagram:EventListener = async (e:Event) => {
         const target = e.currentTarget as HTMLElement;
         const newName = prompt("Rename diagram", target.dataset.name);
-        // @ts-ignore
-        await db.query("UPDATE diagrams SET name = $name WHERE uid = $uid", {
-            name: newName,
-            uid: target.dataset.uid,
-        });
-        // @ts-ignore
-        const diagrams = await db.query("SELECT * FROM diagrams ORDER BY timestamp DESC");
-        this.update({
-            diagrams: diagrams,
-        });
+        const op = cc.set("diagrams", target.dataset.uid, "name", newName);
+        cc.perform(op, true);
     }
 
     private deleteDiagram:EventListener = async (e:Event) => {
@@ -87,6 +116,10 @@ export default class Homepage extends SuperComponent<IHomepage>{
             await db.query("DELETE FROM diagrams WHERE uid = $uid", {
                 uid: target.dataset.uid,
             });
+            // @ts-ignore
+            await db.query("DELETE FROM ledger WHERE key = $uid", {
+                uid: target.dataset.uid,
+            })
         }
         // @ts-ignore
         const diagrams = await db.query("SELECT * FROM diagrams ORDER BY timestamp DESC");

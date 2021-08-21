@@ -71,9 +71,9 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
     private broadcastMove(){
         const x = parseInt(this.dataset.left);
         const y = parseInt(this.dataset.top);
-        const op1 = cc.set("diagrams", this.diagramID, ["nodes", this.model.uid, "x"], x);
+        const op1 = cc.set("diagrams", this.diagramID, `nodes.${this.model.uid}.x`, x);
         cc.perform(op1, true);
-        const op2 = cc.set("diagrams", this.diagramID, ["nodes", this.model.uid, "y"], y);
+        const op2 = cc.set("diagrams", this.diagramID, `nodes.${this.model.uid}.y`, y);
         cc.perform(op2, true);
     }
 
@@ -224,7 +224,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
     private handleBlur:EventListener = (e:Event) => {
         const target = e.currentTarget as HTMLInputElement;
         if (target.value !== this.model.text){
-            const op = cc.set("diagrams", this.diagramID, ["nodes", this.model.uid, "text"], target.value);
+            const op = cc.set("diagrams", this.diagramID, `nodes.${this.model.uid}.text`, target.value);
             cc.perform(op, true);
         }
     }
@@ -275,9 +275,9 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             color: color,
             icon: icon,
         });
-        const op1 = cc.set("diagrams", this.diagramID, ["nodes", this.model.uid, "color"], color);
+        const op1 = cc.set("diagrams", this.diagramID, `nodes.${this.model.uid}.color`, color);
         cc.perform(op1, true);
-        const op2 = cc.set("diagrams", this.diagramID, ["nodes", this.model.uid, "icon"], icon);
+        const op2 = cc.set("diagrams", this.diagramID, `nodes.${this.model.uid}.icon`, icon);
         cc.perform(op2, true);
     }
 
