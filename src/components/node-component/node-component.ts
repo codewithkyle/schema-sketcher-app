@@ -72,9 +72,9 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         const x = parseInt(this.dataset.left);
         const y = parseInt(this.dataset.top);
         const op1 = cc.set("diagrams", this.diagramID, ["nodes", this.model.uid, "x"], x);
-        cc.perform(op1);
+        cc.perform(op1, true);
         const op2 = cc.set("diagrams", this.diagramID, ["nodes", this.model.uid, "y"], y);
-        cc.perform(op2);
+        cc.perform(op2, true);
     }
 
     private move(x:number, y:number){
@@ -205,15 +205,28 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         }
     }
 
-    private handleInput:EventListener = (e:Event) => {
-        const target = e.currentTarget as HTMLInputElement;
-        const vlaue = target.value;
-        const metrics = this.ctx.measureText(vlaue);
+    private calcWidth(value){
+        const metrics = this.ctx.measureText(value);
         let newWidth = metrics.width;
         if (newWidth < 100){
             newWidth = 100;
         }
+        return newWidth;
+    }
+
+    private handleInput:EventListener = (e:Event) => {
+        const target = e.currentTarget as HTMLInputElement;
+        const value = target.value;
+        const newWidth = this.calcWidth(value);
         target.style.width = `${newWidth}px`;
+    }
+
+    private handleBlur:EventListener = (e:Event) => {
+        const target = e.currentTarget as HTMLInputElement;
+        if (target.value !== this.model.text){
+            const op = cc.set("diagrams", this.diagramID, ["nodes", this.model.uid, "text"], target.value);
+            cc.perform(op, true);
+        }
     }
 
     private mouseDown:EventListener = (e:MouseEvent) => {
@@ -227,17 +240,21 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
 
     private mouseUp:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent){
-            this.isMoving = false;
-            this.prevX = parseInt(this.dataset.left);
-            this.prevY = parseInt(this.dataset.top);
-            this.setAttribute("state", "idling");
-            publish("canvas", {
-                type: "end",
-                id: this.id,
-                tableID: this.id,
-                refs: [this.model.uid],
-            });
-            this.broadcastMove();
+            if (this.isMoving){
+                this.isMoving = false;
+                this.prevX = parseInt(this.dataset.left);
+                this.prevY = parseInt(this.dataset.top);
+                this.setAttribute("state", "idling");
+                this.broadcastMove();
+            }
+            else {
+                publish("canvas", {
+                    type: "end",
+                    id: this.id,
+                    tableID: this.id,
+                    refs: [this.model.uid],
+                });
+            }
         }
     }
 
@@ -258,6 +275,10 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             color: color,
             icon: icon,
         });
+        const op1 = cc.set("diagrams", this.diagramID, ["nodes", this.model.uid, "color"], color);
+        cc.perform(op1, true);
+        const op2 = cc.set("diagrams", this.diagramID, ["nodes", this.model.uid, "icon"], icon);
+        cc.perform(op2, true);
     }
 
     private openIconMenu:EventListener = (e:Event) => {
@@ -286,7 +307,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
                 <div class="bg-${this.model.color}-500"></div>
                 ${unsafeHTML(icon)}
             </button>
-            <input value="${this.model.text}" type="text" @input=${this.handleInput} @keydown=${this.handleInputKeyboard}>
+            <input style="width:${this.calcWidth(this.model.text)}px;" value="${this.model.text}" type="text" @input=${this.handleInput} @keydown=${this.handleInputKeyboard} @blur=${this.handleBlur}>
             ${new ConnectorComponent(`top: -6px;left: 16px;`, this.id, "top", this.id, [this.model.uid])}
             ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 6px);`, this.id, "right", this.id, [this.model.uid])}
             ${new ConnectorComponent(`top: calc(100% - 6px);left: 16px;`, this.id, "bottom", this.id, [this.model.uid])}

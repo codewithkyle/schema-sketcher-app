@@ -2,6 +2,7 @@ import { v4 as uuid } from "uuid";
 import { Delete, Insert, OPCode, Set, Unset } from "~types/ops";
 import { createSubscription, publish } from "@codewithkyle/pubsub";
 import db from "@codewithkyle/jsql";
+import { setValueFromKeypath, unsetValueFromKeypath } from "~utils/sync";
 
 class ControlCenter {
     private syncing: boolean;
@@ -149,32 +150,6 @@ class ControlCenter {
         }
     }
 
-    public setValueFromKeypath(object, keypath, value){
-        if (!Array.isArray(keypath)){
-            keypath = keypath.split(".");
-        }
-        const key = keypath[0];
-        keypath.splice(0, 1);
-        if (keypath.length){
-            this.setValueFromKeypath(object[key], keypath, value);
-        } else {
-            object[key] = value;
-        }
-    }
-    
-    public unsetValueFromKeypath(object, keypath){
-        if (!Array.isArray(keypath)){
-            keypath = keypath.split(".");
-        }
-        const key = keypath[0];
-        keypath.splice(0, 1);
-        if (keypath.length){
-            this.unsetValueFromKeypath(object[key], keypath);
-        } else {
-            delete object[key];
-        }
-    }
-
     private async op(operation):Promise<any>{
         // @ts-ignore
         const { op, uid, table, key, value, keypath, timestamp } = operation;
@@ -211,7 +186,7 @@ class ControlCenter {
                     if (obj === null){
                         reject();
                     }
-                    this.setValueFromKeypath(obj, keypath, value);
+                    setValueFromKeypath(obj, keypath, value);
                     await db.query("UPDATE $table SET $value WHERE uid = $uid", {
                         table: table,
                         value: obj,
@@ -229,7 +204,7 @@ class ControlCenter {
                     if (obj === null){
                         reject();
                     }
-                    this.unsetValueFromKeypath(obj, keypath);
+                    unsetValueFromKeypath(obj, keypath);
                     await db.query("UPDATE $table SET $value WHERE uid = $uid", {
                         table: table,
                         uid: key,

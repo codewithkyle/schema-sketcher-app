@@ -70,9 +70,9 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         const x = parseInt(this.dataset.left);
         const y = parseInt(this.dataset.top);
         const op1 = cc.set("diagrams", this.diagramID, ["tables", this.model.uid, "x"], x);
-        cc.perform(op1);
+        cc.perform(op1, true);
         const op2 = cc.set("diagrams", this.diagramID, ["tables", this.model.uid, "y"], y);
-        cc.perform(op2);
+        cc.perform(op2, true);
     }
 
     private move(x:number, y:number){
