@@ -24,7 +24,6 @@ export default class CanvasComponent extends HTMLElement{
     private h: number;
     private oldTime: number;
     private lines:Array<Connection>;
-    private highlightedLines:Array<string>;
     private openStartPoint:StartPoint;
     private mousePos:Point;
     private ticketID: string;
@@ -36,8 +35,6 @@ export default class CanvasComponent extends HTMLElement{
         this.y = 0;
         this.w = 0;
         this.h = 0;
-        this.highlightedLines = [];
-        this.lines = diagramController.getConnections();
         this.openStartPoint = null;
         this.mousePos = null;
         this.forceHighlight = null;
@@ -60,6 +57,7 @@ export default class CanvasComponent extends HTMLElement{
                 this.canvas.width = window.innerWidth;
                 this.canvas.height = window.innerHeight - 64;
             }, 300));
+            this.lines = diagramController.getConnections();
             this.oldTime = performance.now();
             this.eventLoop();   
     }
@@ -371,7 +369,7 @@ export default class CanvasComponent extends HTMLElement{
         const newTime = performance.now();
         const deltaTime = (newTime - this.oldTime) / 1000;
         this.oldTime = newTime;
-        this.highlightedLines = [];
+        const highlightedLines = [];
         
         try {
             this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
@@ -611,17 +609,35 @@ export default class CanvasComponent extends HTMLElement{
                 // }
             }
             
+            // Set highlighted lines
             for (let i = 0; i < lines.length; i++){
                 const line = lines[i];
-                const { x: startX, y: startY } = line.start;
-                const { x: endX, y: endY } = line.end;
-                if (this.highlightedLines.includes(line.uid) || this.forceHighlight !== null && line.refs.includes(this.forceHighlight)){
-                    this.ctx.strokeStyle = LINE_HOVER_COLOUR;
-                } else {
-                    this.ctx.strokeStyle = LINE_COLOUR;
+                if (this.forceHighlight !== null && line.refs.includes(this.forceHighlight)){
+                    highlightedLines.push(line.uid);
                 }
-                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide);
-            }            
+            }
+            
+            // Draw normal lines
+            for (let i = 0; i < lines.length; i++){
+                const line = lines[i];
+                if (!highlightedLines.includes(line.uid)){
+                    const { x: startX, y: startY } = line.start;
+                    const { x: endX, y: endY } = line.end;
+                    this.ctx.strokeStyle = LINE_COLOUR;
+                    this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide);
+                }
+            }    
+            
+            // Draw highlighted lines
+            for (let i = 0; i < lines.length; i++){
+                const line = lines[i];
+                if (highlightedLines.includes(line.uid)){
+                    const { x: startX, y: startY } = line.start;
+                    const { x: endX, y: endY } = line.end;
+                    this.ctx.strokeStyle = LINE_HOVER_COLOUR;
+                    this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide);
+                }
+            }
         } catch(e) {
             console.error(e);
             console.log("Something went wrong, skipping frame.");
