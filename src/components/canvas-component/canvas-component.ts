@@ -1,8 +1,10 @@
 import { css, mount } from "~controllers/env";
 import { createSubscription, subscribe, unsubscribe } from "~lib/pubsub";
-import type { Point } from "~types/diagram";
+import type { Connection, Point } from "~types/diagram";
 import { v4 as uuid } from "uuid";
 import debounce from "../../utils/debounce";
+import cc from "~controllers/control-center";
+import diagramController from "~controllers/diagram-controller";
 
 const LINE_COLOUR = "#9CA3AF";
 const LINE_HOVER_COLOUR = "#EC4899";
@@ -13,20 +15,6 @@ interface StartPoint extends Point {
     refs: Array<string>,
 }
 
-class Line {
-    public start: string;
-    public end: string;
-    public uid: string;
-    public refs: Array<string>;
-    
-    constructor(start:string, end:string, uid:string){
-        this.start = start;
-        this.end = end;
-        this.uid = uid;
-        this.refs = [];
-    }
-}
-
 export default class CanvasComponent extends HTMLElement{
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
@@ -35,7 +23,7 @@ export default class CanvasComponent extends HTMLElement{
     private w: number;
     private h: number;
     private oldTime: number;
-    private lines:Array<Line>;
+    private lines:Array<Connection>;
     private highlightedLines:Array<string>;
     private openStartPoint:StartPoint;
     private mousePos:Point;
@@ -49,7 +37,7 @@ export default class CanvasComponent extends HTMLElement{
         this.w = 0;
         this.h = 0;
         this.highlightedLines = [];
-        this.lines = [];
+        this.lines = diagramController.getConnections();
         this.openStartPoint = null;
         this.mousePos = null;
         this.forceHighlight = null;
@@ -110,12 +98,8 @@ export default class CanvasComponent extends HTMLElement{
 
     private endLine(id:string, tableID:string, refs:Array<string> = []){
         if (this.openStartPoint !== null && id !== this.openStartPoint.id && tableID !== this.openStartPoint.tableID){
-            this.lines.push({
-                start: this.openStartPoint.id,
-                end: id,
-                uid: uuid(),
-                refs: [...this.openStartPoint.refs, ...refs],
-            });
+            const connection:Connection = diagramController.createConnection(this.openStartPoint.id, id, [...this.openStartPoint.refs, ...refs]);
+            this.lines.push(connection);
             this.openStartPoint = null;
         }
     }
@@ -431,8 +415,8 @@ export default class CanvasComponent extends HTMLElement{
         
             const lines = [];
             for (let i = 0; i < this.lines.length; i++){
-                const startColumnEL:HTMLElement = this.getElement(`#${this.lines[i].start}`);
-                const endColumnEL:HTMLElement = this.getElement(`#${this.lines[i].end}`);
+                const startColumnEL:HTMLElement = this.getElement(`#${this.lines[i].startNodeID}`);
+                const endColumnEL:HTMLElement = this.getElement(`#${this.lines[i].endNodeID}`);
 
                 const startColumnBounds = startColumnEL.getBoundingClientRect();
                 const endColumnBounds = endColumnEL.getBoundingClientRect();
@@ -562,8 +546,8 @@ export default class CanvasComponent extends HTMLElement{
                     endSide = "NO-CONNECTION"
                 }
 
-                const startEl:HTMLElement = this.getElement(`#${this.lines[i].start}_${startSide}`);
-                const endEL:HTMLElement = this.getElement(`#${this.lines[i].end}_${endSide}`);
+                const startEl:HTMLElement = this.getElement(`#${this.lines[i].startNodeID}_${startSide}`);
+                const endEL:HTMLElement = this.getElement(`#${this.lines[i].endNodeID}_${endSide}`);
 
                 const startBounds = startEl.getBoundingClientRect();
                 const endBounds = endEL.getBoundingClientRect();

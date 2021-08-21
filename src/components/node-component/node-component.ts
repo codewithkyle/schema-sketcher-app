@@ -226,7 +226,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
     }
 
     private mouseUp:EventListener = (e:MouseEvent) => {
-        if (e instanceof MouseEvent && this.isMoving){
+        if (e instanceof MouseEvent){
             this.isMoving = false;
             this.prevX = parseInt(this.dataset.left);
             this.prevY = parseInt(this.dataset.top);

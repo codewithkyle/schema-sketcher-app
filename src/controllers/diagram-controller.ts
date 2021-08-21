@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid";
 import db from "@codewithkyle/jsql";
 import { navigateTo } from "@codewithkyle/router";
-import { Diagram } from "~types/diagram";
+import { Connection, Diagram, Node, Table } from "~types/diagram";
 import cc from "~controllers/control-center";
 
 const TYPES = ["int", "bigint", "binary", "blob", "boolean", "char", "date", "datetime", "decimal", "double", "enum", "float", "geometry", "json", "bson", "longtext", "mediumint", "mediumtext", "multipoint", "point", "smallint", "time", "text", "timestamp", "tinyint", "uuid", "varchar"];
@@ -77,7 +77,7 @@ class DiagramController {
         const types = await db.query("SELECT types FROM diagrams WHERE uid = $uid LIMIT 1", {
             uid: this.diagram.uid,
         });
-        const diagram:Diagram = {
+        const diagram:Table = {
             uid: uid,
             name: `table_${tableCount}`,
             color: this.getRandomColor(),
@@ -103,7 +103,7 @@ class DiagramController {
     }
     
     public async createNode(uid:string, placeX:number, placeY:number){
-        const node = {
+        const node:Node = {
             uid: uid,
             text: "New node",
             x: placeX,
@@ -115,6 +115,29 @@ class DiagramController {
         const op = cc.set("diagrams", this.diagram.uid, ["nodes", uid], node);
         cc.perform(op);
         return node;
+    }
+
+    public createConnection(startNodeID:string, endNodeID:string, refs:Array<string>):Connection{
+        const uid = uuid();
+        const connection:Connection = {
+            uid: uid,
+            startNodeID: startNodeID,
+            endNodeID: endNodeID,
+            type: "one-one",
+            refs: refs,
+        };
+        this.diagram.connections[uid] = connection;
+        const op = cc.set("diagrams", this.diagram.uid, ["connections", uid], connection);
+        cc.perform(op);
+        return connection;
+    }
+
+    public getConnections():Array<Connection>{
+        const connections = [];
+        for (const key in this.diagram.connections){
+            connections.push(this.diagram.connections[key]);
+        }
+        return connections;
     }
 }
 const diagramController = new DiagramController();
