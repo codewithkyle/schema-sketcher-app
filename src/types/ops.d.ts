@@ -1,10 +1,10 @@
-export type OP = "INSERT" | "DELETE" | "SET" | "UNSET";
+export type OP = "INSERT" | "DELETE" | "SET" | "UNSET" | "BATCH";
 
 export interface OPCode{
     uid: string,
+    table: string,
     op: OP,
     timestamp: number,
-    table: string,
     key: string,
 }
 
@@ -23,7 +23,6 @@ export interface Unset extends OPCode{
     keypath: string,
 }
 
-export interface Batch{
-    op: "BATCH",
+export interface Batch extends OPCode{
     ops: Array<OPCode>,
 }

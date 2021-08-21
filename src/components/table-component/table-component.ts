@@ -18,9 +18,11 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     private movingColumnUID: string;
     private focusLastColumn: boolean;
     private diagramID: string;
+    private wasMoved: boolean;
 
     constructor(data:Table, diagramID:string){
         super();
+        this.wasMoved = false;
         this.focusLastColumn = false;
         this.prevX = data.x;
         this.prevY = data.y;
@@ -66,13 +68,13 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         }
     }
 
-    private broadcastMove(){
-        const x = parseInt(this.dataset.left);
-        const y = parseInt(this.dataset.top);
-        const op1 = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.x`, x);
-        cc.perform(op1, true);
-        const op2 = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.y`, y);
-        cc.perform(op2, true);
+    private broadcastMove(x:number, y: number){
+        if (this.wasMoved){
+            const op1 = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.x`, x);
+            const op2 = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.y`, y);
+            const op = cc.batch("diagrams", this.diagramID, [op1, op2]);
+            cc.perform(op);
+        }
     }
 
     private move(x:number, y:number){
@@ -84,6 +86,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     private mouseDown:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent){
             this.isMoving = true;
+            this.wasMoved = false;
             this.prevX = e.clientX;
             this.prevY = e.clientY;
         }
@@ -91,10 +94,11 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
 
     private mouseUp:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent && this.isMoving){
-            this.isMoving = false;
             this.prevX = parseInt(this.dataset.left);
             this.prevY = parseInt(this.dataset.top);
-            this.broadcastMove();
+            this.broadcastMove(this.prevX, this.prevY);
+            this.isMoving = false;
+            this.wasMoved = false;
         }
     }
 
@@ -105,6 +109,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             const x = parseInt(this.dataset.left) - moveX;
             const y = parseInt(this.dataset.top) - moveY;
             this.move(x, y);
+            this.wasMoved = true;
             this.prevX = e.clientX;
             this.prevY = e.clientY;
         }
@@ -155,18 +160,20 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             if (moveX){
                 const x = parseInt(this.dataset.left) + direction;
                 const y = parseInt(this.dataset.top);
+                this.wasMoved = true;
                 this.move(x, y);
                 this.prevX = x;
                 this.prevY = y;
-                this.broadcastMove();
+                this.broadcastMove(x, y);
             }
             else if (moveY) {
                 const x = parseInt(this.dataset.left);
                 const y = parseInt(this.dataset.top) + direction;
+                this.wasMoved = true;
                 this.move(x, y);
                 this.prevX = x;
                 this.prevY = y;
-                this.broadcastMove();
+                this.broadcastMove(x, y);
             }
         }
     }
@@ -180,7 +187,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
                 name: newName,
             });
             const op = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.name`, newName);
-            cc.perform(op, true);
+            cc.perform(op);
         }
     }
 
@@ -206,7 +213,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         updatedModel.columns[uid] = column;
         this.update(updatedModel);
         const op = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.columns.${uid}`, column);
-        cc.perform(op, true);
+        cc.perform(op);
         // @ts-ignore
         document.activeElement?.blur();
         if (typeof focusColumn === "boolean" && focusColumn === true){
@@ -247,9 +254,14 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
                 columns.splice(i, 1);
             }
         }
+        const ops = [];
         for (let i = 0; i < columns.length; i++){
             updatedModel.columns[columns[i]].order = i;
+            const op = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.columns.${columns[i]}.order`, i);
+            ops.push(op);
         }
+        const op = cc.batch("diagrams", this.diagramID, ops);
+        cc.perform(op);
         this.movingColumnUID = null;
         this.update(updatedModel);
     }

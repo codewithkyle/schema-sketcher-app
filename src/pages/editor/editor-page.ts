@@ -8,12 +8,10 @@ import ContextMenu from "~components/context-menu/context-menu";
 import { v4 as uuid} from "uuid";
 import TableComponent from "~components/table-component/table-component";
 import { navigateTo } from "@codewithkyle/router";
-import db from "@codewithkyle/jsql";
 import EditorControls from "~components/editor-controls/editor-controls";
 import { createSubscription, publish, subscribe } from "~lib/pubsub";
 import NodeComponent from "~components/node-component/node-component";
 import CanvasComponent from "~components/canvas-component/canvas-component";
-import cc from "~controllers/control-center";
 import { setValueFromKeypath, unsetValueFromKeypath } from "~utils/sync";
 
 interface IEditorPage {
@@ -44,7 +42,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         this.isMoving = false;
         this.forceMove = false;
         createSubscription("zoom");
-        subscribe("sync", this.syncInbox.bind(this));
     }
 
     override async connected(){
@@ -59,29 +56,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         this.update({
             diagram: diagram,
         });
-    }
-
-    private syncInbox(e) {
-        const { op, uid, table, key, value, keypath, timestamp } = e;
-        if (key === this.model.diagram.uid){
-            const updatedModel = {...this.model};
-            let requiresUpdate = false;
-            switch(op){
-                case "set":
-                    setValueFromKeypath(updatedModel, keypath, value);
-                    requiresUpdate = true;
-                    break;
-                case "unset":
-                    unsetValueFromKeypath(updatedModel, keypath);
-                    requiresUpdate = true;
-                    break;
-                default:
-                    break;
-            }
-            if (requiresUpdate){
-                this.update(updatedModel);
-            }
-        }
     }
 
     private setCursor(type:"auto"|"hand"|"grabbing"){

@@ -19,9 +19,11 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
     private prevX: number;
     private prevY: number;
     private isMoving: boolean;
+    private wasMoved: boolean;
 
     constructor(node:Node, diagramID:string){
         super();
+        this.wasMoved = false;
         this.model = node;
         this.diagramID = diagramID;
         this.canvas = document.createElement("canvas");
@@ -68,13 +70,13 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         }
     }
 
-    private broadcastMove(){
-        const x = parseInt(this.dataset.left);
-        const y = parseInt(this.dataset.top);
-        const op1 = cc.set("diagrams", this.diagramID, `nodes.${this.model.uid}.x`, x);
-        cc.perform(op1, true);
-        const op2 = cc.set("diagrams", this.diagramID, `nodes.${this.model.uid}.y`, y);
-        cc.perform(op2, true);
+    private broadcastMove(x:number, y:number){
+        if (this.wasMoved){
+            const op1 = cc.set("diagrams", this.diagramID, `nodes.${this.model.uid}.x`, x);
+            const op2 = cc.set("diagrams", this.diagramID, `nodes.${this.model.uid}.y`, y);
+            const op = cc.batch("diagrams", this.diagramID, [op1, op2]);
+            cc.perform(op);
+        }
     }
 
     private move(x:number, y:number){
@@ -128,18 +130,20 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             if (moveX){
                 const x = parseInt(this.dataset.left) + direction;
                 const y = parseInt(this.dataset.top);
+                this.wasMoved = true;
+                this.broadcastMove(x, y);
                 this.move(x, y);
                 this.prevX = x;
                 this.prevY = y;
-                this.broadcastMove();
             }
             else if (moveY) {
                 const x = parseInt(this.dataset.left);
                 const y = parseInt(this.dataset.top) + direction;
+                this.wasMoved = true;
+                this.broadcastMove(x, y);
                 this.move(x, y);
                 this.prevX = x;
                 this.prevY = y;
-                this.broadcastMove();
             }
         }
     }
@@ -189,18 +193,20 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             if (moveX){
                 const x = parseInt(this.dataset.left) + direction;
                 const y = parseInt(this.dataset.top);
+                this.wasMoved = true;
+                this.broadcastMove(x, y);
                 this.move(x, y);
                 this.prevX = x;
                 this.prevY = y;
-                this.broadcastMove();
             }
             else if (moveY) {
                 const x = parseInt(this.dataset.left);
                 const y = parseInt(this.dataset.top) + direction;
+                this.wasMoved = true;
+                this.broadcastMove(x, y);
                 this.move(x, y);
                 this.prevX = x;
                 this.prevY = y;
-                this.broadcastMove();
             }
         }
     }
@@ -225,7 +231,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         const target = e.currentTarget as HTMLInputElement;
         if (target.value !== this.model.text){
             const op = cc.set("diagrams", this.diagramID, `nodes.${this.model.uid}.text`, target.value);
-            cc.perform(op, true);
+            cc.perform(op);
         }
     }
 
@@ -234,6 +240,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             this.isMoving = true;
             this.prevX = e.clientX;
             this.prevY = e.clientY;
+            this.wasMoved = false;
             this.setAttribute("state", "moving");
         }
     }
@@ -244,8 +251,9 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
                 this.isMoving = false;
                 this.prevX = parseInt(this.dataset.left);
                 this.prevY = parseInt(this.dataset.top);
+                this.broadcastMove(this.prevX, this.prevY);
                 this.setAttribute("state", "idling");
-                this.broadcastMove();
+                this.wasMoved = false;
             }
             else {
                 publish("canvas", {
@@ -267,6 +275,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             this.move(x, y);
             this.prevX = e.clientX;
             this.prevY = e.clientY;
+            this.wasMoved = true;
         }
     }
 
