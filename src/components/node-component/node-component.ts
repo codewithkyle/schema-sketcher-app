@@ -258,8 +258,8 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             else {
                 publish("canvas", {
                     type: "end",
-                    id: this.id,
-                    tableID: this.id,
+                    id: this.model.uid,
+                    tableID: this.model.uid,
                     refs: [this.model.uid],
                 });
             }
@@ -304,7 +304,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         this.dataset.top = `${this.prevY}`;
         this.dataset.left = `${this.prevX}`;
         this.tabIndex = 0;
-        this.id = `node_${this.model.uid}`;
+        this.dataset.uid = this.model.uid;
         this.setAttribute("aria-label", `use arrow keys to nudge node`);
         // @ts-ignore
         const result = await db.query("SELECT svg FROM icons WHERE name = $name", {
@@ -317,10 +317,10 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
                 ${unsafeHTML(icon)}
             </button>
             <input style="width:${this.calcWidth(this.model.text)}px;" value="${this.model.text}" type="text" @input=${this.handleInput} @keydown=${this.handleInputKeyboard} @blur=${this.handleBlur}>
-            ${new ConnectorComponent(`top: -6px;left: 16px;`, this.id, "top", this.id, [this.model.uid])}
-            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 6px);`, this.id, "right", this.id, [this.model.uid])}
-            ${new ConnectorComponent(`top: calc(100% - 6px);left: 16px;`, this.id, "bottom", this.id, [this.model.uid])}
-            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -6px;`, this.id, "left", this.id, [this.model.uid])}
+            ${new ConnectorComponent(`top: -6px;left: 16px;`, this.model.uid, "top", this.model.uid, [this.model.uid])}
+            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 6px);`, this.model.uid, "right", this.model.uid, [this.model.uid])}
+            ${new ConnectorComponent(`top: calc(100% - 6px);left: 16px;`, this.model.uid, "bottom", this.model.uid, [this.model.uid])}
+            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -6px;`, this.model.uid, "left", this.model.uid, [this.model.uid])}
         `;
         render(view, this);
     }

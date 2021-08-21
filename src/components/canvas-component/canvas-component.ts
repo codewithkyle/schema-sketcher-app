@@ -378,7 +378,7 @@ export default class CanvasComponent extends HTMLElement{
         
             if (this.openStartPoint !== null){
                 this.ctx.strokeStyle = LINE_COLOUR;
-                const startColumnEl:HTMLElement = this.getElement(`#${this.openStartPoint.id}`); 
+                const startColumnEl:HTMLElement = this.getElement(`[data-uid="${this.openStartPoint.id}"]`); 
                 const startColumnBounds = startColumnEl.getBoundingClientRect();
                 const { x: endX, y: endY } = this.mousePos;
                 let startSide;
@@ -404,7 +404,7 @@ export default class CanvasComponent extends HTMLElement{
                     startSide = "left";
                     endSide = "right";
                 }
-                const startEl:HTMLElement = this.getElement(`#${this.openStartPoint.id}_${startSide}`);
+                const startEl:HTMLElement = this.getElement(`[data-uid="${this.openStartPoint.id}_${startSide}"]`);
                 const startBounds = startEl.getBoundingClientRect();
                 const startX = startBounds.x - bounds.x + startBounds.width / 2;
                 const startY = startBounds.y - bounds.y + startBounds.height / 2;
@@ -413,8 +413,8 @@ export default class CanvasComponent extends HTMLElement{
         
             const lines = [];
             for (let i = 0; i < this.lines.length; i++){
-                const startColumnEL:HTMLElement = this.getElement(`#${this.lines[i].startNodeID}`);
-                const endColumnEL:HTMLElement = this.getElement(`#${this.lines[i].endNodeID}`);
+                const startColumnEL:HTMLElement = this.getElement(`[data-uid="${this.lines[i].startNodeID}"]`);
+                const endColumnEL:HTMLElement = this.getElement(`[data-uid="${this.lines[i].endNodeID}"]`);
 
                 const startColumnBounds = startColumnEL.getBoundingClientRect();
                 const endColumnBounds = endColumnEL.getBoundingClientRect();
@@ -544,8 +544,8 @@ export default class CanvasComponent extends HTMLElement{
                     endSide = "NO-CONNECTION"
                 }
 
-                const startEl:HTMLElement = this.getElement(`#${this.lines[i].startNodeID}_${startSide}`);
-                const endEL:HTMLElement = this.getElement(`#${this.lines[i].endNodeID}_${endSide}`);
+                const startEl:HTMLElement = this.getElement(`[data-uid="${this.lines[i].startNodeID}_${startSide}"]`);
+                const endEL:HTMLElement = this.getElement(`[data-uid="${this.lines[i].endNodeID}_${endSide}"]`);
 
                 const startBounds = startEl.getBoundingClientRect();
                 const endBounds = endEL.getBoundingClientRect();

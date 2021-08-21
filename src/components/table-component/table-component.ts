@@ -35,7 +35,6 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
 
     override async connected(){
         this.tabIndex = 0;
-        this.id = this.model.name.replace(/\s+/, "_");
         this.setAttribute("aria-label", `use arrow keys to nudge table ${this.model.name}`);
         document.addEventListener("keydown", this.handleKeyboard);
         document.addEventListener("mousemove", this.mouseMove);
@@ -285,6 +284,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         this.style.transform = `translate(${this.prevX}px, ${this.prevY}px)`;
         this.dataset.top = `${this.prevY}`;
         this.dataset.left = `${this.prevX}`;
+        this.dataset.uid = this.model.uid;
         const orderedColumns = new Array(Object.keys(this.model.columns).length).fill(null);
         Object.keys(this.model.columns).map((key) => {
             const column = this.model.columns[key];
@@ -337,7 +337,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             </header>
             <columns-container>
                 ${orderedColumns.map((column) => {
-                    return new ColumnComponent(column, this.moveCallback.bind(this), this.startMoveCallback.bind(this), this.model.showAllColumnOptions, this.addColumn.bind(this), this.diagramID, this.id, this.model.uid);
+                    return new ColumnComponent(column, this.moveCallback.bind(this), this.startMoveCallback.bind(this), this.model.showAllColumnOptions, this.addColumn.bind(this), this.diagramID, this.model.uid);
                 })}
             </columns-container>
         `;

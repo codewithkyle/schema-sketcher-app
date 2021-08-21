@@ -17,16 +17,14 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
     private startMoveCallback:Function;
     private addColumnCallback:Function;
     private diagramID: string;
-    private tableID: string;
     private tableUID: string;
 
-    constructor(data:Column, moveCallback:Function, startMoveCallback:Function, renderAllOptions:boolean, addColumnCallback:Function, diagramID:string, tableID:string, tableUID:string){
+    constructor(data:Column, moveCallback:Function, startMoveCallback:Function, renderAllOptions:boolean, addColumnCallback:Function, diagramID:string, tableUID:string){
         super();
         this.moveCallback = moveCallback;
         this.startMoveCallback = startMoveCallback;
         this.addColumnCallback = addColumnCallback;
         this.diagramID = diagramID;
-        this.tableID = tableID;
         this.tableUID = tableUID;
         this.model = {...data, ...{
             renderAllOptions: renderAllOptions,
@@ -245,8 +243,8 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
     private endDraw:EventListener = (e:Event) => {
         publish("canvas", {
             type: "end",
-            id: this.id,
-            tableID: this.tableID,
+            id: this.model.uid,
+            tableID: this.tableUID,
             refs: [this.tableUID, this.model.uid],
         });
     }
@@ -254,9 +252,9 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
     override render(){
         this.draggable = true;
         this.tabIndex = 0;
-        this.id = `${this.tableID}_${this.model.name.replace(/\s+/, "_")}`;
+        this.dataset.uid = this.model.uid;
         const view = html`
-            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -6px;`, this.id, "left", this.tableID, [this.tableUID, this.model.uid])}
+            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -6px;`, this.model.uid, "left", this.tableUID, [this.tableUID, this.model.uid])}
             <div @mouseup=${this.endDraw} tabindex="0" draggable="true" class="w-full" flex="row nowrap items-center" @drag=${this.handleDragStart} @dragover=${this.handleDragOver} @dragend=${this.handleDragEnd} @drop=${this.handleDrop} @dragleave=${this.handleDragLeave}>
                 <div flex="row nowrap items-center" style="flex:1;width:100%">
                     ${this.renderPrimaryKey()}
@@ -273,7 +271,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
                     ${this.renderDelete()}
                 </div>
             </div>
-            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 6px);`, this.id, "right", this.tableID, [this.tableUID, this.model.uid])}
+            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 6px);`, this.model.uid, "right", this.tableUID, [this.tableUID, this.model.uid])}
         `;
         render(view, this);
     }

@@ -14,7 +14,7 @@ export default class ConnectorComponent extends HTMLElement{
         this.uid = uuid();
         this.style.cssText = style;
         this.columnID = columnID;
-        this.id = `${columnID}_${side}`;
+        this.dataset.uid = `${columnID}_${side}`;
         this.tableID = tableID;
         this.refs = refs;
         css(["connector-component"]);
