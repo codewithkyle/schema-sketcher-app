@@ -6,6 +6,7 @@ export interface Connection {
     endNodeID: string,
     type: ConnectionType,
     refs: Array<string>,
+    diagramID: string,
 }
 
 export interface Column {
@@ -15,12 +16,16 @@ export interface Column {
     isUnique: boolean,
     isIndex: boolean,
     isPrimaryKey: boolean,
-    order: number,
+    weight: number,
     uid: string,
+    diagramID: string,
+    tableID: string,
 }
 
 export interface ColumnType {
     name: string,
+    uid: string,
+    diagramID: string,
 }
 
 export interface Table {
@@ -29,9 +34,7 @@ export interface Table {
     name: string,
     x: number,
     y: number,
-    columns: {
-        [uid:string]: Column,
-    }
+    diagramID: string,
 }
 
 export interface Node {
@@ -41,24 +44,13 @@ export interface Node {
     x: number,
     y: number,
     icon: string,
+    diagramID: string,
 }
 
 export interface Diagram{
     name: string,
     timestamp: number,
     uid: string,
-    tables: {
-        [uid:string]: Table,
-    },
-    types: {
-        [uid:string]: string,
-    },
-    connections: {
-        [uid:string]: Connection,
-    },
-    nodes: {
-        [uid:string]: Node,
-    }
 }
 
 export interface Point {

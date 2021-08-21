@@ -1,35 +1,39 @@
 import SuperComponent from "@codewithkyle/supercomponent";
 import { html, render } from "lit-html";
 import { css, mount } from "~controllers/env";
-import { Diagram } from "~types/diagram";
-import db from "@codewithkyle/jsql";
-import { v4 as uuid } from "uuid";
+import { ColumnType } from "~types/diagram";
+import diagramController from "~controllers/diagram-controller";
+import { subscribe } from "@codewithkyle/pubsub";
+import ListItemInput from "./list-item-input/list-item-input";
 
 interface ISettingsModal {
-    diagram: Diagram,
     activeTab: "storage" | "column-types";
+    types: Array<ColumnType>,
 }
 export default class SettingsModal extends SuperComponent<ISettingsModal>{
-    private diagramID: string;
-
-    constructor(diagramID:string){
+    constructor(){
         super();
         this.model = {
-            diagram: null,
+            types: [],
             activeTab: "storage",
         };
-        this.diagramID = diagramID;
+        subscribe("sync", this.syncInbox.bind(this));
+    }
+
+    private async syncInbox(e){
+        if (e.table === "types" && e.op === "INSERT"){
+            const container = this.querySelector("list-container");
+            const item = new ListItemInput(e.value);
+            container.appendChild(item);
+        }
     }
 
     override async connected(){
         await css(["settings-modal", "tabs"]);
-        console.log(this.diagramID);
-        // @ts-ignore
-        const results = await db.query("SELECT * FROM diagrams WHERE uid = $uid", {
-            uid: this.diagramID,
+        const types = await diagramController.getTypes();
+        this.update({
+            types: types,
         });
-        this.model.diagram = results[0];
-        this.render();
     }
 
     private close:EventListener = (e:Event) => {
@@ -44,18 +48,8 @@ export default class SettingsModal extends SuperComponent<ISettingsModal>{
         });
     }
 
-    private removeType:EventListener = (e:Event) => {
-        const target = e.currentTarget as HTMLElement;
-        const uid = target.dataset.uid;
-        const updatedModel = {...this.model};
-        delete updatedModel.diagram.types[uid];
-        this.update(updatedModel);
-    }
-
-    private addRow:EventListener = (e:Event) => {
-        const updatedModel = {...this.model};
-        updatedModel.diagram.types[uuid()] = "";
-        this.update(updatedModel);
+    private addRow:EventListener = async (e:Event) => {
+        await diagramController.createType();
     }
 
     private renderTabContent(){
@@ -84,15 +78,8 @@ export default class SettingsModal extends SuperComponent<ISettingsModal>{
                     <list-component>
                         <list-container>
                             <list-header>Column Types</list-header>
-                            ${Object.keys(this.model.diagram.types).map(key => {
-                                return html`
-                                    <list-item>
-                                        <input type="text" value="${this.model.diagram.types[key]}">
-                                        <button data-uid="${key}" @click=${this.removeType}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                                        </button>
-                                    </list-item>
-                                `;
+                            ${this.model.types.map(type => {
+                                return new ListItemInput(type);
                             })}
                         </list-container>
                         <button @click=${this.addRow} class="add-item">
@@ -107,7 +94,6 @@ export default class SettingsModal extends SuperComponent<ISettingsModal>{
     }
 
     override render(){
-        console.log(this.model.diagram);
         const view = html`
             <div @click=${this.close} class="backdrop"></div>
             <div class="modal">

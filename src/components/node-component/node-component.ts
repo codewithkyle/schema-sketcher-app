@@ -8,6 +8,7 @@ import { publish } from "~lib/pubsub";
 import { Node } from "~types/diagram";
 import ConnectorComponent from "~components/connector-component/connector-component";
 import cc from "~controllers/control-center";
+import diagramController from "~controllers/diagram-controller";
 
 interface INodeComponent extends Node {
 
@@ -63,18 +64,19 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         });
     }
 
-    private confirmDelete(){
+    private async confirmDelete(){
         const doDelete = confirm(`Are you sure you want to delete this node?`);
         if (doDelete){
+            await diagramController.deleteNode(this.model.uid);
             this.remove();
         }
     }
 
     private broadcastMove(x:number, y:number){
         if (this.wasMoved){
-            const op1 = cc.set("diagrams", this.diagramID, `nodes.${this.model.uid}.x`, x);
-            const op2 = cc.set("diagrams", this.diagramID, `nodes.${this.model.uid}.y`, y);
-            const op = cc.batch("diagrams", this.diagramID, [op1, op2]);
+            const op1 = cc.set("nodes", this.model.uid, `x`, x);
+            const op2 = cc.set("nodes", this.model.uid, `y`, y);
+            const op = cc.batch("nodes", this.model.uid, [op1, op2]);
             cc.perform(op);
         }
     }
@@ -230,7 +232,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
     private handleBlur:EventListener = (e:Event) => {
         const target = e.currentTarget as HTMLInputElement;
         if (target.value !== this.model.text){
-            const op = cc.set("diagrams", this.diagramID, `nodes.${this.model.uid}.text`, target.value);
+            const op = cc.set("nodes", this.model.uid, "text", target.value);
             cc.perform(op);
         }
     }
@@ -280,14 +282,18 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
     }
 
     private updateIcon(color:string, icon:string){
-        this.update({
-            color: color,
-            icon: icon,
-        });
-        const op1 = cc.set("diagrams", this.diagramID, `nodes.${this.model.uid}.color`, color);
-        cc.perform(op1, true);
-        const op2 = cc.set("diagrams", this.diagramID, `nodes.${this.model.uid}.icon`, icon);
-        cc.perform(op2, true);
+        const updatedModel = {...this.model};
+        if (color !== this.model.color){
+            updatedModel.color = color;
+            const op = cc.set("nodes", this.model.uid, "color", color);
+            cc.perform(op);
+        }
+        if (icon !== this.model.icon){
+            updatedModel.icon = icon;
+            const op = cc.set("nodes", this.model.uid, "icon", icon);
+            cc.perform(op);
+        }
+        this.update(updatedModel);
     }
 
     private openIconMenu:EventListener = (e:Event) => {

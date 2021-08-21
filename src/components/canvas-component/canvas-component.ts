@@ -37,29 +37,29 @@ export default class CanvasComponent extends HTMLElement{
         this.h = 0;
         this.openStartPoint = null;
         this.mousePos = null;
+        this.lines = [];
         this.forceHighlight = null;
         css(["canvas-component"]);
         createSubscription("canvas");
         this.ticketID = subscribe("canvas", this.inbox.bind(this));
     }
 
-    connectedCallback(){
+    async connectedCallback(){
         this.canvas = this.querySelector("canvas") || document.createElement("canvas");
-            if (!this.canvas.isConnected){
-                this.appendChild(this.canvas);
-            }
+        if (!this.canvas.isConnected){
+            this.appendChild(this.canvas);
+        }
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight - 64;
+        this.ctx = this.canvas.getContext("2d");
+        window.addEventListener("mousemove", this.handleMouseMove);
+        window.addEventListener("mouseup", this.endMouseMove);
+        window.addEventListener("resize", debounce(()=>{
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight - 64;
-            this.ctx = this.canvas.getContext("2d");
-            window.addEventListener("mousemove", this.handleMouseMove);
-            window.addEventListener("mouseup", this.endMouseMove);
-            window.addEventListener("resize", debounce(()=>{
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight - 64;
-            }, 300));
-            this.lines = diagramController.getConnections();
-            this.oldTime = performance.now();
-            this.eventLoop();   
+        }, 300));
+        this.oldTime = performance.now();
+        this.eventLoop();   
     }
 
     disconnectedCallback(){
@@ -96,13 +96,12 @@ export default class CanvasComponent extends HTMLElement{
 
     private endLine(id:string, tableID:string, refs:Array<string> = []){
         if (this.openStartPoint !== null && id !== this.openStartPoint.id && tableID !== this.openStartPoint.tableID){
-            const connection:Connection = diagramController.createConnection(this.openStartPoint.id, id, [...this.openStartPoint.refs, ...refs]);
-            this.lines.push(connection);
+            diagramController.createConnection(this.openStartPoint.id, id, [...this.openStartPoint.refs, ...refs]);
             this.openStartPoint = null;
         }
     }
 
-    private inbox(e){
+    private async inbox(e){
         switch(e.type){
             case "clear-highlight":
                 if (e.ref === this.forceHighlight){
@@ -365,17 +364,18 @@ export default class CanvasComponent extends HTMLElement{
         return el as HTMLElement;
     }
 
-    private eventLoop() {
+    private async eventLoop() {
         const newTime = performance.now();
         const deltaTime = (newTime - this.oldTime) / 1000;
         this.oldTime = newTime;
+        this.lines = await diagramController.getConnections();
         const highlightedLines = [];
-        
-        try {
-            this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+
+        this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
             const bounds = this.canvas.getBoundingClientRect();
             this.ctx.lineWidth = 1;
         
+        try {
             if (this.openStartPoint !== null){
                 this.ctx.strokeStyle = LINE_COLOUR;
                 const startColumnEl:HTMLElement = this.getElement(`[data-uid="${this.openStartPoint.id}"]`); 
@@ -410,9 +410,14 @@ export default class CanvasComponent extends HTMLElement{
                 const startY = startBounds.y - bounds.y + startBounds.height / 2;
                 this.drawLine(startX, startY, endX - bounds.x, endY - bounds.y, startSide, endSide);
             }
-        
-            const lines = [];
-            for (let i = 0; i < this.lines.length; i++){
+        }
+        catch (e){
+            console.error("Failed to draw temp line.", e);
+        }
+
+        const lines = [];
+        for (let i = 0; i < this.lines.length; i++){
+            try {
                 const startColumnEL:HTMLElement = this.getElement(`[data-uid="${this.lines[i].startNodeID}"]`);
                 const endColumnEL:HTMLElement = this.getElement(`[data-uid="${this.lines[i].endNodeID}"]`);
 
@@ -566,81 +571,82 @@ export default class CanvasComponent extends HTMLElement{
                     endSide: endSide,
                     refs: this.lines[i].refs,
                 });
-                // Highlight logic
-                // const mouseX = this.mousePos.x - bounds.x;
-                // const mouseY = this.mousePos.y - bounds.y;
-                // const { x: startX, y: startY } = start;
-                // const { x: endX, y: endY } = end;
-                // const aX = startX <= endX ? startX : endX;
-                // const aY = startY <= endY ? startY : endY;
-                // const bX = startX >= endX ? startX : endX;
-                // const bY = startY >= endY ? startY : endY;
-                // if (
-                //     mouseX >= aX && mouseX <= bX &&
-                //     mouseY >= aY && mouseY <= bY
-                // ) {
-                //     const centerX = (startX + endX) / 2;
-                //     const direction = startX <= endX ? -1 : 1;
-                //     if (mouseX >= centerX - 8 && mouseX <= centerX + 8){
-                //         this.highlightedLines.push(this.lines[i].uid);
-                //     }
-                //     else if (mouseY >= startY - 8 && mouseY <= startY + 8){
-                //         if (direction === -1){
-                //             if (mouseX <= centerX){
-                //                 this.highlightedLines.push(this.lines[i].uid);
-                //             }
-                //         } else {
-                //             if (mouseX >= centerX){
-                //                 this.highlightedLines.push(this.lines[i].uid);
-                //             }
-                //         }
-                //     }
-                //     else if (mouseY >= endY - 8 && mouseY <= endY + 8){
-                //         if (direction === -1){
-                //             if (mouseX >= centerX){
-                //                 this.highlightedLines.push(this.lines[i].uid);
-                //             }
-                //         } else {
-                //             if (mouseX <= centerX){
-                //                 this.highlightedLines.push(this.lines[i].uid);
-                //             }
-                //         }
-                //     }
-                // }
+            }
+            catch (e){
+                console.error("Failed to get line data", this.lines[i]);
             }
             
-            // Set highlighted lines
-            for (let i = 0; i < lines.length; i++){
-                const line = lines[i];
-                if (this.forceHighlight !== null && line.refs.includes(this.forceHighlight)){
-                    highlightedLines.push(line.uid);
-                }
+            // Highlight logic
+            // const mouseX = this.mousePos.x - bounds.x;
+            // const mouseY = this.mousePos.y - bounds.y;
+            // const { x: startX, y: startY } = start;
+            // const { x: endX, y: endY } = end;
+            // const aX = startX <= endX ? startX : endX;
+            // const aY = startY <= endY ? startY : endY;
+            // const bX = startX >= endX ? startX : endX;
+            // const bY = startY >= endY ? startY : endY;
+            // if (
+            //     mouseX >= aX && mouseX <= bX &&
+            //     mouseY >= aY && mouseY <= bY
+            // ) {
+            //     const centerX = (startX + endX) / 2;
+            //     const direction = startX <= endX ? -1 : 1;
+            //     if (mouseX >= centerX - 8 && mouseX <= centerX + 8){
+            //         this.highlightedLines.push(this.lines[i].uid);
+            //     }
+            //     else if (mouseY >= startY - 8 && mouseY <= startY + 8){
+            //         if (direction === -1){
+            //             if (mouseX <= centerX){
+            //                 this.highlightedLines.push(this.lines[i].uid);
+            //             }
+            //         } else {
+            //             if (mouseX >= centerX){
+            //                 this.highlightedLines.push(this.lines[i].uid);
+            //             }
+            //         }
+            //     }
+            //     else if (mouseY >= endY - 8 && mouseY <= endY + 8){
+            //         if (direction === -1){
+            //             if (mouseX >= centerX){
+            //                 this.highlightedLines.push(this.lines[i].uid);
+            //             }
+            //         } else {
+            //             if (mouseX <= centerX){
+            //                 this.highlightedLines.push(this.lines[i].uid);
+            //             }
+            //         }
+            //     }
+            // }
+        }
+        
+        // Set highlighted lines
+        for (let i = 0; i < lines.length; i++){
+            const line = lines[i];
+            if (this.forceHighlight !== null && line.refs.includes(this.forceHighlight)){
+                highlightedLines.push(line.uid);
             }
-            
-            // Draw normal lines
-            for (let i = 0; i < lines.length; i++){
-                const line = lines[i];
-                if (!highlightedLines.includes(line.uid)){
-                    const { x: startX, y: startY } = line.start;
-                    const { x: endX, y: endY } = line.end;
-                    this.ctx.strokeStyle = LINE_COLOUR;
-                    this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide);
-                }
-            }    
-            
-            // Draw highlighted lines
-            for (let i = 0; i < lines.length; i++){
-                const line = lines[i];
-                if (highlightedLines.includes(line.uid)){
-                    const { x: startX, y: startY } = line.start;
-                    const { x: endX, y: endY } = line.end;
-                    this.ctx.strokeStyle = LINE_HOVER_COLOUR;
-                    this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide);
-                }
+        }
+        
+        // Draw normal lines
+        for (let i = 0; i < lines.length; i++){
+            const line = lines[i];
+            if (!highlightedLines.includes(line.uid)){
+                const { x: startX, y: startY } = line.start;
+                const { x: endX, y: endY } = line.end;
+                this.ctx.strokeStyle = LINE_COLOUR;
+                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide);
             }
-        } catch(e) {
-            console.error(e);
-            console.log("Something went wrong, skipping frame.");
+        }    
+        
+        // Draw highlighted lines
+        for (let i = 0; i < lines.length; i++){
+            const line = lines[i];
+            if (highlightedLines.includes(line.uid)){
+                const { x: startX, y: startY } = line.start;
+                const { x: endX, y: endY } = line.end;
+                this.ctx.strokeStyle = LINE_HOVER_COLOUR;
+                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide);
+            }
         }
 
         window.requestAnimationFrame(this.eventLoop.bind(this));

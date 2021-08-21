@@ -6,14 +6,12 @@ import diagramController from "~controllers/diagram-controller";
 
 interface IEditorHeader {
     name: string,
-    diagramID: string;
 }
 export default class EditorHeader extends SuperComponent<IEditorHeader>{
-    constructor(name:string, diagramID:string){
+    constructor(name:string){
         super();
         this.model = {
             name: name,
-            diagramID: diagramID,
         };
         css(["editor-header", "buttons"]).then(() => {
             this.render();
@@ -35,7 +33,7 @@ export default class EditorHeader extends SuperComponent<IEditorHeader>{
     }
 
     private openSettingsModal:EventListener = (e:Event) => {
-        const modal = new SettingsModal(this.model.diagramID);
+        const modal = new SettingsModal();
         document.body.appendChild(modal);
     }
 

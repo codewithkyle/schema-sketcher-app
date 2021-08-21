@@ -1,12 +1,13 @@
 import SuperComponent from "@codewithkyle/supercomponent";
 import { html, render } from "lit-html";
-import { v4 as uuid } from "uuid";
 import ColumnComponent from "./column-component/column-component";
 import { css, mount } from "~controllers/env";
-import { publish } from "~lib/pubsub";
+import { publish, subscribe } from "~lib/pubsub";
 import type { Column, Table } from "~types/diagram";
 import cc from "~controllers/control-center";
-
+import diagramController from "~controllers/diagram-controller";
+import db from "~lib/jsql";
+import { setValueFromKeypath, unsetValueFromKeypath } from "~utils/sync";
 
 interface ITableComponent extends Table {
     showAllColumnOptions: boolean;
@@ -31,6 +32,37 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         this.model = {...data, ...{
             showAllColumnOptions: false,
         }};
+        subscribe("sync", this.syncInbox.bind(this));
+    }
+
+    private syncInbox(e){
+        if (e.table === "tables" && e.key === this.model.uid){
+            const updatedModel = {...this.model};
+            let doUpdate = false;
+            switch(e.op){
+                case "UNSET":
+                    unsetValueFromKeypath(updatedModel, e.keypath);
+                    doUpdate = true;
+                    break;
+                case "SET":
+                    setValueFromKeypath(updatedModel, e.keypath, e.value);
+                    doUpdate = true;
+                    break;
+                case "DELETE":
+                    this.remove();
+                    break;
+                default:
+                    break;
+            }
+            if (doUpdate){
+                this.update(updatedModel);
+            }
+        }
+        else if (e.table === "columns" && e.op === "INSERT"){
+            const column = new ColumnComponent(e.value, this.model.showAllColumnOptions, this.model.uid);
+            const container = this.querySelector("columns-container");
+            container.appendChild(column);
+        }
     }
 
     override async connected(){
@@ -60,18 +92,19 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         });
     }
 
-    private confirmDelete(){
+    private async confirmDelete(){
         const doDelete = confirm(`Are you sure you want to delete table ${this.model.name}?`);
         if (doDelete){
+            await diagramController.deleteTable(this.model.uid);
             this.remove();
         }
     }
 
     private broadcastMove(x:number, y: number){
         if (this.wasMoved){
-            const op1 = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.x`, x);
-            const op2 = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.y`, y);
-            const op = cc.batch("diagrams", this.diagramID, [op1, op2]);
+            const op1 = cc.set("tables", this.model.uid, "x", x);
+            const op2 = cc.set("tables", this.model.uid, "y", y);
+            const op = cc.batch("tables", this.model.uid, [op1, op2]);
             cc.perform(op);
         }
     }
@@ -185,7 +218,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             this.update({
                 name: newName,
             });
-            const op = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.name`, newName);
+            const op = cc.set("tables", this.model.uid, "name", newName);
             cc.perform(op);
         }
     }
@@ -196,23 +229,8 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         this.confirmDelete();
     }
 
-    private addColumn = (focusColumn) => {
-        const uid = uuid();
-        const updatedModel = {...this.model};
-        const column:Column = {
-            name: `column_${Object.keys(this.model.columns).length + 1}`,
-            type: "int",
-            isNullable: false,
-            isUnique: false,
-            isIndex: false,
-            isPrimaryKey: false,
-            order: Object.keys(this.model.columns).length,
-            uid: uid,
-        };
-        updatedModel.columns[uid] = column;
-        this.update(updatedModel);
-        const op = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.columns.${uid}`, column);
-        cc.perform(op);
+    private addColumn = async (focusColumn) => {
+        await diagramController.createColumn(this.model.uid);
         // @ts-ignore
         document.activeElement?.blur();
         if (typeof focusColumn === "boolean" && focusColumn === true){
@@ -229,40 +247,40 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     }
 
     private moveCallback(toUID: string){
-        if (!this.movingColumnUID || !toUID){
-            return;
-        }
-        const updatedModel = {...this.model};
-        let newIndex = updatedModel.columns[toUID].order;
-        if (newIndex >= Object.keys(updatedModel.columns).length - 1){
-            newIndex = Object.keys(updatedModel.columns).length;
-        } else if (newIndex === updatedModel.columns[this.movingColumnUID].order + 1){
-            newIndex = newIndex + 1;
-        } else if (newIndex < 0) {
-            newIndex = 0;
-        }
-        let columns = new Array(Object.keys(updatedModel.columns).length).fill(null);
-        for (const key in updatedModel.columns){
-            if (key !== this.movingColumnUID){
-                columns.splice(updatedModel.columns[key].order, 1, key);
-            }
-        }
-        columns.splice(newIndex, 0, this.movingColumnUID);
-        for (let i = columns.length - 1; i >= 0; i--){
-            if (columns[i] === null){
-                columns.splice(i, 1);
-            }
-        }
-        const ops = [];
-        for (let i = 0; i < columns.length; i++){
-            updatedModel.columns[columns[i]].order = i;
-            const op = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.columns.${columns[i]}.order`, i);
-            ops.push(op);
-        }
-        const op = cc.batch("diagrams", this.diagramID, ops);
-        cc.perform(op);
-        this.movingColumnUID = null;
-        this.update(updatedModel);
+        // if (!this.movingColumnUID || !toUID){
+        //     return;
+        // }
+        // const updatedModel = {...this.model};
+        // let newIndex = updatedModel.columns[toUID].order;
+        // if (newIndex >= Object.keys(updatedModel.columns).length - 1){
+        //     newIndex = Object.keys(updatedModel.columns).length;
+        // } else if (newIndex === updatedModel.columns[this.movingColumnUID].order + 1){
+        //     newIndex = newIndex + 1;
+        // } else if (newIndex < 0) {
+        //     newIndex = 0;
+        // }
+        // let columns = new Array(Object.keys(updatedModel.columns).length).fill(null);
+        // for (const key in updatedModel.columns){
+        //     if (key !== this.movingColumnUID){
+        //         columns.splice(updatedModel.columns[key].order, 1, key);
+        //     }
+        // }
+        // columns.splice(newIndex, 0, this.movingColumnUID);
+        // for (let i = columns.length - 1; i >= 0; i--){
+        //     if (columns[i] === null){
+        //         columns.splice(i, 1);
+        //     }
+        // }
+        // const ops = [];
+        // for (let i = 0; i < columns.length; i++){
+        //     updatedModel.columns[columns[i]].order = i;
+        //     const op = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.columns.${columns[i]}.order`, i);
+        //     ops.push(op);
+        // }
+        // const op = cc.batch("diagrams", this.diagramID, ops);
+        // cc.perform(op);
+        // this.movingColumnUID = null;
+        // this.update(updatedModel);
     }
 
     private toggleColumnSettings:EventListener = () => {
@@ -280,15 +298,14 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         }
     }
 
-    override render(){
+    override async render(){
         this.style.transform = `translate(${this.prevX}px, ${this.prevY}px)`;
         this.dataset.top = `${this.prevY}`;
         this.dataset.left = `${this.prevX}`;
         this.dataset.uid = this.model.uid;
-        const orderedColumns = new Array(Object.keys(this.model.columns).length).fill(null);
-        Object.keys(this.model.columns).map((key) => {
-            const column = this.model.columns[key];
-            orderedColumns[column.order] = column;
+        const orderedColumns = await db.query("SELECT * FROM columns WHERE diagramID = $diagramID AND tableID = $tableID ORDER BY weight", {
+            diagramID: this.diagramID,
+            tableID: this.model.uid,
         });
         const view = html`
             <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseup=${this.mouseUp} @mouseenter=${this.handleMouseEnter} @mouseleave=${this.handleMouseLeave}>
@@ -337,7 +354,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             </header>
             <columns-container>
                 ${orderedColumns.map((column) => {
-                    return new ColumnComponent(column, this.moveCallback.bind(this), this.startMoveCallback.bind(this), this.model.showAllColumnOptions, this.addColumn.bind(this), this.diagramID, this.model.uid);
+                    return new ColumnComponent(column, this.model.showAllColumnOptions, this.model.uid);
                 })}
             </columns-container>
         `;

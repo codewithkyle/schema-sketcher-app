@@ -5,14 +5,13 @@ import diagramController from "~controllers/diagram-controller";
 import { css, mount } from "~controllers/env";
 import { Diagram } from "~types/diagram";
 import ContextMenu from "~components/context-menu/context-menu";
-import { v4 as uuid} from "uuid";
 import TableComponent from "~components/table-component/table-component";
 import { navigateTo } from "@codewithkyle/router";
 import EditorControls from "~components/editor-controls/editor-controls";
 import { createSubscription, publish, subscribe } from "~lib/pubsub";
 import NodeComponent from "~components/node-component/node-component";
 import CanvasComponent from "~components/canvas-component/canvas-component";
-import { setValueFromKeypath, unsetValueFromKeypath } from "~utils/sync";
+import db from "@codewithkyle/jsql";
 
 interface IEditorPage {
     diagram: Diagram,
@@ -42,6 +41,22 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         this.isMoving = false;
         this.forceMove = false;
         createSubscription("zoom");
+        subscribe("sync", this.syncInbox.bind(this));
+    }
+
+    private syncInbox(e){
+        if (e.op === "INSERT"){
+            switch(e.table){
+                case "tables":
+                    this.render();
+                    break;
+                case "nodes":
+                    this.render();
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     override async connected(){
@@ -49,7 +64,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         window.addEventListener("keydown", this.handleKeyDown);
         window.addEventListener("keyup", this.handleKeyUp);
         await css(["editor-page"]);
-        const { ops, diagram } = await diagramController.loadDiagram(this.uid);
+        const diagram = await diagramController.loadDiagram(this.uid);
         if (!diagram){
             navigateTo("/");
         }
@@ -139,20 +154,16 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
 
     private async spawn(type:"table"|"node"){
-        const uid = uuid();
-        const updatedModel = {...this.model};
-        let op;
         switch(type){
             case "table":
-                updatedModel.diagram.tables[uid] = await diagramController.createTable(uid, this.placeX, this.placeY);
+                await diagramController.createTable(this.placeX, this.placeY);
                 break;
             case "node":
-                updatedModel.diagram.nodes[uid] = await diagramController.createNode(uid, this.placeX, this.placeY);
+                await diagramController.createNode(this.placeX, this.placeY);
                 break;
             default:
                 break;
         }
-        this.update(updatedModel);
     }
 
     private handleContextMenu:EventListener = (e:MouseEvent) => {
@@ -202,25 +213,25 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         return cursor;
     }
     
-    override render(){
+    override async render(){
+        const tables = await diagramController.getTables();
+        const nodes = await diagramController.getNodes();
         const view = html`
-            ${new EditorHeader(this.model.diagram.name, this.model.diagram.uid)}
+            ${new EditorHeader(this.model.diagram.name)}
             <div cursor="${this.getCursorType()}" class="canvas js-canvas" @mousedown=${this.handleMouseDown} @mouseup=${this.handleMouseUp} @mousemove=${this.handleMouseMove} @contextmenu=${this.handleContextMenu}>
                 <div data-scale="${this.scale}" data-top="${this.y}" data-left="${this.x}" style="transform: translate(${this.x}px, ${this.y}px) scale(${this.scale});" class="diagram js-anchor">
-                    ${Object.keys(this.model.diagram.tables).map((key:string, index:number) => {
-                        return new TableComponent(this.model.diagram.tables[key], this.model.diagram.uid);
+                    ${tables.map(table => {
+                        return new TableComponent(table, this.model.diagram.uid);
                     })}
-                    ${Object.keys(this.model.diagram.nodes).map(key => {
-                        return new NodeComponent(this.model.diagram.nodes[key], this.model.diagram.uid);
+                    ${nodes.map(node => {
+                        return new NodeComponent(node, this.model.diagram.uid)
                     })}
                 </div>
             </div>
             ${new EditorControls(this.isMoving, this.scale, this.toggleMoveCallback.bind(this), this.scaleCallback.bind(this))}
             ${new CanvasComponent()}
         `;
-        setTimeout(()=>{
-            render(view, this);
-        }, 80);
+        render(view, this);
     }
 }
 mount("editor-page", EditorPage);

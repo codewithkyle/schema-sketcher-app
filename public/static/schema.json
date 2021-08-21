@@ -15,18 +15,140 @@
                 },
                 {
                     "key": "timestamp"
+                }
+            ]
+        },
+        {
+            "name": "columns",
+            "keyPath": "uid",
+            "columns": [
+                {
+                    "key": "uid",
+                    "unique": true
                 },
                 {
-                    "key": "tables"
+                    "key": "diagramID"
                 },
                 {
-                    "key": "types"
+                    "key": "tableID"
                 },
                 {
-                    "key": "connections"
+                    "key": "name"
                 },
                 {
-                    "key": "nodes"
+                    "key": "typeID"
+                },
+                {
+                    "key": "isNullable"
+                },
+                {
+                    "key": "isUnique"
+                },
+                {
+                    "key": "isIndex"
+                },
+                {
+                    "key": "isPrimaryKey"
+                },
+                {
+                    "key": "weight"
+                }
+            ]
+        },
+        {
+            "name": "tables",
+            "keyPath": "uid",
+            "columns": [
+                {
+                    "key": "uid",
+                    "unique": true
+                },
+                {
+                    "key": "diagramID"
+                },
+                {
+                    "key": "tableID"
+                },
+                {
+                    "key": "color"
+                },
+                {
+                    "key": "name"
+                },
+                {
+                    "key": "x"
+                },
+                {
+                    "key": "y"
+                }
+            ]
+        },
+        {
+            "name": "connections",
+            "keyPath": "uid",
+            "columns": [
+                {
+                    "key": "uid",
+                    "unique": true
+                },
+                {
+                    "key": "diagramID"
+                },
+                {
+                    "key": "startNodeID"
+                },
+                {
+                    "key": "endNodeID"
+                },
+                {
+                    "key": "type"
+                },
+                {
+                    "key": "refs"
+                }
+            ]
+        },
+        {
+            "name": "nodes",
+            "keyPath": "uid",
+            "columns": [
+                {
+                    "key": "uid",
+                    "unique": true
+                },
+                {
+                    "key": "diagramID"
+                },
+                {
+                    "key": "text"
+                },
+                {
+                    "key": "color"
+                },
+                {
+                    "key": "icon"
+                },
+                {
+                    "key": "x"
+                },
+                {
+                    "key": "y"
+                }
+            ]
+        },
+        {
+            "name": "types",
+            "keyPath": "uid",
+            "columns": [
+                {
+                    "key": "uid",
+                    "unique": true
+                },
+                {
+                    "key": "diagramID"
+                },
+                {
+                    "key": "name"
                 }
             ]
         },
