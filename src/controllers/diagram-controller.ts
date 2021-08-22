@@ -11,6 +11,11 @@ const SHADES = ["200", "300", "400", "500", "600"];
 
 class DiagramController {
     private diagram:Diagram;
+    private movingColumnUID:string;
+
+    constructor(){
+        this.movingColumnUID = null;
+    }
     
     private getRandomColor():string{
         const color = this.getRandomInt(0, COLORS.length - 1);
@@ -211,6 +216,51 @@ class DiagramController {
         publish("canvas", {
             type: "reload",
         });
+    }
+
+    public async swapColumn(toUID:string, tableID:string){
+        if (!this.movingColumnUID || !toUID){
+            return;
+        }
+        let columns = await db.query("SELECT * FROM columns WHERE diagramID = $diagramID AND tableID = $tableID ORDER BY weight", {
+            diagramID: this.diagram.uid,
+            tableID: tableID,
+        });
+        let newIndex = -1;
+        let temp;
+        for (let i = columns.length - 1; i >= 0; i--){
+            const column = columns[i];
+            if (column.uid === toUID){
+                newIndex = parseInt(column.weight);
+            }
+            else if (column.uid === this.movingColumnUID){
+                temp = column;
+            }
+        }
+        if (newIndex < columns.length - 1){
+            columns.splice(newIndex, 0, temp);
+        }
+        else {
+            columns.push(temp);
+        }
+        for (let i = 0; i < columns.length; i++){
+            if (columns[i].uid === this.movingColumnUID && i !== newIndex){
+                columns.splice(i, 1);
+                break;
+            }
+        }
+        let weight = 0;
+        for (const column of columns){
+            const op = cc.set("columns", column.uid, "weight", weight);
+            await cc.perform(op);
+            weight++;
+        }
+        this.movingColumnUID = null;
+        publish("table", null);
+    }
+
+    public startSwap(nodeID:string){
+        this.movingColumnUID = nodeID;
     }
 }
 const diagramController = new DiagramController();

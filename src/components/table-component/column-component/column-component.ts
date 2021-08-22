@@ -101,7 +101,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         if (e instanceof DragEvent){
             e.preventDefault();
             this.classList.add("is-disabled");
-            // this.startMoveCallback(this.model.uid);
+            diagramController.startSwap(this.model.uid);
         }
     }
 
@@ -129,7 +129,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
     private handleDrop:EventListener = (e:DragEvent) => {
         if (e instanceof DragEvent){
             e.preventDefault();
-            // this.moveCallback(this.model.uid);
+            diagramController.swapColumn(this.model.uid, this.tableUID);
         }
     }
 

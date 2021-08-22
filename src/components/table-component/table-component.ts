@@ -16,7 +16,6 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     private prevX: number;
     private prevY: number;
     private isMoving: boolean;
-    private movingColumnUID: string;
     private focusLastColumn: boolean;
     private diagramID: string;
     private wasMoved: boolean;
@@ -33,6 +32,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             showAllColumnOptions: false,
         }};
         subscribe("sync", this.syncInbox.bind(this));
+        subscribe("table", this.render.bind(this));
     }
 
     private syncInbox(e){
@@ -59,9 +59,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             }
         }
         else if (e.table === "columns" && e.op === "INSERT"){
-            const column = new ColumnComponent(e.value, this.model.showAllColumnOptions, this.model.uid);
-            const container = this.querySelector("columns-container");
-            container.appendChild(column);
+            this.render();
         }
     }
 
@@ -240,47 +238,6 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
 
     private noop:EventListener = (e:Event) => {
         e.stopImmediatePropagation();
-    }
-
-    private startMoveCallback(uid:string){
-        this.movingColumnUID = uid;
-    }
-
-    private moveCallback(toUID: string){
-        // if (!this.movingColumnUID || !toUID){
-        //     return;
-        // }
-        // const updatedModel = {...this.model};
-        // let newIndex = updatedModel.columns[toUID].order;
-        // if (newIndex >= Object.keys(updatedModel.columns).length - 1){
-        //     newIndex = Object.keys(updatedModel.columns).length;
-        // } else if (newIndex === updatedModel.columns[this.movingColumnUID].order + 1){
-        //     newIndex = newIndex + 1;
-        // } else if (newIndex < 0) {
-        //     newIndex = 0;
-        // }
-        // let columns = new Array(Object.keys(updatedModel.columns).length).fill(null);
-        // for (const key in updatedModel.columns){
-        //     if (key !== this.movingColumnUID){
-        //         columns.splice(updatedModel.columns[key].order, 1, key);
-        //     }
-        // }
-        // columns.splice(newIndex, 0, this.movingColumnUID);
-        // for (let i = columns.length - 1; i >= 0; i--){
-        //     if (columns[i] === null){
-        //         columns.splice(i, 1);
-        //     }
-        // }
-        // const ops = [];
-        // for (let i = 0; i < columns.length; i++){
-        //     updatedModel.columns[columns[i]].order = i;
-        //     const op = cc.set("diagrams", this.diagramID, `tables.${this.model.uid}.columns.${columns[i]}.order`, i);
-        //     ops.push(op);
-        // }
-        // const op = cc.batch("diagrams", this.diagramID, ops);
-        // cc.perform(op);
-        // this.movingColumnUID = null;
-        // this.update(updatedModel);
     }
 
     private toggleColumnSettings:EventListener = () => {
