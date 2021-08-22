@@ -66,7 +66,7 @@ class DiagramController {
     public async renameDiagram(newName:string){
         this.diagram.name = newName;
         const op = cc.set("diagrams", this.diagram.uid, "name", newName);
-        cc.perform(op);
+        await cc.perform(op);
     }
     
     public async createTable(placeX:number, placeY:number){
@@ -83,7 +83,7 @@ class DiagramController {
             diagramID: this.diagram.uid,
         };
         const op = cc.insert("tables", uid, table);
-        cc.perform(op, true);
+        await cc.perform(op, true);
         this.createColumn(uid);
     }
 
@@ -110,7 +110,7 @@ class DiagramController {
             diagramID: this.diagram.uid,
         };
         const op = cc.insert("columns", columnUid, column);
-        cc.perform(op, true);
+        await cc.perform(op, true);
     }
     
     public async createNode(placeX:number, placeY:number){
@@ -125,7 +125,7 @@ class DiagramController {
             diagramID: this.diagram.uid,
         };
         const op = cc.insert("nodes", uid, node);
-        cc.perform(op, true);
+        await cc.perform(op, true);
     }
 
     public createConnection(startNodeID:string, endNodeID:string, refs:Array<string>){
@@ -158,7 +158,7 @@ class DiagramController {
 
     public async deleteType(uid:string){
         const op = cc.delete("types", uid);
-        cc.perform(op);
+        await cc.perform(op);
     }
 
     public async createType(value = ""){
@@ -169,7 +169,7 @@ class DiagramController {
             diagramID: this.diagram.uid,
         };
         const op = cc.insert("types", uid, type);
-        cc.perform(op);
+        await cc.perform(op);
     }
 
     // @ts-expect-error
@@ -193,10 +193,18 @@ class DiagramController {
         });
         for (const connection of connections){
             const op = cc.delete("connections", connection.uid);
-            cc.perform(op);
+            await cc.perform(op);
+        }
+        const columns = await db.query("SELECT * FROM columns WHERE diagramID = $diagramID AND tableID = $tableID", {
+            diagramID: this.diagram.uid,
+            tableID: tableID,
+        });
+        for (const column of columns){
+            const op = cc.delete("columns", column.uid);
+            await cc.perform(op);
         }
         const op = cc.delete("tables", tableID);
-        cc.perform(op);
+        await cc.perform(op);
         publish("canvas", {
             type: "reload",
         });
@@ -209,10 +217,10 @@ class DiagramController {
         });
         for (const connection of connections){
             const op = cc.delete("connections", connection.uid);
-            cc.perform(op);
+            await cc.perform(op);
         }
         const op = cc.delete("nodes", nodeID);
-        cc.perform(op);
+        await cc.perform(op);
         publish("canvas", {
             type: "reload",
         });
