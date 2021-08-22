@@ -76,7 +76,7 @@ class DiagramController {
         });
         const table:Table = {
             uid: uid,
-            name: `table_${tableCount.length + 1}`,
+            name: `table_${tableCount[0] + 1}`,
             color: this.getRandomColor(),
             x: placeX,
             y: placeY,
