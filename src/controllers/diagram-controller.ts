@@ -12,6 +12,7 @@ const SHADES = ["200", "300", "400", "500", "600"];
 class DiagramController {
     private diagram:Diagram;
     private movingColumnUID:string;
+    public ID:string;
 
     constructor(){
         this.movingColumnUID = null;
@@ -45,7 +46,7 @@ class DiagramController {
         for (const type of TYPES){
             await this.createType(type);
         }
-        
+        this.ID = uid;
         navigateTo(`/diagram/${uid}`);
     }
 
@@ -60,6 +61,7 @@ class DiagramController {
             uid: uid,
         });
         this.diagram = results?.[0] ?? null;
+        this.ID = this.diagram.uid;
         return this.diagram;
     }
 
