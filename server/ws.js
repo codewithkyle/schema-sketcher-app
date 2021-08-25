@@ -1,5 +1,12 @@
 const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port: 5004 });
+import { createServer } from 'https';
+const options = {
+    cert: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/fullchain.pem'),
+    key: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/privkey.pem')
+};
+const server = createServer(options);
+const wss = new WebSocket.Server(server);
+server.listen(5004);
 
 const clients = [];
 

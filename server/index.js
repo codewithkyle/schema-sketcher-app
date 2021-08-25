@@ -5,6 +5,11 @@ const cwd = process.cwd();
 const path = require("path");
 const fs = require("fs");
 const { broadcast } = require("./ws");
+const https = require('https');
+const options = {
+    cert: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/fullchain.pem'),
+    key: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/privkey.pem')
+};
 
 const log = path.join(__dirname, "404.log");
 if (!fs.existsSync(log)){
@@ -28,4 +33,5 @@ app.get('*', (req, res) => {
     }
 });
 
-app.listen(port, () => {});
+app.listen(port);
+https.createServer(options, app).listen(8443);
