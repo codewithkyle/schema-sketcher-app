@@ -297,7 +297,7 @@ class DiagramController {
                 uid: uid,
             }),
         ];
-        await Promises.all(queries);
+        await Promise.all(queries);
     }
 }
 const diagramController = new DiagramController();
