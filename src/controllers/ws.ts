@@ -1,11 +1,11 @@
-import cc from "./control-center";
+import cc from "~controllers/control-center";
 
 let socket;
 let connected = false;
 
 function reconnect(){
     return;
-    socket = new WebSocket('ws://localhost:5004');
+    socket = new WebSocket('ws://3.22.114.84:5004');
     socket.addEventListener('message', (event) => {
         try {
             const op = JSON.parse(event.data);
