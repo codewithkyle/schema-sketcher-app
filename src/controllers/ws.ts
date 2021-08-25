@@ -7,7 +7,7 @@ function connect(){
     if (connected){
         return;
     }
-    socket = new WebSocket('wss://schemasketcher.com');
+    socket = new WebSocket('wss://schemasketcher.com:8443');
     socket.addEventListener('message', (event) => {
         try {
             const op = JSON.parse(event.data);
@@ -34,7 +34,7 @@ function disconnect(reconnect = false){
         connected = false;
     }
     setTimeout(() => {
-        reconnect();
+        connect();
     }, 5000);
 }
 
