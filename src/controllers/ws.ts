@@ -33,4 +33,10 @@ function disconnect(){
         reconnect();
     }, 5000);
 }
-export { connected, disconnect };
+
+function send(message){
+    if (connected){
+        socket.send(JSON.stringify(message));
+    }
+}
+export { connected, disconnect, send };
