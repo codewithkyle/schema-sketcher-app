@@ -270,6 +270,32 @@ class DiagramController {
     public startSwap(nodeID:string){
         this.movingColumnUID = nodeID;
     }
+    
+    public async deleteDiagram(uid:string){
+        const queries = [db.query("DELETE FROM diagrams WHERE uid = $uid", {
+                uid: uid,
+            }),
+            db.query("DELETE FROM columns WHERE diagramID = $uid", {
+                uid: uid,
+            }),
+            db.query("DELETE FROM tables WHERE uid = $uid", {
+                uid: uid,
+            }),
+            db.query("DELETE FROM connections WHERE uid = $uid", {
+                uid: uid,
+            }),
+            db.query("DELETE FROM nodes WHERE uid = $uid", {
+                uid: uid,
+            }),
+            db.query("DELETE FROM types WHERE uid = $uid", {
+                uid: uid,
+            }),
+             db.query("DELETE FROM ledger WHERE uid = $uid", {
+                uid: uid,
+            }),
+        ];
+        await Promises.all(queries);
+    }
 }
 const diagramController = new DiagramController();
 export default diagramController;
