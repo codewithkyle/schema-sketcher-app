@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-import { createServer } from 'https';
+const { createServer } = require("https");
 const options = {
     cert: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/fullchain.pem'),
     key: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/privkey.pem')

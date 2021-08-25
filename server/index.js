@@ -5,7 +5,7 @@ const cwd = process.cwd();
 const path = require("path");
 const fs = require("fs");
 const { broadcast } = require("./ws");
-const https = require('https');
+const { createServer } = require('https');
 const options = {
     cert: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/fullchain.pem'),
     key: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/privkey.pem')
@@ -34,4 +34,4 @@ app.get('*', (req, res) => {
 });
 
 app.listen(port);
-https.createServer(options, app).listen(8443);
+createServer(options, app).listen(8443);
