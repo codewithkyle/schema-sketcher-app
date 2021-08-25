@@ -16,6 +16,7 @@ class DiagramController {
 
     constructor(){
         this.movingColumnUID = null;
+        this.ID = null;
     }
     
     private getRandomColor():string{
