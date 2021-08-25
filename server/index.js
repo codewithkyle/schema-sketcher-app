@@ -4,6 +4,7 @@ const port = 8080;
 const cwd = process.cwd();
 const path = require("path");
 const fs = require("fs");
+const { broadcast } = require("./ws");
 
 const log = path.join(__dirname, "404.log");
 if (!fs.existsSync(log)){

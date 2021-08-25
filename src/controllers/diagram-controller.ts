@@ -12,9 +12,11 @@ const SHADES = ["200", "300", "400", "500", "600"];
 class DiagramController {
     private diagram:Diagram;
     private movingColumnUID:string;
+    public ID:string;
 
     constructor(){
         this.movingColumnUID = null;
+        this.ID = null;
     }
     
     private getRandomColor():string{
@@ -45,7 +47,7 @@ class DiagramController {
         for (const type of TYPES){
             await this.createType(type);
         }
-        
+        this.ID = uid;
         navigateTo(`/diagram/${uid}`);
     }
 
@@ -63,6 +65,7 @@ class DiagramController {
             timestamp: Date.now(),
         });
         this.diagram = results?.[0] ?? null;
+        this.ID = this.diagram.uid;
         return this.diagram;
     }
 
@@ -272,6 +275,32 @@ class DiagramController {
 
     public startSwap(nodeID:string){
         this.movingColumnUID = nodeID;
+    }
+    
+    public async deleteDiagram(uid:string){
+        const queries = [db.query("DELETE FROM diagrams WHERE uid = $uid", {
+                uid: uid,
+            }),
+            db.query("DELETE FROM columns WHERE diagramID = $uid", {
+                uid: uid,
+            }),
+            db.query("DELETE FROM tables WHERE diagramID = $uid", {
+                uid: uid,
+            }),
+            db.query("DELETE FROM connections WHERE diagramID = $uid", {
+                uid: uid,
+            }),
+            db.query("DELETE FROM nodes WHERE diagramID = $uid", {
+                uid: uid,
+            }),
+            db.query("DELETE FROM types WHERE diagramID = $uid", {
+                uid: uid,
+            }),
+             db.query("DELETE FROM ledger WHERE diagramID = $uid", {
+                uid: uid,
+            }),
+        ];
+        await Promise.all(queries);
     }
 }
 const diagramController = new DiagramController();

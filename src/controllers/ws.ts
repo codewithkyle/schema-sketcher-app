@@ -1,11 +1,13 @@
-import cc from "./control-center";
+import cc from "~controllers/control-center";
 
 let socket;
 let connected = false;
 
-function reconnect(){
-    return;
-    socket = new WebSocket('ws://localhost:5004');
+function connect(){
+    if (connected){
+        return;
+    }
+    socket = new WebSocket('wss://3.22.114.84:5004');
     socket.addEventListener('message', (event) => {
         try {
             const op = JSON.parse(event.data);
@@ -15,22 +17,30 @@ function reconnect(){
         }
     });
     socket.addEventListener("close", () => {
-        disconnect();
+        disconnect(true);
     });
     socket.addEventListener("open", () => {
+        console.log("WS Connected");
         connected = true;
-        cc.sync();
     });
 }
-reconnect();
 
-function disconnect(){
+function disconnect(reconnect = false){
+    if (!reconnect){
+        return;
+    }
     if (connected){
         console.warn("Network connection has been lost.");
         connected = false;
     }
     setTimeout(() => {
-        reconnect();
+        connect();
     }, 5000);
 }
-export { connected, disconnect };
+
+function send(message){
+    if (connected){
+        socket.send(JSON.stringify(message));
+    }
+}
+export { connected, disconnect, connect, send };

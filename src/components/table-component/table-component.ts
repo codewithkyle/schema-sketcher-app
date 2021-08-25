@@ -68,6 +68,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         this.setAttribute("aria-label", `use arrow keys to nudge table ${this.model.name}`);
         document.addEventListener("keydown", this.handleKeyboard);
         document.addEventListener("mousemove", this.mouseMove);
+        document.addEventListener("mouseup", this.mouseUp);
         await css(["table-component", "overflow-menu"]);
         this.render();
     }
@@ -265,7 +266,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             tableID: this.model.uid,
         });
         const view = html`
-            <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseup=${this.mouseUp} @mouseenter=${this.handleMouseEnter} @mouseleave=${this.handleMouseLeave}>
+            <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseenter=${this.handleMouseEnter} @mouseleave=${this.handleMouseLeave}>
                 <h4 title="${this.model.name}">${this.model.name}</h4>
                 <overflow-button @mousedown=${this.noop}>
                     <button>

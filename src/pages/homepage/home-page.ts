@@ -10,6 +10,7 @@ import { Diagram } from "~types/diagram";
 import cc from "~controllers/control-center";
 import { subscribe } from "~lib/pubsub";
 import { setValueFromKeypath, unsetValueFromKeypath } from "~utils/sync";
+import diagramController from "~controllers/diagram-controller";
 
 type Tabs = "all" | "cloud" | "local";
 
@@ -112,14 +113,7 @@ export default class Homepage extends SuperComponent<IHomepage>{
         const target = e.currentTarget as HTMLElement;
         const doDelete = confirm(`Are you sure you want to delete ${target.dataset.name}?`);
         if (doDelete){
-            // @ts-ignore
-            await db.query("DELETE FROM diagrams WHERE uid = $uid", {
-                uid: target.dataset.uid,
-            });
-            // @ts-ignore
-            await db.query("DELETE FROM ledger WHERE key = $uid", {
-                uid: target.dataset.uid,
-            })
+            await diagramController.deleteDiagram(target.dataset.uid);
         }
         // @ts-ignore
         const diagrams = await db.query("SELECT * FROM diagrams ORDER BY timestamp DESC");
