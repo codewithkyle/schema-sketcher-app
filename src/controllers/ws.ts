@@ -3,8 +3,7 @@ import cc from "~controllers/control-center";
 let socket;
 let connected = false;
 
-function reconnect(){
-    return;
+function connect(){
     socket = new WebSocket('ws://3.22.114.84:5004');
     socket.addEventListener('message', (event) => {
         try {
@@ -42,4 +41,4 @@ function send(message){
         socket.send(JSON.stringify(message));
     }
 }
-export { connected, disconnect, send };
+export { connected, disconnect, connect, send };
