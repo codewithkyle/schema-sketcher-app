@@ -7,7 +7,6 @@ const options = {
 };
 const server = createServer(options);
 const wss = new WebSocket.Server({ server });
-server.listen(5004);
 
 const clients = [];
 
@@ -48,5 +47,5 @@ function broadcast(op){
         ws.send(JSON.stringify(op));
     });
 }
-
+server.listen(5004, "ws.schemasketcher.com");
 module.exports = { broadcast };
