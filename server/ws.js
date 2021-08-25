@@ -6,7 +6,7 @@ const options = {
     key: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/privkey.pem')
 };
 const server = createServer(options);
-const wss = new WebSocket.Server(server);
+const wss = new WebSocket.Server({ server });
 server.listen(5004);
 
 const clients = [];
