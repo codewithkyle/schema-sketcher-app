@@ -3,6 +3,7 @@ import { Batch, Delete, Insert, OPCode, Set, Unset } from "~types/ops";
 import { createSubscription, publish } from "@codewithkyle/pubsub";
 import db from "~lib/jsql";
 import { setValueFromKeypath, unsetValueFromKeypath } from "~utils/sync";
+import diagramController from "~controllers/diagram-controller";
 
 class ControlCenter {
     private syncing: boolean;
@@ -58,6 +59,7 @@ class ControlCenter {
 
     public insert(table:string, key:string, value:any):Insert{
         return {
+            diagramID: diagramController.ID,
             uid: uuid(),
             op: "INSERT",
             table: table,
@@ -69,6 +71,7 @@ class ControlCenter {
 
     public delete(table:string, key:string):Delete{
         return {
+            diagramID: diagramController.ID,
             uid: uuid(),
             op: "DELETE",
             table: table,
@@ -79,6 +82,7 @@ class ControlCenter {
 
     public set(table:string, key:string, keypath:string, value:any):Set{
         return {
+            diagramID: diagramController.ID,
             uid: uuid(),
             op: "SET",
             table: table,
@@ -91,6 +95,7 @@ class ControlCenter {
 
     public unset(table:string, key:string, keypath:string):Unset{
         return {
+            diagramID: diagramController.ID,
             uid: uuid(),
             op: "UNSET",
             table: table,
@@ -102,6 +107,7 @@ class ControlCenter {
 
     public batch(table:string, key:string, ops:Array<OPCode>):Batch{
         return {
+            diagramID: diagramController.ID,
             table: table,
             uid: uuid(),
             op: "BATCH",
