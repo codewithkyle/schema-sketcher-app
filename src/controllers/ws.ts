@@ -7,7 +7,7 @@ function connect(){
     if (connected){
         return;
     }
-    socket = new WebSocket('ws://3.22.114.84:5004');
+    socket = new WebSocket('wss://schemasketcher.com');
     socket.addEventListener('message', (event) => {
         try {
             const op = JSON.parse(event.data);
