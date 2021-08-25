@@ -15,7 +15,7 @@ function reconnect(){
         }
     });
     socket.addEventListener("close", () => {
-        disconnect();
+        disconnect(true);
     });
     socket.addEventListener("open", () => {
         connected = true;
@@ -24,7 +24,10 @@ function reconnect(){
 }
 reconnect();
 
-function disconnect(){
+function disconnect(reconnect = false){
+    if (!reconnect){
+        return;
+    }
     if (connected){
         console.warn("Network connection has been lost.");
         connected = false;
