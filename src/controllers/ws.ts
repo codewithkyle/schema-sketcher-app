@@ -21,7 +21,6 @@ function connect(){
         cc.sync();
     });
 }
-reconnect();
 
 function disconnect(reconnect = false){
     if (!reconnect){
