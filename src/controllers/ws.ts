@@ -5,7 +5,7 @@ let connected = false;
 
 function connect(){
     if (connected){
-        return;   
+        return;
     }
     socket = new WebSocket('ws://3.22.114.84:5004');
     socket.addEventListener('message', (event) => {
@@ -20,6 +20,7 @@ function connect(){
         disconnect(true);
     });
     socket.addEventListener("open", () => {
+        console.log("WS Connected");
         connected = true;
     });
 }
