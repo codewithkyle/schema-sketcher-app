@@ -278,19 +278,19 @@ class DiagramController {
             db.query("DELETE FROM columns WHERE diagramID = $uid", {
                 uid: uid,
             }),
-            db.query("DELETE FROM tables WHERE uid = $uid", {
+            db.query("DELETE FROM tables WHERE diagramID = $uid", {
                 uid: uid,
             }),
-            db.query("DELETE FROM connections WHERE uid = $uid", {
+            db.query("DELETE FROM connections WHERE diagramID = $uid", {
                 uid: uid,
             }),
-            db.query("DELETE FROM nodes WHERE uid = $uid", {
+            db.query("DELETE FROM nodes WHERE diagramID = $uid", {
                 uid: uid,
             }),
-            db.query("DELETE FROM types WHERE uid = $uid", {
+            db.query("DELETE FROM types WHERE diagramID = $uid", {
                 uid: uid,
             }),
-             db.query("DELETE FROM ledger WHERE uid = $uid", {
+             db.query("DELETE FROM ledger WHERE diagramID = $uid", {
                 uid: uid,
             }),
         ];
