@@ -10,9 +10,9 @@ function noop() {}
 
 class WSS {
     constructor(){
-        this.server = server = createServer(options);
+        this.server = createServer(options);
         this.wss = new WebSocket.Server({ server });
-        server.listen(8081, "0.0.0.0");
+        this.server.listen(8081, "0.0.0.0");
         this.clients = [];
 
         setInterval(function ping() {
@@ -48,7 +48,7 @@ class WSS {
     }
 
     broadcast(op){
-        clients.map(ws => {
+        this.clients.map(ws => {
             ws.send(JSON.stringify(op));
         });
     }
