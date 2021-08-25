@@ -4,6 +4,7 @@ import { createSubscription, publish } from "@codewithkyle/pubsub";
 import db from "~lib/jsql";
 import { setValueFromKeypath, unsetValueFromKeypath } from "~utils/sync";
 import diagramController from "~controllers/diagram-controller";
+import { send } from "~controllers/ws";
 
 class ControlCenter {
     private syncing: boolean;
@@ -117,17 +118,19 @@ class ControlCenter {
         };
     }
 
-    public async disbatch(op:OPCode, bypassOutbox = false){
+    public async dispatch(op:OPCode, bypassOutbox = false){
         let success = true;
         try{
-            // TODO: dispatch opcode to server via websocket
+            send(op);
         } catch (e) {
             success = false;
             console.error(e);
             if (!bypassOutbox){
-                // TODO: insert failures into outbox table
+                await db.query("INSERT INTO outbox VALUES ($op)", {
+                    uid: uuid(),
+                    opcode: op,
+                });
             }
-            // disconnect();
         }
         return success;
     }
