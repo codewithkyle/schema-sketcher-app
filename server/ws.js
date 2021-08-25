@@ -5,47 +5,54 @@ const options = {
     cert: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/fullchain.pem'),
     key: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/privkey.pem')
 };
-const server = createServer(options);
-const wss = new WebSocket.Server({ server });
 
-const clients = [];
-
-function heartbeat() {
-    this.isAlive = true;
-}
 function noop() {}
 
-setInterval(function ping() {
-    for (let i = clients.length - 1; i >= 0; i--){
-        const ws = clients[i];
-        if (ws.isAlive === false) {
-            ws.terminate();
-            clients.splice(i, 1);
-        }
-        ws.isAlive = false;
-        ws.ping(noop);
+class WSS {
+    constructor(){
+        this.server = server = createServer(options);
+        this.wss = new WebSocket.Server({ server });
+        server.listen(8081, "0.0.0.0");
+        this.clients = [];
+
+        setInterval(function ping() {
+            for (let i = clients.length - 1; i >= 0; i--){
+                const ws = clients[i];
+                if (ws.isAlive === false) {
+                    ws.terminate();
+                    clients.splice(i, 1);
+                }
+                ws.isAlive = false;
+                ws.ping(noop);
+            }
+        }, 30000);
+
+        this.wss.on('connection', (ws) => {
+            ws.isAlive = true;
+            ws.on('pong', heartbeat.bind(ws));
+            ws.on("message", (event) => {
+                switch (event){
+                    case "ping":
+                        ws.send("pong");
+                        break;
+                    default:
+                        break;
+                }
+            });
+            this.clients.push(ws);
+        });
     }
-}, 30000);
 
-wss.on('connection', (ws) => {
-    ws.isAlive = true;
-    ws.on('pong', heartbeat.bind(ws));
-    ws.on("message", (event) => {
-        switch (event){
-            case "ping":
-                ws.send("pong");
-                break;
-            default:
-                break;
-        }
-    });
-    clients.push(ws);
-});
+    heartbeat() {
+        this.isAlive = true;
+    }
 
-function broadcast(op){
-    clients.map(ws => {
-        ws.send(JSON.stringify(op));
-    });
+    broadcast(op){
+        clients.map(ws => {
+            ws.send(JSON.stringify(op));
+        });
+    }
 }
-server.listen(8081, "0.0.0.0");
-module.exports = { broadcast };
+const wss = new WSS();
+module.exports = wss;
+
