@@ -15,18 +15,6 @@ class WSS {
         server.listen(8081, "0.0.0.0");
         this.clients = [];
 
-        setInterval(function ping() {
-            for (let i = this.clients.length - 1; i >= 0; i--){
-                const ws = this.clients[i];
-                if (ws.isAlive === false) {
-                    ws.terminate();
-                    this.clients.splice(i, 1);
-                }
-                ws.isAlive = false;
-                ws.ping(noop);
-            }
-        }, 30000);
-
         this.wss.on('connection', (ws) => {
             ws.isAlive = true;
             ws.on('pong', heartbeat.bind(ws));
@@ -41,6 +29,20 @@ class WSS {
             });
             this.clients.push(ws);
         });
+
+        setInterval(this.ping.bind(this), 30000);
+    }
+
+    ping() {
+        for (let i = this.clients.length - 1; i >= 0; i--){
+            const ws = this.clients[i];
+            if (ws.isAlive === false) {
+                ws.terminate();
+                this.clients.splice(i, 1);
+            }
+            ws.isAlive = false;
+            ws.ping(noop);
+        }
     }
 
     heartbeat() {
