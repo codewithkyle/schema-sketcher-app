@@ -51,13 +51,16 @@ class DiagramController {
 
     public async loadDiagram(uid:string){
         // @ts-ignore
+        const results = await db.query("SELECT * FROM diagrams WHERE uid = $uid", {
+            uid: uid,
+        });
+        if (!results.length){
+            return null;
+        }
+        // @ts-ignore
         await db.query("UPDATE diagrams SET timestamp = $timestamp WHERE uid = $uid", {
             uid: uid,
             timestamp: Date.now(),
-        });
-        // @ts-ignore
-        const results = await db.query("SELECT * FROM diagrams WHERE uid = $uid", {
-            uid: uid,
         });
         this.diagram = results?.[0] ?? null;
         return this.diagram;
