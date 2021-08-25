@@ -4,6 +4,9 @@ let socket;
 let connected = false;
 
 function connect(){
+    if (connected){
+        return;   
+    }
     socket = new WebSocket('ws://3.22.114.84:5004');
     socket.addEventListener('message', (event) => {
         try {
@@ -18,7 +21,6 @@ function connect(){
     });
     socket.addEventListener("open", () => {
         connected = true;
-        cc.sync();
     });
 }
 
