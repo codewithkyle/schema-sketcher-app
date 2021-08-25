@@ -47,5 +47,5 @@ function broadcast(op){
         ws.send(JSON.stringify(op));
     });
 }
-server.listen(8081, "3.22.114.84");
+server.listen(8081, "0.0.0.0");
 module.exports = { broadcast };
