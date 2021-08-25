@@ -38,9 +38,9 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
     override async connected(){
         await css(["node-component"]);
         this.addEventListener("mousedown", this.mouseDown);
-        this.addEventListener("mouseup", this.mouseUp);
         document.addEventListener("keydown", this.handleKeyboard);
         document.addEventListener("mousemove", this.mouseMove);
+        document.addEventListener("mouseup", this.mouseUp);
         this.addEventListener("mouseenter", this.handleMouseEnter);
         this.addEventListener("mouseleave", this.handleMouseLeave);
         this.render();
