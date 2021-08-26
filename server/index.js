@@ -1,6 +1,5 @@
 const express = require('express');
 const app = express();
-const port = 8080;
 const cwd = process.cwd();
 const path = require("path");
 const fs = require("fs");
@@ -31,8 +30,8 @@ app.get('*', (req, res) => {
         res.status(404).sendFile(path.join(publicDir, "404.html"));
     }
 });
-
+app.listen(8080);
 const server = createServer(options, app);
 const wss = require("./ws");
 server.on("upgrade", wss.upgrade.bind(wss));
-server.listen(port);
+server.listen(443);
