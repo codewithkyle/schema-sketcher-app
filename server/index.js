@@ -6,8 +6,8 @@ const path = require("path");
 const fs = require("fs");
 const { createServer } = require('https');
 const options = {
-    cert: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/fullchain.pem'),
-    key: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/privkey.pem')
+    cert: fs.readFileSync('./fullchain.pem'),
+    key: fs.readFileSync('./privkey.pem')
 };
 
 const log = path.join(__dirname, "404.log");
