@@ -7,7 +7,7 @@ function connect(){
     if (connected){
         return;
     }
-    socket = new WebSocket('wss://3.22.114.84:8081');
+    socket = new WebSocket('wss://18.118.34.245');
     socket.addEventListener('message', (event) => {
         try {
             const op = JSON.parse(event.data);
