@@ -32,8 +32,7 @@ app.get('*', (req, res) => {
     }
 });
 
-app.listen(port);
 const server = createServer(options, app);
 const wss = require("./ws");
 server.on("upgrade", wss.upgrade.bind(wss));
-server.listen(443);
+server.listen(port);
