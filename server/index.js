@@ -4,7 +4,6 @@ const port = 8080;
 const cwd = process.cwd();
 const path = require("path");
 const fs = require("fs");
-const wss = require("./ws");
 const { createServer } = require('https');
 const options = {
     cert: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/fullchain.pem'),
@@ -34,4 +33,7 @@ app.get('*', (req, res) => {
 });
 
 app.listen(port);
-createServer(options, app).listen(8443);
+const server = createServer(options, app)
+const wss = require("./ws");
+server.on("upgrade", wss.upgrade.bind(wss));
+server.listen(8443);

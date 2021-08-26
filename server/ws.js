@@ -1,23 +1,16 @@
 const WebSocket = require('ws');
-const { createServer } = require("https");
-const fs = require("fs");
-const options = {
-    cert: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/fullchain.pem'),
-    key: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/privkey.pem')
-};
 
 function noop() {}
 
 class WSS {
     constructor(){
-        const server = createServer(options);
-        this.wss = new WebSocket.Server({ server });
-        server.listen(8081, "0.0.0.0");
+        this.wss = new WebSocket.Server({ noServer: true, });
         this.clients = [];
 
         this.wss.on('connection', (ws) => {
+            console.log("WS connected");
             ws.isAlive = true;
-            ws.on('pong', heartbeat.bind(ws));
+            ws.on('pong', this.heartbeat.bind(ws));
             ws.on("message", (event) => {
                 switch (event){
                     case "ping":
@@ -54,7 +47,11 @@ class WSS {
             ws.send(JSON.stringify(op));
         });
     }
-}
-const wss = new WSS();
-module.exports = wss;
 
+    upgrade(request, socket, head) {
+        this.wss.handleUpgrade(request, socket, head, (ws) => {
+            console.log("WS upgrade");
+        });
+    }
+}
+module.exports = new WSS();
