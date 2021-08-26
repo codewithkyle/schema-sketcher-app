@@ -33,5 +33,9 @@ app.get('*', (req, res) => {
 app.listen(8080);
 const server = createServer(options, app);
 const wss = require("./ws");
-server.on("upgrade", wss.upgrade.bind(wss));
+const ws = require('./ws');
+server.on("upgrade", (request, socket, head) => {
+    console.log("needs upgrade");
+    wss.upgrade(request, socket, head);
+});
 server.listen(443);
