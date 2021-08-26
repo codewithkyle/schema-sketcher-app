@@ -31,7 +31,7 @@ jobs:
         ssh-private-key: ${{ secrets.SSHKEY }}
 
     - name: Deploy
-      run: rsync -azh --delete-after --exclude={'config.js','.env','./src/','./build/','/.github/','.gitignore','tsconfig.json','asset-manager.config.js','brixi.config.js','cssmosnter.config.js'} -e "ssh -o StrictHostKeyChecking=no" ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/schema-sketcher/
+      run: rsync -azh --delete-after --exclude={'config.js','.env','/.github/','.gitignore','tsconfig.json','asset-manager.config.js','brixi.config.js','cssmosnter.config.js'} -e "ssh -o StrictHostKeyChecking=no" ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/schema-sketcher/
 
     - name: Post Deployment
       uses: appleboy/ssh-action@master
