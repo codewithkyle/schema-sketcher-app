@@ -4,11 +4,12 @@ const port = 8080;
 const cwd = process.cwd();
 const path = require("path");
 const fs = require("fs");
-const { createServer } = require('https');
-const options = {
-    cert: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/fullchain.pem'),
-    key: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/privkey.pem')
-};
+// const { createServer } = require('https');
+const { createServer } = require("http");
+// const options = {
+//     cert: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/fullchain.pem'),
+//     key: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/privkey.pem')
+// };
 
 const log = path.join(__dirname, "404.log");
 if (!fs.existsSync(log)){
@@ -33,7 +34,8 @@ app.get('*', (req, res) => {
 });
 
 app.listen(port);
-const server = createServer(options, app)
+// const server = createServer(options, app);
+const server = createServer(app);
 const wss = require("./ws");
 server.on("upgrade", wss.upgrade.bind(wss));
 server.listen(8443);
