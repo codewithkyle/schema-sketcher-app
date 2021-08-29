@@ -1,7 +1,7 @@
 const { v4: uuid } = require('uuid');
 const path = require("path");
 const fs = require("fs");
-const crypto = require("crypto");
+const CryptoJS = require("crypto-js");
 
 const collabDir = path.join(__dirname, "sessions");
 
@@ -35,7 +35,7 @@ class Socket {
         const { password, allowAnon } = data;
         let room = uuid();
         if (password.trim().length){
-            room = await this.encryptText(room);
+            room = await this.encrypt(room, password.trim());
             console.log(room);
         }
         await fs.promises.writeFile(path.join(collabDir, room));
@@ -45,10 +45,15 @@ class Socket {
         this.room = room;
     }
 
-    async encryptText(text){
-        const key = await crypto.subtle.generateKey({name: 'AES-GCM', length: 128}, true, ['encrypt', 'decrypt']);
-        const iv = await crypto.getRandomValues(new Uint8Array(16));
-        return await crypto.subtle.encrypt({name: 'AES-GCM', tagLength: 32, iv}, key, new TextEncoder().encode(text));
+    encrypt(messageToencrypt, secretkey){
+        const encryptedMessage = CryptoJS.AES.encrypt(messageToencrypt, secretkey);
+        return encryptedMessage.toString();
+    }
+
+    decrypt(encryptedMessage, secretkey){
+        const decryptedBytes = CryptoJS.AES.decrypt(encryptedMessage, secretkey);
+        const decryptedMessage = decryptedBytes.toString(CryptoJS.enc.Utf8);
+        return decryptedMessage;
     }
 }
 module.exports = Socket;
