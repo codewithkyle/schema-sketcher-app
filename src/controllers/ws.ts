@@ -2,13 +2,19 @@ import cc from "~controllers/control-center";
 
 let socket;
 let connected = false;
+let io = null;
 
-function connect(){
+async function connect(){
+    if (!io) {
+        // @ts-ignore
+        io = await import("/static/socket.js");
+        console.log(io);
+    }
     if (connected){
         return;
     }
-    socket = new WebSocket('wss://18.118.34.245');
-    socket.addEventListener('message', (event) => {
+    socket = io();
+    socket.on('message', (event) => {
         try {
             const op = JSON.parse(event.data);
             cc.perform(op, true);
@@ -16,10 +22,10 @@ function connect(){
             console.error(e, event);
         }
     });
-    socket.addEventListener("close", () => {
+    socket.on("disconnect", () => {
         disconnect(true);
     });
-    socket.addEventListener("open", () => {
+    socket.on("connect", () => {
         console.log("WS Connected");
         connected = true;
     });
@@ -33,14 +39,14 @@ function disconnect(reconnect = false){
         console.warn("Network connection has been lost.");
         connected = false;
     }
-    setTimeout(() => {
-        connect();
+    setTimeout(async () => {
+        await connect();
     }, 5000);
 }
 
 function send(message){
     if (connected){
-        socket.send(JSON.stringify(message));
+        socket.emit("message", JSON.stringify(message));
     }
 }
 export { connected, disconnect, connect, send };

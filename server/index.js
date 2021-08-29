@@ -2,8 +2,13 @@ const express = require('express');
 const app = express();
 const cwd = process.cwd();
 const path = require("path");
+const server = createServer(options, app);
+const { Server } = require("socket.io");
+const io = new Server(server);
 const fs = require("fs");
 const { createServer } = require('https');
+const { addSocket } = require("./sockets");
+
 const options = {
     cert: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/fullchain.pem'),
     key: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/privkey.pem')
@@ -30,12 +35,10 @@ app.get('*', (req, res) => {
         res.status(404).sendFile(path.join(publicDir, "404.html"));
     }
 });
-app.listen(8080);
-const server = createServer(options, app);
-const wss = require("./ws");
-const ws = require('./ws');
-server.on("upgrade", (request, socket, head) => {
-    console.log("needs upgrade");
-    wss.upgrade(request, socket, head);
+
+io.on('connection', (socket) => {
+    addSocket(socket); 
 });
+
+app.listen(8080);
 server.listen(443);
