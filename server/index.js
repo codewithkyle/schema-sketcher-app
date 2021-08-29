@@ -1,26 +1,39 @@
 const express = require('express');
 const app = express();
-const cwd = process.cwd();
 const path = require("path");
-const server = createServer(options, app);
-const { Server } = require("socket.io");
-const io = new Server(server);
 const fs = require("fs");
 const { createServer } = require('https');
 const { addSocket } = require("./sockets");
+const server = createServer(options, app);
+const { Server } = require("socket.io");
+const io = new Server(server);
 
 const options = {
     cert: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/fullchain.pem'),
     key: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/privkey.pem')
 };
 
+// Prep logging file
 const log = path.join(__dirname, "404.log");
 if (!fs.existsSync(log)){
     fs.writeFileSync(log, "");
 }
 
+// Prep collab sessions directory
+const collabDir = path.join(__dirname, "sessions");
+if (!fs.existsSync(collabDir)){
+    fs.mkdirSync(collabDir);
+}
+
+// Prep cloud saving directory
+const cloudDir = path.join(__dirname, "diagrams");
+if (!fs.existsSync(cloudDir)){
+    fs.mkdirSync(cloudDir);
+}
+
 const publicDir = path.resolve(__dirname, "../public");
 
+// API
 app.get('/', (req, res) => {
     res.sendFile(path.join(publicDir, "index.html"));
 });
@@ -36,6 +49,7 @@ app.get('*', (req, res) => {
     }
 });
 
+// Web Sockets
 io.on('connection', (socket) => {
     addSocket(socket); 
 });
