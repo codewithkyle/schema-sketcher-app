@@ -1,4 +1,5 @@
 import cc from "~controllers/control-center";
+import diagramController from "./diagram-controller";
 
 let socket;
 let connected = false;
@@ -9,7 +10,6 @@ function connect():Promise<void>{
         if (typeof io === "undefined") {
             // @ts-ignore
             await import("/static/socket.js");
-            console.log(io);
         }
         if (connected){
             return;
@@ -18,14 +18,8 @@ function connect():Promise<void>{
             forceNew: true,
             reconnection: false,
         });
-        socket.on('message', (data) => {
-            console.log(data);
-            // try {
-            //     const op = JSON.parse(event.data);
-            //     cc.perform(op, true);
-            // } catch (e) {
-            //     console.error(e, event);
-            // }
+        socket.on('on', (op) => {
+            cc.perform(op, true);
         });
         socket.on("disconnect", () => {
             disconnect(true);
@@ -39,9 +33,14 @@ function connect():Promise<void>{
             console.error(error);
             reject();
         });
-        socket.on("room-created", (data) => {
+        socket.on("room-created", async (data) => {
             const { room } = data;
-            console.log(room);
+            await diagramController.sendOPcodesToSession();
+            // TODO: provide room ID to UI
+        });
+        socket.on("room-joined", async (data) => {
+            const { room } = data;
+            // TODO: injest data
         });
     });
 }

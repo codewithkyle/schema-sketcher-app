@@ -4,6 +4,7 @@ import { navigateTo } from "@codewithkyle/router";
 import { Connection, Diagram, Node, Table, Column, ColumnType } from "~types/diagram";
 import cc from "~controllers/control-center";
 import { publish } from "@codewithkyle/pubsub";
+import { send } from "./ws";
 
 const TYPES = ["int", "bigint", "binary", "blob", "boolean", "char", "date", "datetime", "decimal", "double", "enum", "float", "geometry", "json", "bson", "longtext", "mediumint", "mediumtext", "multipoint", "point", "smallint", "time", "text", "timestamp", "tinyint", "uuid", "varchar"];
 const COLORS = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "light-blue", "indigo", "violet", "purple", "pink", "rose"];
@@ -301,6 +302,15 @@ class DiagramController {
             }),
         ];
         await Promise.all(queries);
+    }
+
+    public async sendOPcodesToSession(){
+        const results = await db.query("SELECT * FROM ledger WHERE diagramID = $uid ORDER BY timestamp", {
+            uid: this.diagram.uid,
+        });
+        for (let i = 0; i < results.length; i++){
+            send("log-op", results[i]);
+        }
     }
 }
 const diagramController = new DiagramController();

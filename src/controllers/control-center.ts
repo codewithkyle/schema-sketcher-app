@@ -121,7 +121,7 @@ class ControlCenter {
     public async dispatch(op:OPCode, bypassOutbox = false){
         let success = true;
         try{
-            send(op);
+            send("op", op);
         } catch (e) {
             success = false;
             console.error(e);

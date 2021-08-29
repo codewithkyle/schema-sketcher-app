@@ -3,6 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const CryptoJS = require("crypto-js");
 
+const animals = require("./animals");
 const collabDir = path.join(__dirname, "sessions");
 
 class Socket {
@@ -11,13 +12,28 @@ class Socket {
         this.isCollab = false;
         this.isOwner = false;
         this.room = null;
-        this.name = "";
+        this.name = this.generateName();
 
-        // TODO: map name to account using token OR assign anon name
+        // TODO: map name to account using token
 
         this.socket.on("create-room", this.createRoom.bind(this));
         this.socket.on("disconnect", this.disconnect.bind(this));
         this.socket.on("join-room", this.joinRoom.bind(this));
+        this.socket.on("op", this.broadcastOP.bind(this));
+        this.socket.on("log-op", this.logOP.bind(this));
+    }
+
+    async logOP(op){
+        if (this.room &&  this.isCollab){
+            await fs.promises.writeFile(path.join(collabDir, this.room), `${JSON.stringify(op)}\n`, {flag: "a"});
+        }
+    }
+
+    async broadcastOP(op){
+        if (this.room &&  this.isCollab){
+            await fs.promises.writeFile(path.join(collabDir, this.room), `${JSON.stringify(op)}\n`, {flag: "a"});
+            this.socket.to(this.room).emit("op", op);
+        }
     }
 
     async disconnect(){
@@ -32,9 +48,16 @@ class Socket {
         }
     }
 
+    random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+
+    generateName(){
+        return `Anonymouse ${animals[this.random(0, animals.length)]}`;
+    }
+
     async createRoom(data){
         const { password, allowAnon } = data;
-        let room = uuid();
+        const roomID = uuid();
+        let room = roomID;
         if (password.trim().length){
             room = await this.encrypt(room, password.trim());
         }
@@ -44,7 +67,7 @@ class Socket {
         this.isOwner = true;
         this.room = room;
         this.socket.emit("room-created", {
-            room: this.room,
+            room: roomID,
         });
     }
 
@@ -61,7 +84,9 @@ class Socket {
             this.socket.to(room).emit("user-connected", {
                 name: this.name,
             });
-            // TODO: sync client with room file
+            this.socket.emit("room-joined", {
+                room: this.room,
+            });
         }
         else {
             this.socket.emit("room-error", {
