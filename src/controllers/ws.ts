@@ -2,13 +2,12 @@ import cc from "~controllers/control-center";
 
 let socket;
 let connected = false;
-let io = null;
+declare var io;
 
 async function connect(){
-    if (!io) {
+    if (typeof io === "undefined") {
         // @ts-ignore
-        const module = await import("/static/socket.js");
-        io = module.default;
+        await import("/static/socket.js");
         console.log(io);
     }
     if (connected){
