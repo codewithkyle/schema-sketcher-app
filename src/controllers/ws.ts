@@ -17,13 +17,14 @@ async function connect(){
         forceNew: true,
         reconnection: false,
     });
-    socket.on('message', (event) => {
-        try {
-            const op = JSON.parse(event.data);
-            cc.perform(op, true);
-        } catch (e) {
-            console.error(e, event);
-        }
+    socket.on('message', (data) => {
+        console.log(data);
+        // try {
+        //     const op = JSON.parse(event.data);
+        //     cc.perform(op, true);
+        // } catch (e) {
+        //     console.error(e, event);
+        // }
     });
     socket.on("disconnect", () => {
         console.log("WS disconnected");
