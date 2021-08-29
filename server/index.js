@@ -4,14 +4,15 @@ const path = require("path");
 const fs = require("fs");
 const { createServer } = require('https');
 const { addSocket } = require("./sockets");
-const server = createServer(options, app);
-const { Server } = require("socket.io");
-const io = new Server(server);
 
 const options = {
     cert: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/fullchain.pem'),
     key: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/privkey.pem')
 };
+const server = createServer(options, app);
+const { Server } = require("socket.io");
+const io = new Server(server);
+const publicDir = path.resolve(__dirname, "../public");
 
 // Prep logging file
 const log = path.join(__dirname, "404.log");
@@ -30,8 +31,6 @@ const cloudDir = path.join(__dirname, "diagrams");
 if (!fs.existsSync(cloudDir)){
     fs.mkdirSync(cloudDir);
 }
-
-const publicDir = path.resolve(__dirname, "../public");
 
 // API
 app.get('/', (req, res) => {
