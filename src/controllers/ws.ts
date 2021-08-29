@@ -5,7 +5,7 @@ let connected = false;
 declare var io;
 
 function connect():Promise<void>{
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         if (typeof io === "undefined") {
             // @ts-ignore
             await import("/static/socket.js");
