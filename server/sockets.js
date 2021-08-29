@@ -1,7 +1,9 @@
+let socketCount = 0;
 function addSocket(socket){
-    sockets.push(socket);
-    socket.join("test");
-
+    if (socketCount === 0){
+        socket.join("test");
+    }
+    socketCount++;
     setTimeout(() => {
         socket.to("test").emit("message", "hello world");
     }, 5000);
