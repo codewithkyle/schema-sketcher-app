@@ -15,8 +15,8 @@ class Socket {
 
         // TODO: map name to account using token OR assign anon name
 
-        this.socket.on("create-room", this.createRoom);
-        this.socket.on("disconnect", this.disconnect);
+        this.socket.on("create-room", this.createRoom.bind(this));
+        this.socket.on("disconnect", this.disconnect.bind(this));
     }
 
     async disconnect(){
@@ -32,7 +32,7 @@ class Socket {
     }
 
     async createRoom(data){
-        const { password, allowAnon } = data;
+        const { password, allowAnon } = JSON.parse(data);
         let room = uuid();
         if (password.trim().length){
             room = await this.encrypt(room, password.trim());

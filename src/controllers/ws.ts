@@ -57,7 +57,7 @@ function disconnect(reconnect = false){
 
 function send(type, data){
     if (connected){
-        socket.emit(type, data);
+        socket.emit(type, JSON.stringify(data));
     }
 }
 export { connected, disconnect, connect, send };
