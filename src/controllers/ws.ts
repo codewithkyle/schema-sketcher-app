@@ -7,7 +7,8 @@ let io = null;
 async function connect(){
     if (!io) {
         // @ts-ignore
-        io = await import("/static/socket.js");
+        const module = await import("/static/socket.js");
+        io = module.default;
         console.log(io);
     }
     if (connected){
