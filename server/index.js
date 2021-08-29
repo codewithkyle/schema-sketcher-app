@@ -3,7 +3,7 @@ const app = express();
 const path = require("path");
 const fs = require("fs");
 const { createServer } = require('https');
-const { addSocket } = require("./sockets");
+const Socket = require("./sockets");
 
 const options = {
     cert: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/fullchain.pem'),
@@ -50,7 +50,7 @@ app.get('*', (req, res) => {
 
 // Web Sockets
 io.on('connection', (socket) => {
-    addSocket(socket); 
+    new Socket(socket);
 });
 
 io.engine.on("connection_error", (err) => {

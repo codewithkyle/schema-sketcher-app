@@ -4,38 +4,41 @@ let socket;
 let connected = false;
 declare var io;
 
-async function connect(){
-    if (typeof io === "undefined") {
-        // @ts-ignore
-        await import("/static/socket.js");
-        console.log(io);
-    }
-    if (connected){
-        return;
-    }
-    socket = io(location.origin, {
-        forceNew: true,
-        reconnection: false,
-    });
-    socket.on('message', (data) => {
-        console.log(data);
-        // try {
-        //     const op = JSON.parse(event.data);
-        //     cc.perform(op, true);
-        // } catch (e) {
-        //     console.error(e, event);
-        // }
-    });
-    socket.on("disconnect", () => {
-        console.log("WS disconnected");
-        disconnect(true);
-    });
-    socket.on("connect", () => {
-        console.log("WS connected");
-        connected = true;
-    });
-    socket.on("connect_error", (error) => {
-        console.error(error);
+function connect():Promise<void>{
+    return new Promise((resolve, reject) => {
+        if (typeof io === "undefined") {
+            // @ts-ignore
+            await import("/static/socket.js");
+            console.log(io);
+        }
+        if (connected){
+            return;
+        }
+        socket = io(location.origin, {
+            forceNew: true,
+            reconnection: false,
+        });
+        socket.on('message', (data) => {
+            console.log(data);
+            // try {
+            //     const op = JSON.parse(event.data);
+            //     cc.perform(op, true);
+            // } catch (e) {
+            //     console.error(e, event);
+            // }
+        });
+        socket.on("disconnect", () => {
+            disconnect(true);
+            reject();
+        });
+        socket.on("connect", () => {
+            connected = true;
+            resolve();
+        });
+        socket.on("connect_error", (error) => {
+            console.error(error);
+            reject();
+        });
     });
 }
 
@@ -52,9 +55,9 @@ function disconnect(reconnect = false){
     }, 5000);
 }
 
-function send(message){
+function send(type, data){
     if (connected){
-        socket.emit("message", JSON.stringify(message));
+        socket.emit(type, data);
     }
 }
 export { connected, disconnect, connect, send };

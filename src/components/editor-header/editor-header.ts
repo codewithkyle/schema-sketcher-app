@@ -3,7 +3,7 @@ import { render, html } from "lit-html";
 import SettingsModal from "~components/settings-modal/settings-modal";
 import { css, mount } from "~controllers/env";
 import diagramController from "~controllers/diagram-controller";
-import { connect } from "~controllers/ws";
+import { connect, send } from "~controllers/ws";
 
 interface IEditorHeader {
     name: string,
@@ -38,8 +38,12 @@ export default class EditorHeader extends SuperComponent<IEditorHeader>{
         document.body.appendChild(modal);
     }
     
-    private openCollabModal:EventListener = (e:Event) => {
-        connect();
+    private openCollabModal:EventListener = async (e:Event) => {
+        await connect();
+        send("create-room", {
+            password: "password",
+            allowAnon: true,
+        });
     }
 
     override render(){
