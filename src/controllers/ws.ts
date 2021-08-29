@@ -13,7 +13,7 @@ async function connect(){
     if (connected){
         return;
     }
-    socket = io("wss://schemasketcher.com", {
+    socket = io(location.origin, {
         forceNew: true,
         reconnection: false,
     });
