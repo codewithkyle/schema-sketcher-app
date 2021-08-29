@@ -39,6 +39,10 @@ function connect():Promise<void>{
             console.error(error);
             reject();
         });
+        socket.on("room-created", (data) => {
+            const { room } = data;
+            console.log(room);
+        });
     });
 }
 

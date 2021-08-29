@@ -17,6 +17,7 @@ class Socket {
 
         this.socket.on("create-room", this.createRoom.bind(this));
         this.socket.on("disconnect", this.disconnect.bind(this));
+        this.socket.on("join-room", this.joinRoom.bind(this));
     }
 
     async disconnect(){
@@ -36,18 +37,42 @@ class Socket {
         let room = uuid();
         if (password.trim().length){
             room = await this.encrypt(room, password.trim());
-            console.log(room);
         }
         await fs.promises.writeFile(path.join(collabDir, room), "");
         this.socket.join(room);
         this.isCollab = true;
         this.isOwner = true;
         this.room = room;
+        this.socket.emit("room-created", {
+            room: this.room,
+        });
+    }
+
+    async joinRoom(data){
+        const { roomID, password } = data;
+        let room;
+        if (password.trim().length){
+            room = await this.encrypt(roomID, password.trim());
+        }
+        if (fs.existsSync(path.join(collabDir, room))){
+            this.socket.join(room);
+            this.room = room;
+            this.isCollab = true;
+            this.socket.to(room).emit("user-connected", {
+                name: this.name,
+            });
+            // TODO: sync client with room file
+        }
+        else {
+            this.socket.emit("room-error", {
+                error: "Incorrect password or session ID.",
+            });
+        }
     }
 
     encrypt(messageToencrypt, secretkey){
         const encryptedMessage = CryptoJS.AES.encrypt(messageToencrypt, secretkey);
-        return encryptedMessage.toString();
+        return encodeURIComponent(encryptedMessage.toString());
     }
 
     decrypt(encryptedMessage, secretkey){
