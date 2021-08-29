@@ -32,13 +32,13 @@ class Socket {
     }
 
     async createRoom(data){
-        const { password, allowAnon } = JSON.parse(data);
+        const { password, allowAnon } = data;
         let room = uuid();
         if (password.trim().length){
             room = await this.encrypt(room, password.trim());
             console.log(room);
         }
-        await fs.promises.writeFile(path.join(collabDir, room));
+        await fs.promises.writeFile(path.join(collabDir, room), "");
         this.socket.join(room);
         this.isCollab = true;
         this.isOwner = true;
