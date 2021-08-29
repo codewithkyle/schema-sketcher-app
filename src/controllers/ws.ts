@@ -13,7 +13,10 @@ async function connect(){
     if (connected){
         return;
     }
-    socket = io();
+    socket = io("wss://schemasketcher.com", {
+        forceNew: true,
+        reconnection: false,
+    });
     socket.on('message', (event) => {
         try {
             const op = JSON.parse(event.data);
@@ -23,11 +26,15 @@ async function connect(){
         }
     });
     socket.on("disconnect", () => {
+        console.log("WS disconnected");
         disconnect(true);
     });
     socket.on("connect", () => {
-        console.log("WS Connected");
+        console.log("WS connected");
         connected = true;
+    });
+    socket.on("connect_error", (error) => {
+        console.error(error);
     });
 }
 
