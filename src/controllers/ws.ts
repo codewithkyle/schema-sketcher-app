@@ -38,6 +38,7 @@ function connect():Promise<void>{
         socket.on("room-created", async (data) => {
             const { room } = data;
             await diagramController.sendOPcodesToSession();
+            console.log(`${location.origin}/session/${diagramController.ID}/${room}`);
             // TODO: provide room ID to UI
         });
         socket.on("room-joined", async (data) => {
