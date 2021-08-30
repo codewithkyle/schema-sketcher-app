@@ -77,9 +77,9 @@ class Socket {
 
     async joinRoom(data){
         const { roomID, password, diagramID } = data;
-        let room;
+        let room = `${roomID}-${diagramID}`;
         if (password.trim().length){
-            room = await this.encrypt(roomID, password.trim());
+            room = await this.encrypt(room, password.trim());
         }
         if (fs.existsSync(path.join(collabDir, room))){
             this.socket.join(room);
