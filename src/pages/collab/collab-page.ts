@@ -9,5 +9,9 @@ export default class CollabPage extends SuperComponent<ICollabPage>{
     constructor(tokens, params){
         super();
     }
+    
+    override async connected(){
+        await css(["collab-page"]);
+    }
 }
 mount("collab-page", CollabPage);
