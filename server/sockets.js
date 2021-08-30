@@ -58,7 +58,7 @@ class Socket {
     async createRoom(data){
         const { password, allowAnon, diagramID } = data;
         const roomID = uuid();
-        let room = roomID;
+        let room = `${roomID}-${diagramID}`;
         if (password.trim().length){
             room = await this.encrypt(room, password.trim());
         }
@@ -70,6 +70,7 @@ class Socket {
         this.diagramID = diagramID;
         this.socket.emit("room-created", {
             room: roomID,
+            diagram: diagramID,
         });
     }
 
