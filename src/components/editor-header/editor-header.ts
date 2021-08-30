@@ -43,6 +43,7 @@ export default class EditorHeader extends SuperComponent<IEditorHeader>{
         send("create-room", {
             password: "password",
             allowAnon: true,
+            diagramID: diagramController.ID,
         });
     }
 
