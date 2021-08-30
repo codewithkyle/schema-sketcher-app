@@ -38,8 +38,7 @@ function connect():Promise<void>{
         socket.on("room-created", async (data) => {
             const { room, diagram, requirePassword } = data;
             await diagramController.sendOPcodesToSession();
-            console.log(`${location.origin}/session/${diagram}/${room}${requirePassword ? "?auth=pwd" : ""}`);
-            // TODO: provide room ID to UI
+            prompt("Collaboration URL", `${location.origin}/session/${diagram}/${room}${requirePassword ? "?auth=pwd" : ""}`);
         });
         socket.on("room-joined", async (data) => {
             const { room, diagram } = data;
@@ -52,7 +51,11 @@ function connect():Promise<void>{
                 ops.push(cc.perform(results[i]));
             }
             await Promise.all(ops);
-            // TODO: tell UI to render collab editor
+            navigteTo(`/diagram/${diagram}`);
+        });
+        socket.on("room-error", (data) => {
+            console.error(data.error);
+            navigateTo("/");
         });
     });
 }
