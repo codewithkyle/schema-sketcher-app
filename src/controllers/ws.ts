@@ -1,5 +1,6 @@
 import cc from "~controllers/control-center";
 import diagramController from "./diagram-controller";
+import db from "~lib/jsql";
 
 let socket;
 let connected = false;
@@ -39,8 +40,14 @@ function connect():Promise<void>{
             // TODO: provide room ID to UI
         });
         socket.on("room-joined", async (data) => {
-            const { room } = data;
-            // TODO: injest data
+            const { room, diagramID } = data;
+            await db.ingest(`${location.origin}/session/${room}`, "ledger");
+            if (diagram){
+                navigateTo(`/collaborate/${diagramID}`);
+            }
+            else {
+                navigateTo("/");
+            }
         });
     });
 }
