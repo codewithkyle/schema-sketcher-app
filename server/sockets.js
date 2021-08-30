@@ -71,11 +71,12 @@ class Socket {
         this.socket.emit("room-created", {
             room: roomID,
             diagram: diagramID,
+            requirePassword: password.trim().length > 0,
         });
     }
 
     async joinRoom(data){
-        const { roomID, password } = data;
+        const { roomID, password, diagramID } = data;
         let room;
         if (password.trim().length){
             room = await this.encrypt(roomID, password.trim());
@@ -89,6 +90,7 @@ class Socket {
             });
             this.socket.emit("room-joined", {
                 room: this.room,
+                diagram: diagramID,
             });
         }
         else {
