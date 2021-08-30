@@ -15,8 +15,8 @@ export default class CollabPage extends SuperComponent<ICollabPage>{
     constructor(tokens, params){
         super();
         this.requirePassword = param?.auth === "pwd";
-        this.roomID: tokens.room;
-        this.diagramID: tokens.diagram;
+        this.roomID = tokens.room;
+        this.diagramID = tokens.diagram;
     }
     
     override async connected(){
