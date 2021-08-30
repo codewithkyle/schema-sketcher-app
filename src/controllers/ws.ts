@@ -36,9 +36,9 @@ function connect():Promise<void>{
             reject();
         });
         socket.on("room-created", async (data) => {
-            const { room } = data;
+            const { room, diagram, requirePassword } = data;
             await diagramController.sendOPcodesToSession();
-            console.log(`${location.origin}/session/${diagramController.ID}/${room}`);
+            console.log(`${location.origin}/session/${diagram}/${room}${requirePassword ? "?auth=pwd" : ""}`);
             // TODO: provide room ID to UI
         });
         socket.on("room-joined", async (data) => {
