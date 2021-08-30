@@ -12,6 +12,7 @@ class Socket {
         this.isCollab = false;
         this.isOwner = false;
         this.room = null;
+        this.diagramID = null;
         this.name = this.generateName();
 
         // TODO: map name to account using token
@@ -55,7 +56,7 @@ class Socket {
     }
 
     async createRoom(data){
-        const { password, allowAnon } = data;
+        const { password, allowAnon, diagramID } = data;
         const roomID = uuid();
         let room = roomID;
         if (password.trim().length){
@@ -66,6 +67,7 @@ class Socket {
         this.isCollab = true;
         this.isOwner = true;
         this.room = room;
+        this.diagramID = diagramID;
         this.socket.emit("room-created", {
             room: roomID,
         });
