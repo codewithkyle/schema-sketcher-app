@@ -84,6 +84,7 @@ class Socket {
         if (fs.existsSync(path.join(collabDir, room))){
             this.socket.join(room);
             this.room = room;
+            this.diagramID = diagramID;
             this.isCollab = true;
             this.socket.to(room).emit("user-connected", {
                 name: this.name,
