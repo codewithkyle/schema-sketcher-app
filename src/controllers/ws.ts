@@ -49,6 +49,7 @@ function connect():Promise<void>{
         });
         socket.on("room-joined", async (data) => {
             const { room, diagram } = data;
+            console.log("joined room");
             suspendOPs = true;
             await db.ingest(`${location.origin}/session/${room}`, "ledger");
             const results = await db.query("SELECT * FROM ledger WHERE diagramID = $uid ORDER BY timestamp", {
