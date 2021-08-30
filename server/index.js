@@ -37,6 +37,17 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(publicDir, "index.html"));
 });
 
+app.get("/session/:roomID", async (req, res) => {
+    const { roomID } = req.params;
+    const filePath = path.join(collabDir, roomID);
+    if (fs.existsSync(filePath)){
+        res.status(200).sendFile(filePath);
+    }
+    else {
+        res.status(404).send("Invalid session ID.");   
+    }
+});
+
 // 404 - keep at bottom
 app.get('*', (req, res) => {
     const filePath = path.join(publicDir, req.path);
