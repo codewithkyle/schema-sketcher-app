@@ -1,6 +1,7 @@
 import cc from "~controllers/control-center";
 import diagramController from "./diagram-controller";
 import db from "~lib/jsql";
+import { navigateTo } from "@codewithkyle/router";
 
 let socket;
 let connected = false;
