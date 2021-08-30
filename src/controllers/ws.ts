@@ -43,12 +43,15 @@ function connect():Promise<void>{
         socket.on("room-joined", async (data) => {
             const { room, diagramID } = data;
             await db.ingest(`${location.origin}/session/${room}`, "ledger");
-            if (diagram){
-                navigateTo(`/collaborate/${diagramID}`);
+            const results = await db.query("SELECT * FROM ledger WHERE diagramID = $uid ORDER BY timestamp", {
+                uid: diagramID,
+            });
+            const ops = [];
+            for (let i = 0; i < results.length; i++){
+                ops.push(cc.perform(results[i]));
             }
-            else {
-                navigateTo("/");
-            }
+            await Promise.all(ops);
+            // TODO: tell UI to render collab editor
         });
     });
 }
