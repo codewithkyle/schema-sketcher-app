@@ -6,6 +6,8 @@ import { navigateTo } from "@codewithkyle/router";
 let socket;
 let connected = false;
 declare var io;
+let suspendOPs = false;
+let opsQueue = [];
 
 function connect():Promise<void>{
     return new Promise(async (resolve, reject) => {
@@ -21,7 +23,12 @@ function connect():Promise<void>{
             reconnection: false,
         });
         socket.on('on', (op) => {
-            cc.perform(op, true);
+            if (suspendOPs){
+                opsQueue.push(op);
+            }
+            else {
+                cc.perform(op, true);
+            }
         });
         socket.on("disconnect", () => {
             disconnect(true);
@@ -42,6 +49,7 @@ function connect():Promise<void>{
         });
         socket.on("room-joined", async (data) => {
             const { room, diagram } = data;
+            suspendOPs = true;
             await db.ingest(`${location.origin}/session/${room}`, "ledger");
             const results = await db.query("SELECT * FROM ledger WHERE diagramID = $uid ORDER BY timestamp", {
                 uid: diagram,
@@ -51,6 +59,10 @@ function connect():Promise<void>{
                 ops.push(cc.perform(results[i]));
             }
             await Promise.all(ops);
+            suspendOPs = false;
+            for (let i = 0; i < opsQueue.length; i++){
+                cc.perform(opsQueue[i]);
+            }
             navigteTo(`/diagram/${diagram}`);
         });
         socket.on("room-error", (data) => {
