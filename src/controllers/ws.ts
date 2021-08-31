@@ -22,7 +22,7 @@ function connect():Promise<void>{
             forceNew: true,
             reconnection: false,
         });
-        socket.on('on', (op) => {
+        socket.on('op', (op) => {
             if (suspendOPs){
                 opsQueue.push(op);
             }
@@ -54,10 +54,8 @@ function connect():Promise<void>{
             const results = await db.query("SELECT * FROM ledger WHERE diagramID = $uid ORDER BY timestamp", {
                 uid: diagram,
             });
-            console.log(results);
-            const ops = [];
             for (const op of results){
-                await cc.perform(op);
+                await cc.op(op);
             }
             suspendOPs = false;
             for (const op of opsQueue){
@@ -74,6 +72,10 @@ function connect():Promise<void>{
 }
 
 function disconnect(reconnect = false){
+    if (connected){
+        socket.disconnect();
+        connected = false;
+    }
     if (!reconnect){
         return;
     }

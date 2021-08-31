@@ -138,6 +138,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         if (target.value){
             const op = cc.set("columns", this.model.uid, "name", target.value);
             cc.perform(op);
+            cc.dispatch(op);
             this.update({
                 name: target.value,
             });
@@ -172,12 +173,14 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         }
         if (op){
             cc.perform(op);
+            cc.dispatch(op);
         }
     }
 
     private deleteColumn:EventListener = (e:Event) => {
         const op = cc.delete("columns", this.model.uid);
         cc.perform(op);
+        cc.dispatch(op);
         this.remove();
     }
 
@@ -223,6 +226,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
             }
             if (op){
                 cc.perform(op);
+                cc.dispatch(op);
             }
         }
     }
@@ -295,6 +299,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         });
         const op = cc.set("columns", this.model.uid, "type", value);
         cc.perform(op);
+        cc.dispatch(op);
     }
 
     private endDraw:EventListener = (e:Event) => {

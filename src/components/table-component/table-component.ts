@@ -35,30 +35,48 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         subscribe("table", this.render.bind(this));
     }
 
-    private syncInbox(e){
-        if (e.table === "tables" && e.key === this.model.uid){
-            const updatedModel = {...this.model};
-            let doUpdate = false;
-            switch(e.op){
-                case "UNSET":
-                    unsetValueFromKeypath(updatedModel, e.keypath);
-                    doUpdate = true;
-                    break;
-                case "SET":
-                    setValueFromKeypath(updatedModel, e.keypath, e.value);
-                    doUpdate = true;
-                    break;
-                case "DELETE":
-                    this.remove();
-                    break;
-                default:
-                    break;
-            }
-            if (doUpdate){
+    private handleOP(op){
+        switch(op.op){
+            case "UNSET":
+                const updatedModel = {...this.model};
+                unsetValueFromKeypath(updatedModel, op.keypath);
                 this.update(updatedModel);
-            }
+                break;
+            case "SET":
+                switch(op.keypath){
+                    case "x":
+                        this.move(op.value, parseInt(this.dataset.top));
+                        this.prevX = op.value;
+                        break;
+                    case "y":
+                        this.move(parseInt(this.dataset.left), op.value);
+                        this.prevY = op.value;
+                        break;
+                    default:
+                        const updatedModel = {...this.model};
+                        setValueFromKeypath(updatedModel, op.keypath, op.value);
+                        this.update(updatedModel);
+                        break;
+                }
+                break;
+            case "DELETE":
+                this.remove();
+                break;
+            case "BATCH":
+                for (const subOP of op.ops){
+                    this.handleOP(subOP);
+                }
+                break;
+            default:
+                break;
         }
-        else if (e.table === "columns" && e.op === "INSERT"){
+    }
+
+    private syncInbox(op){
+        if (op.table === "tables" && op.key === this.model.uid){
+            this.handleOP(op);
+        }
+        else if (op.table === "columns" && op.op === "INSERT"){
             this.render();
         }
     }
@@ -105,6 +123,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             const op2 = cc.set("tables", this.model.uid, "y", y);
             const op = cc.batch("tables", this.model.uid, [op1, op2]);
             cc.perform(op);
+            cc.dispatch(op);
         }
     }
 
@@ -219,6 +238,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             });
             const op = cc.set("tables", this.model.uid, "name", newName);
             cc.perform(op);
+            cc.dispatch(op);
         }
     }
 

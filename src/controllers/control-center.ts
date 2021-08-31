@@ -4,7 +4,7 @@ import { createSubscription, publish } from "@codewithkyle/pubsub";
 import db from "~lib/jsql";
 import { setValueFromKeypath, unsetValueFromKeypath } from "~utils/sync";
 import diagramController from "~controllers/diagram-controller";
-import { send } from "~controllers/ws";
+import { connected, send } from "~controllers/ws";
 
 class ControlCenter {
     private syncing: boolean;
@@ -119,20 +119,19 @@ class ControlCenter {
     }
 
     public async dispatch(op:OPCode, bypassOutbox = false){
-        let success = true;
-        try{
-            send("op", op);
-        } catch (e) {
-            success = false;
-            console.error(e);
-            if (!bypassOutbox){
-                await db.query("INSERT INTO outbox VALUES ($op)", {
-                    uid: uuid(),
-                    opcode: op,
-                });
+        if (connected){
+            try{
+                send("op", op);
+            } catch (e) {
+                console.error(e);
+                if (!bypassOutbox){
+                    await db.query("INSERT INTO outbox VALUES ($op)", {
+                        uid: uuid(),
+                        opcode: op,
+                    });
+                }
             }
         }
-        return success;
     }
 
     public async perform(operation:OPCode, disbatchToUI = false){
@@ -169,7 +168,7 @@ class ControlCenter {
         }
     }
 
-    private async op(operation):Promise<any>{
+    public async op(operation):Promise<any>{
         // @ts-ignore
         const { op, uid, table, key, value, keypath, timestamp, ops } = operation;
 

@@ -6,6 +6,7 @@ export interface OPCode{
     op: OP,
     timestamp: number,
     key: string,
+    diagramID: string,
 }
 
 export interface Insert extends OPCode{

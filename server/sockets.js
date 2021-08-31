@@ -25,13 +25,13 @@ class Socket {
     }
 
     async logOP(op){
-        if (this.room &&  this.isCollab){
+        if (this.room && this.isCollab){
             await fs.promises.writeFile(path.join(collabDir, this.room), `${JSON.stringify(op)}\n`, {flag: "a"});
         }
     }
 
     async broadcastOP(op){
-        if (this.room &&  this.isCollab){
+        if (this.room && this.isCollab){
             await fs.promises.writeFile(path.join(collabDir, this.room), `${JSON.stringify(op)}\n`, {flag: "a"});
             this.socket.to(this.room).emit("op", op);
         }
@@ -40,7 +40,7 @@ class Socket {
     async disconnect(){
         if (this.isCollab && this.isOwner && this.room){
             this.socket.to(this.room).emit("close-room");
-            await fs.promises.rm(path.join(collabDir, this.room));
+            await fs.promises.unlink(path.join(collabDir, this.room));
         }
         else if (this.isCollab && this.room){
             this.socket.to(this.room).emit("user-disconnect", {
@@ -63,7 +63,7 @@ class Socket {
             room = await this.encrypt(room, password.trim());
         }
         await fs.promises.writeFile(path.join(collabDir, roomID), "");
-        this.socket.join(room);
+        this.socket.join(roomID);
         this.isCollab = true;
         this.isOwner = true;
         this.room = roomID;

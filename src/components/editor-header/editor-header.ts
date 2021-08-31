@@ -3,7 +3,10 @@ import { render, html } from "lit-html";
 import SettingsModal from "~components/settings-modal/settings-modal";
 import { css, mount } from "~controllers/env";
 import diagramController from "~controllers/diagram-controller";
-import { connect, send } from "~controllers/ws";
+import { connect, disconnect, send } from "~controllers/ws";
+import { subscribe } from "~lib/pubsub";
+import { setValueFromKeypath, unsetValueFromKeypath } from "~utils/sync";
+import { navigateTo } from "@codewithkyle/router";
 
 interface IEditorHeader {
     name: string,
@@ -17,6 +20,25 @@ export default class EditorHeader extends SuperComponent<IEditorHeader>{
         css(["editor-header", "buttons"]).then(() => {
             this.render();
         });
+        subscribe("sync", this.syncInbox.bind(this));
+    }
+
+    private syncInbox(op){
+        if (op.table === "diagrams" && op.diagramID === diagramController.ID){
+            const updatedModel = {...this.model};
+            switch(op.op){
+                case "UNSET":
+                    unsetValueFromKeypath(updatedModel, op.keypath);
+                    this.update(updatedModel);
+                    break;
+                case "SET":
+                    setValueFromKeypath(updatedModel, op.keypath, op.value);
+                    this.update(updatedModel);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     private handleBlur:EventListener = (e:Event) => {
@@ -47,10 +69,17 @@ export default class EditorHeader extends SuperComponent<IEditorHeader>{
         });
     }
 
+    private back:EventListener = (e:Event) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        disconnect();
+        navigateTo("/")
+    }
+
     override render(){
         const view = html`
             <div flex="items-center row nowrap">
-                <a href="/">
+                <a @click=${this.back}>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" /></svg>
                 </a>
                 <input @blur=${this.handleBlur} type="text" .value=${this.model.name}>

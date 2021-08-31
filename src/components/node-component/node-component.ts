@@ -4,11 +4,12 @@ import { html, render } from "lit-html";
 import { unsafeHTML } from "lit-html/directives/unsafe-html";
 import IconModal from "~components/icon-modal/icon-modal";
 import { css, mount } from "~controllers/env";
-import { publish } from "~lib/pubsub";
+import { publish, subscribe } from "~lib/pubsub";
 import { Node } from "~types/diagram";
 import ConnectorComponent from "~components/connector-component/connector-component";
 import cc from "~controllers/control-center";
 import diagramController from "~controllers/diagram-controller";
+import { setValueFromKeypath, unsetValueFromKeypath } from "~utils/sync";
 
 interface INodeComponent extends Node {
 
@@ -33,6 +34,50 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         this.prevX = node.x;
         this.prevY = node.y;
         this.isMoving = false;
+        subscribe("sync", this.syncInbox.bind(this));
+    }
+
+    private handleOP(op){
+        switch(op.op){
+            case "UNSET":
+                const updatedModel = {...this.model};
+                unsetValueFromKeypath(updatedModel, op.keypath);
+                this.update(updatedModel);
+                break;
+            case "SET":
+                switch(op.keypath){
+                    case "x":
+                        this.move(op.value, parseInt(this.dataset.top));
+                        this.prevX = op.value;
+                        break;
+                    case "y":
+                        this.move(parseInt(this.dataset.left), op.value);
+                        this.prevY = op.value;
+                        break;
+                    default:
+                        const updatedModel = {...this.model};
+                        setValueFromKeypath(updatedModel, op.keypath, op.value);
+                        this.update(updatedModel);
+                        break;
+                }
+                break;
+            case "DELETE":
+                this.remove();
+                break;
+            case "BATCH":
+                for (const subOP of op.ops){
+                    this.handleOP(subOP);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private syncInbox(op){
+        if (op.table === "nodes" && op.key === this.model.uid){
+            this.handleOP(op);
+        }
     }
 
     override async connected(){
@@ -78,6 +123,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             const op2 = cc.set("nodes", this.model.uid, `y`, y);
             const op = cc.batch("nodes", this.model.uid, [op1, op2]);
             cc.perform(op);
+            cc.dispatch(op);
         }
     }
 
@@ -234,6 +280,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         if (target.value !== this.model.text){
             const op = cc.set("nodes", this.model.uid, "text", target.value);
             cc.perform(op);
+            cc.dispatch(op);
         }
     }
 
@@ -287,11 +334,13 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
             updatedModel.color = color;
             const op = cc.set("nodes", this.model.uid, "color", color);
             cc.perform(op);
+            cc.dispatch(op);
         }
         if (icon !== this.model.icon){
             updatedModel.icon = icon;
             const op = cc.set("nodes", this.model.uid, "icon", icon);
             cc.perform(op);
+            cc.dispatch(op);
         }
         this.update(updatedModel);
     }

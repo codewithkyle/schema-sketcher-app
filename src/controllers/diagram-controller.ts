@@ -44,8 +44,9 @@ class DiagramController {
             name: "UNTITLED",
             timestamp: Date.now(),
         };
-        const op1 = cc.insert("diagrams", uid, this.diagram);
-        await cc.perform(op1);
+        const op = cc.insert("diagrams", uid, this.diagram);
+        await cc.perform(op);
+        cc.dispatch(op);
         for (const type of TYPES){
             await this.createType(type);
         }
@@ -75,6 +76,7 @@ class DiagramController {
         this.diagram.name = newName;
         const op = cc.set("diagrams", this.diagram.uid, "name", newName);
         await cc.perform(op);
+        cc.dispatch(op);
     }
     
     public async createTable(placeX:number, placeY:number){
@@ -92,6 +94,7 @@ class DiagramController {
         };
         const op = cc.insert("tables", uid, table);
         await cc.perform(op, true);
+        cc.dispatch(op);
         this.createColumn(uid);
     }
 
@@ -119,6 +122,7 @@ class DiagramController {
         };
         const op = cc.insert("columns", columnUid, column);
         await cc.perform(op, true);
+        cc.dispatch(op);
     }
     
     public async createNode(placeX:number, placeY:number){
@@ -134,6 +138,7 @@ class DiagramController {
         };
         const op = cc.insert("nodes", uid, node);
         await cc.perform(op, true);
+        cc.dispatch(op);
     }
 
     public createConnection(startNodeID:string, endNodeID:string, refs:Array<string>){
@@ -148,6 +153,7 @@ class DiagramController {
         };
         const op = cc.insert("connections", uid, connection);
         cc.perform(op, true);
+        cc.dispatch(op);
     }
 
     // @ts-expect-error
@@ -167,6 +173,7 @@ class DiagramController {
     public async deleteType(uid:string){
         const op = cc.delete("types", uid);
         await cc.perform(op);
+        cc.dispatch(op);
     }
 
     public async createType(value = ""){
@@ -178,6 +185,7 @@ class DiagramController {
         };
         const op = cc.insert("types", uid, type);
         await cc.perform(op);
+        cc.dispatch(op);
     }
 
     // @ts-expect-error
@@ -202,6 +210,7 @@ class DiagramController {
         for (const connection of connections){
             const op = cc.delete("connections", connection.uid);
             await cc.perform(op);
+            cc.dispatch(op);
         }
         const columns = await db.query("SELECT * FROM columns WHERE diagramID = $diagramID AND tableID = $tableID", {
             diagramID: this.diagram.uid,
@@ -210,9 +219,11 @@ class DiagramController {
         for (const column of columns){
             const op = cc.delete("columns", column.uid);
             await cc.perform(op);
+            cc.dispatch(op);
         }
         const op = cc.delete("tables", tableID);
         await cc.perform(op);
+        cc.dispatch(op);
         publish("canvas", {
             type: "reload",
         });
@@ -226,9 +237,11 @@ class DiagramController {
         for (const connection of connections){
             const op = cc.delete("connections", connection.uid);
             await cc.perform(op);
+            cc.dispatch(op);
         }
         const op = cc.delete("nodes", nodeID);
         await cc.perform(op);
+        cc.dispatch(op);
         publish("canvas", {
             type: "reload",
         });
@@ -269,6 +282,7 @@ class DiagramController {
         for (const column of columns){
             const op = cc.set("columns", column.uid, "weight", weight);
             await cc.perform(op);
+            cc.dispatch(op);
             weight++;
         }
         this.movingColumnUID = null;
