@@ -63,7 +63,7 @@ export default class EditorHeader extends SuperComponent<IEditorHeader>{
     private openCollabModal:EventListener = async (e:Event) => {
         await connect();
         send("create-room", {
-            password: "password",
+            password: "",
             allowAnon: true,
             diagramID: diagramController.ID,
         });
