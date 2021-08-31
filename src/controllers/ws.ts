@@ -63,6 +63,7 @@ function connect():Promise<void>{
             for (let i = 0; i < opsQueue.length; i++){
                 cc.perform(opsQueue[i]);
             }
+            await diagramController.loadDiagram(diagram);
             navigateTo(`/diagram/${diagram}`);
         });
         socket.on("room-error", (data) => {
