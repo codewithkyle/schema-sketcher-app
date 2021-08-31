@@ -16,7 +16,7 @@ function connect():Promise<void>{
             await import("/static/socket.js");
         }
         if (connected){
-            return;
+            resolve();
         }
         socket = io(location.origin, {
             forceNew: true,
