@@ -8,14 +8,14 @@ interface ICollabPage {
     diagram: Diagram,
 }
 export default class CollabPage extends SuperComponent<ICollabPage>{
-    private roomID:string;
+    private room:string;
     private diagramID:string;
     private requirePassword:boolean;
     
     constructor(tokens, params){
         super();
         this.requirePassword = params?.auth === "pwd";
-        this.roomID = tokens.room;
+        this.room = tokens.room;
         this.diagramID = tokens.diagram;
     }
     
@@ -30,7 +30,7 @@ export default class CollabPage extends SuperComponent<ICollabPage>{
             send("join-room", {
                 password: "",
                 diagramID: this.diagramID,
-                roomID: this.roomID,
+                room: this.room,
             });
         }
     }
@@ -40,7 +40,7 @@ export default class CollabPage extends SuperComponent<ICollabPage>{
         send("join-room", {
             password: password,
             diagramID: this.diagramID,
-            roomID: this.roomID,
+            room: this.room,
         });
     }
     
