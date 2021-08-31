@@ -46,4 +46,10 @@ table-component{
             padding-right: 0.5rem;
         }
     }
+
+    columns-container{
+        display: flex;
+        flex-flow: column wrap;
+        width: 100%;
+    }
 }

@@ -24,6 +24,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
             renderAllOptions: renderAllOptions,
             columnTypes: [],
         }};
+        this.style.order = `${this.model.weight}`;
         subscribe("sync", this.syncInbox.bind(this));
     }
 
@@ -49,8 +50,14 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
                     unsetValueFromKeypath(updatedModel, e.keypath);
                     break;
                 case "SET":
-                    doUpdate = true;
-                    setValueFromKeypath(updatedModel, e.keypath, e.value);
+                    if (e.keypath === "weight"){
+                        this.style.order = `${e.value}`;
+                        this.classList.remove("is-disabled", "is-drop-target");
+                    }
+                    else {
+                        doUpdate = true;
+                        setValueFromKeypath(updatedModel, e.keypath, e.value);
+                    }
                     break;
                 case "DELETE":
                     this.remove();
@@ -317,6 +324,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         this.draggable = true;
         this.tabIndex = 0;
         this.dataset.uid = this.model.uid;
+        this.style.order = `${this.model.weight}`;
         const view = html`
             ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -6px;`, this.model.uid, "left", this.tableUID, [this.tableUID, this.model.uid])}
             <div @mouseup=${this.endDraw} tabindex="0" draggable="true" class="w-full" flex="row nowrap items-center" @drag=${this.handleDragStart} @dragover=${this.handleDragOver} @dragend=${this.handleDragEnd} @drop=${this.handleDrop} @dragleave=${this.handleDragLeave}>

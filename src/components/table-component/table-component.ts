@@ -32,7 +32,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             showAllColumnOptions: false,
         }};
         subscribe("sync", this.syncInbox.bind(this));
-        subscribe("table", this.render.bind(this));
+        // subscribe("table", this.render.bind(this));
     }
 
     private handleOP(op){
@@ -76,8 +76,16 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         if (op.table === "tables" && op.key === this.model.uid){
             this.handleOP(op);
         }
-        else if (op.table === "columns" && op.op === "INSERT"){
-            this.render();
+        else if (op.table === "columns" && (op.op === "INSERT" && op.value.tableID === this.model.uid) || op.op === "DELETE"){
+            switch(op.op){
+                case "INSERT":
+                    const column = new ColumnComponent(op.value, false, this.model.uid);
+                    this.querySelector("columns-container").appendChild(column);
+                    break;
+                case "DELETE":
+                    this.querySelector(`column-component[data-uid="${op.key}"]`)?.remove();
+                    break;
+            }
         }
     }
 
@@ -277,14 +285,11 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     }
 
     override async render(){
+        console.log("rendder");
         this.style.transform = `translate(${this.prevX}px, ${this.prevY}px)`;
         this.dataset.top = `${this.prevY}`;
         this.dataset.left = `${this.prevX}`;
         this.dataset.uid = this.model.uid;
-        const orderedColumns = await db.query("SELECT * FROM columns WHERE diagramID = $diagramID AND tableID = $tableID ORDER BY weight", {
-            diagramID: this.diagramID,
-            tableID: this.model.uid,
-        });
         const view = html`
             <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseenter=${this.handleMouseEnter} @mouseleave=${this.handleMouseLeave}>
                 <h4 title="${this.model.name}">${this.model.name}</h4>
@@ -330,13 +335,22 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
                     </overflow-menu>
                 </overflow-button>
             </header>
-            <columns-container>
-                ${orderedColumns.map((column) => {
-                    return new ColumnComponent(column, this.model.showAllColumnOptions, this.model.uid);
-                })}
-            </columns-container>
+            <columns-container></columns-container>
         `;
         render(view, this);
+        setTimeout(async ()=>{
+            const orderedColumns = await db.query("SELECT * FROM columns WHERE diagramID = $diagramID AND tableID = $tableID ORDER BY weight", {
+                diagramID: this.diagramID,
+                tableID: this.model.uid,
+            });
+            console.log("asdf");
+            const container = this.querySelector("columns-container") as HTMLElement;
+            container.innerHTML = "";
+            orderedColumns.map((column) => {
+                const newColumn = new ColumnComponent(column, this.model.showAllColumnOptions, this.model.uid);
+                container.appendChild(newColumn);
+            });
+        }, 80);
     }
 
     override updated(){

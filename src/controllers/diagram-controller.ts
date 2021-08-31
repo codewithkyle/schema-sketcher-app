@@ -281,12 +281,12 @@ class DiagramController {
         let weight = 0;
         for (const column of columns){
             const op = cc.set("columns", column.uid, "weight", weight);
-            await cc.perform(op);
+            await cc.perform(op, true);
             cc.dispatch(op);
             weight++;
         }
         this.movingColumnUID = null;
-        publish("table", null);
+        // publish("table", null);
     }
 
     public startSwap(nodeID:string){
