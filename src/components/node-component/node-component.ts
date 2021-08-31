@@ -268,20 +268,18 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         return newWidth;
     }
 
+    private updateValue(value){
+        const op = cc.set("nodes", this.model.uid, "text", value);
+        cc.perform(op);
+        cc.dispatch(op);
+    }
+    private debounceInput = this.debounce(this.updateValue.bind(this), 300);
     private handleInput:EventListener = (e:Event) => {
         const target = e.currentTarget as HTMLInputElement;
         const value = target.value;
         const newWidth = this.calcWidth(value);
         target.style.width = `${newWidth}px`;
-    }
-
-    private handleBlur:EventListener = (e:Event) => {
-        const target = e.currentTarget as HTMLInputElement;
-        if (target.value !== this.model.text){
-            const op = cc.set("nodes", this.model.uid, "text", target.value);
-            cc.perform(op);
-            cc.dispatch(op);
-        }
+        this.debounceInput(value);
     }
 
     private mouseDown:EventListener = (e:MouseEvent) => {
@@ -371,7 +369,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
                 <div class="bg-${this.model.color}-500"></div>
                 ${unsafeHTML(icon)}
             </button>
-            <input style="width:${this.calcWidth(this.model.text)}px;" value="${this.model.text}" type="text" @input=${this.handleInput} @keydown=${this.handleInputKeyboard} @blur=${this.handleBlur}>
+            <input style="width:${this.calcWidth(this.model.text)}px;" value="${this.model.text}" type="text" @input=${this.handleInput} @keydown=${this.handleInputKeyboard}>
             ${new ConnectorComponent(`top: -6px;left: 16px;`, this.model.uid, "top", this.model.uid, [this.model.uid])}
             ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 6px);`, this.model.uid, "right", this.model.uid, [this.model.uid])}
             ${new ConnectorComponent(`top: calc(100% - 6px);left: 16px;`, this.model.uid, "bottom", this.model.uid, [this.model.uid])}

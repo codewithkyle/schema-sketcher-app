@@ -133,16 +133,18 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         }
     }
 
+    private updateName(value){
+        const op = cc.set("columns", this.model.uid, "name", value);
+        cc.perform(op);
+        cc.dispatch(op);
+        this.update({
+            name: value,
+        });
+    }
+    private debounceName = this.debounce(this.updateName.bind(this), 300);
     private handleNameInput:EventListener = (e:Event) => {
         const target = e.currentTarget as HTMLInputElement;
-        if (target.value){
-            const op = cc.set("columns", this.model.uid, "name", target.value);
-            cc.perform(op);
-            cc.dispatch(op);
-            this.update({
-                name: target.value,
-            });
-        }
+        this.debounceName(target.value);
     }
 
     private toggleOption:EventListener = (e:Event) => {
