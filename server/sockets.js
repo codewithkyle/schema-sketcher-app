@@ -58,10 +58,11 @@ class Socket {
     async createRoom(data){
         const { password, allowAnon, diagramID } = data;
         const roomID = uuid();
-        let room = `${roomID}-${diagramID}`;
+        let room = roomID;
         if (password.trim().length){
             room = await this.encrypt(room, password.trim());
         }
+        console.log(roomID);
         await fs.promises.writeFile(path.join(collabDir, room), "");
         this.socket.join(room);
         this.isCollab = true;
@@ -69,24 +70,19 @@ class Socket {
         this.room = room;
         this.diagramID = diagramID;
         this.socket.emit("room-created", {
-            room: roomID,
+            room: room,
             diagram: diagramID,
             requirePassword: password.trim().length > 0,
         });
-        console.log(room);
-        console.log(roomID);
-        console.log(password);
     }
 
     async joinRoom(data){
-        const { roomID, password, diagramID } = data;
-        let room = `${roomID}-${diagramID}`;
+        const { room, password, diagramID } = data;
+        let room = room;
         if (password.trim().length){
-            room = await this.encrypt(room, password.trim());
+            room = await this.decrypt(room, password.trim());
         }
         console.log(room);
-        console.log(roomID);
-        console.log(password);
         if (fs.existsSync(path.join(collabDir, room))){
             console.log("joined");
             this.socket.join(room);
