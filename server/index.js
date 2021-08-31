@@ -1,15 +1,24 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 const path = require("path");
 const fs = require("fs");
-const { createServer } = require('https');
+const https = require("https");
+const http = require("http");
 const Socket = require("./sockets");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 
-const options = {
-    cert: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/fullchain.pem'),
-    key: fs.readFileSync('/etc/letsencrypt/live/schemasketcher.com/privkey.pem')
-};
-const server = createServer(options, app);
+let server;
+if (process.env.ENVIRONMENT === "production"){
+    const options = {
+        cert: fs.readFileSync("/etc/letsencrypt/live/schemasketcher.com/fullchain.pem"),
+        key: fs.readFileSync("/etc/letsencrypt/live/schemasketcher.com/privkey.pem")
+    };
+    server = https.createServer(options, app);
+}
+else {
+    server = http.createServer(app);
+}
+
 const { Server } = require("socket.io");
 const io = new Server(server);
 const publicDir = path.resolve(__dirname, "../public");
@@ -33,7 +42,7 @@ if (!fs.existsSync(cloudDir)){
 }
 
 // API
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
     res.sendFile(path.join(publicDir, "index.html"));
 });
 
@@ -49,18 +58,18 @@ app.get("/session/:roomID", async (req, res) => {
 });
 
 // 404 - keep at bottom
-app.get('*', (req, res) => {
+app.get("*", (req, res) => {
     const filePath = path.join(publicDir, req.path);
     if (fs.existsSync(filePath)){
         res.sendFile(filePath);
     } else {
-        fs.writeFileSync(log, `[404] ${filePath}\n`, {flag: "a"});
+        // fs.writeFileSync(log, `[404] ${filePath}\n`, {flag: "a"});
         res.status(404).sendFile(path.join(publicDir, "404.html"));
     }
 });
 
 // Web Sockets
-io.on('connection', (socket) => {
+io.on("connection", (socket) => {
     new Socket(socket);
 });
 
@@ -71,5 +80,5 @@ io.engine.on("connection_error", (err) => {
     console.log(err.context);
 });
 
-app.listen(8080);
-server.listen(443);
+// app.listen(parseInt(process.env.APP_PORT));
+server.listen(parseInt(process.env.PORT));

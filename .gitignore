@@ -1,6 +1,11 @@
 # General
 node_modules
 
+# Server
+.env
+server/sessions
+server/diagrams
+
 # Logs
 /server/404.log
 
