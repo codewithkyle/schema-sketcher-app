@@ -2,7 +2,7 @@ import SuperComponent from "@codewithkyle/supercomponent";
 import { html, render } from "lit-html";
 import { css, mount } from "~controllers/env";
 import diagramController from "~controllers/diagram-controller";
-import { send } from "~controllers/ws";
+import { send, connect } from "~controllers/ws";
 
 interface ICollabPage {
     diagram: Diagram,
@@ -22,6 +22,7 @@ export default class CollabPage extends SuperComponent<ICollabPage>{
     override async connected(){
         await css(["collab-page"]);
         this.render();
+        await connect();
         if (this.requirePassword){
             this.getPassword();
         }
