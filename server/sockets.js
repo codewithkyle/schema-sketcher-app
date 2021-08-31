@@ -74,6 +74,7 @@ class Socket {
             requirePassword: password.trim().length > 0,
         });
         console.log(room);
+        console.log(roomID);
     }
 
     async joinRoom(data){
@@ -83,6 +84,7 @@ class Socket {
             room = await this.encrypt(room, password.trim());
         }
         console.log(room);
+        console.log(roomID);
         if (fs.existsSync(path.join(collabDir, room))){
             console.log("joined");
             this.socket.join(room);
