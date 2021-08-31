@@ -34,6 +34,7 @@ class DiagramController {
     
     public async createDiagram(type:"local"|"cloud"){
         const uid = uuid();
+        this.ID = uid;
         const types = {};
         TYPES.map(type => {
             types[uuid()] = type;
