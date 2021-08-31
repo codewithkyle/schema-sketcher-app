@@ -75,6 +75,7 @@ class Socket {
         });
         console.log(room);
         console.log(roomID);
+        console.log(password);
     }
 
     async joinRoom(data){
@@ -85,6 +86,7 @@ class Socket {
         }
         console.log(room);
         console.log(roomID);
+        console.log(password);
         if (fs.existsSync(path.join(collabDir, room))){
             console.log("joined");
             this.socket.join(room);
