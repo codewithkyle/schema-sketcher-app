@@ -79,6 +79,7 @@ class Socket {
     async joinRoom(data){
         const { room, password, diagramID } = data;
         let room = room;
+        console.log(room);
         if (password.trim().length){
             room = await this.decrypt(room, password.trim());
         }
