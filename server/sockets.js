@@ -62,8 +62,7 @@ class Socket {
         if (password.trim().length){
             room = await this.encrypt(room, password.trim());
         }
-        console.log(roomID);
-        await fs.promises.writeFile(path.join(collabDir, room), "");
+        await fs.promises.writeFile(path.join(collabDir, roomID), "");
         this.socket.join(room);
         this.isCollab = true;
         this.isOwner = true;
@@ -81,9 +80,7 @@ class Socket {
         if (password.trim().length){
             room = await this.decrypt(room, password.trim());
         }
-        console.log(room);
         if (fs.existsSync(path.join(collabDir, room))){
-            console.log("joined");
             this.socket.join(room);
             this.room = room;
             this.diagramID = diagramID;
