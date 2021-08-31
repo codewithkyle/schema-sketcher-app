@@ -52,6 +52,7 @@ function connect():Promise<void>{
             console.log("joined room");
             suspendOPs = true;
             await db.ingest(`${location.origin}/session/${room}`, "ledger");
+            console.log("data ingested");
             const results = await db.query("SELECT * FROM ledger WHERE diagramID = $uid ORDER BY timestamp", {
                 uid: diagram,
             });
@@ -60,10 +61,12 @@ function connect():Promise<void>{
                 ops.push(cc.perform(results[i]));
             }
             await Promise.all(ops);
+            console.log("ops performed");
             suspendOPs = false;
             for (let i = 0; i < opsQueue.length; i++){
                 cc.perform(opsQueue[i]);
             }
+            console.log("secondary ops performed");
             navigteTo(`/diagram/${diagram}`);
         });
         socket.on("room-error", (data) => {
