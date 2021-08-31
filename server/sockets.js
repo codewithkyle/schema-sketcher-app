@@ -109,7 +109,7 @@ class Socket {
     }
 
     decrypt(encryptedMessage, secretkey){
-        const decryptedBytes = CryptoJS.AES.decrypt(encryptedMessage, secretkey);
+        const decryptedBytes = CryptoJS.AES.decrypt(decodeURIComponent(encryptedMessage), secretkey);
         const decryptedMessage = decryptedBytes.toString(CryptoJS.enc.Utf8);
         return decryptedMessage;
     }
