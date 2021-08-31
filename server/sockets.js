@@ -66,7 +66,7 @@ class Socket {
         this.socket.join(room);
         this.isCollab = true;
         this.isOwner = true;
-        this.room = room;
+        this.room = roomID;
         this.diagramID = diagramID;
         this.socket.emit("room-created", {
             room: room,
