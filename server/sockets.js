@@ -81,6 +81,7 @@ class Socket {
         if (password.trim().length){
             room = await this.encrypt(room, password.trim());
         }
+        console.log("someone is attempting to join a room");
         if (fs.existsSync(path.join(collabDir, room))){
             console.log("joined");
             this.socket.join(room);
