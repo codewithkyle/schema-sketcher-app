@@ -57,11 +57,11 @@ function connect():Promise<void>{
             console.log(results);
             const ops = [];
             for (const op of results){
-                await cc.perform(results[i]);
+                await cc.perform(op);
             }
             suspendOPs = false;
             for (const op of opsQueue){
-                await cc.perform(opsQueue[i]);
+                await cc.perform(op);
             }
             await diagramController.loadDiagram(diagram);
             navigateTo(`/diagram/${diagram}`);
