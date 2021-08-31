@@ -54,14 +54,14 @@ function connect():Promise<void>{
             const results = await db.query("SELECT * FROM ledger WHERE diagramID = $uid ORDER BY timestamp", {
                 uid: diagram,
             });
+            console.log(results);
             const ops = [];
-            for (let i = 0; i < results.length; i++){
-                ops.push(cc.perform(results[i]));
+            for (const op of results){
+                await cc.perform(results[i]);
             }
-            await Promise.all(ops);
             suspendOPs = false;
-            for (let i = 0; i < opsQueue.length; i++){
-                cc.perform(opsQueue[i]);
+            for (const op of opsQueue){
+                await cc.perform(opsQueue[i]);
             }
             await diagramController.loadDiagram(diagram);
             navigateTo(`/diagram/${diagram}`);
