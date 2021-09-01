@@ -17,6 +17,12 @@ export default class CursorComponent extends HTMLElement{
         css(["cursor-component"]).then(this.render.bind(this));
     }
     
+    public move(x:number, y:number){
+        this.x = x;
+        this.y = y;
+        this.render();
+    }
+    
     public render(){
         this.style.transform = `translate(${this.x}px, ${this.y}px)`;
         const view = html`
