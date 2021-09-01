@@ -57,7 +57,7 @@ class CursorController {
             if (!cursor.isConnected){
                 document.body.appendChild(cursor);
             }
-            cursor.style.transform = `translate(${this.cursors[i].x}px, ${this.cursors[i].y}px);`;
+            cursor.render();
         }
         window.requestAnimationFrame(this.render.bind(this));
     }
