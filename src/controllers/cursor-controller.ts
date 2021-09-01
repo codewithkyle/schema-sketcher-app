@@ -20,7 +20,7 @@ class CursorController {
     private handleMouseMove:EventListener = (e:MouseEvent) => {
         const x = e.clientX;
         const y = e.clientY;
-        const anchor = this.querySelector(".js-anchor");
+        const anchor = document.body.querySelector(".js-anchor");
         const bounds = anchor.getBoundingClientRect();
         const moveX = x - bounds.x;
         const moveY = y - bounds.y;
