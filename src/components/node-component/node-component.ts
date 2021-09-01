@@ -10,6 +10,7 @@ import ConnectorComponent from "~components/connector-component/connector-compon
 import cc from "~controllers/control-center";
 import diagramController from "~controllers/diagram-controller";
 import { setValueFromKeypath, unsetValueFromKeypath } from "~utils/sync";
+import { send } from "~controllers/ws";
 
 interface INodeComponent extends Node {
 
@@ -35,6 +36,11 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         this.prevY = node.y;
         this.isMoving = false;
         subscribe("sync", this.syncInbox.bind(this));
+        subscribe("move", this.moveInbox.bind(this));
+    }
+    
+    private moveInbox({x, y}){
+        this.move(x, y, true);   
     }
 
     private handleOP(op){
@@ -127,10 +133,16 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         }
     }
 
-    private move(x:number, y:number){
+    private move(x:number, y:number, skipBroadcast = false){
         this.style.transform = `translate(${x}px, ${y}px)`;
         this.dataset.top = `${y}`;
         this.dataset.left = `${x}`;
+        if (!skipBroadcast){
+            send("move", {
+                x: x,
+                y: y,
+            });   
+        }
     }
 
     private handleKeyboard:EventListener = (e:KeyboardEvent) => {
