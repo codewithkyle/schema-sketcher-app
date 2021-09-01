@@ -12,6 +12,7 @@ import { createSubscription, publish, subscribe } from "~lib/pubsub";
 import NodeComponent from "~components/node-component/node-component";
 import CanvasComponent from "~components/canvas-component/canvas-component";
 import db from "@codewithkyle/jsql";
+import cursorController from "~controllers/cursor-controller";
 
 interface IEditorPage {
     diagram: Diagram,
