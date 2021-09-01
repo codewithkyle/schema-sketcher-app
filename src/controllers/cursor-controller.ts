@@ -14,6 +14,7 @@ class CursorController {
     constructor(){
         this.cursors = [];
         window.addEventListener("mousemove", this.handleMouseMove);
+        this.render();
     }
     
     private handleMouseMove:EventListener = (e:MouseEvent) => {
@@ -41,12 +42,10 @@ class CursorController {
     }
       
     public moveCursor({x, y, uid}){
-         console.log("move", x, y, uid);
           for (let i = 0; i < this.cursors.length; i++){
               if (this.cursors[i].uid === uid){
                   this.cursors[i].x = x;
                   this.cursors[i].y = y;
-                  this.render();
                   break;
               }
           }
@@ -58,8 +57,10 @@ class CursorController {
             if (!cursor.isConnected){
                 document.body.appendChild(cursor);
             }
+            console.log("render");
             cursor.style.transform = `translate(${this.cursors[i].x}px, ${this.cursors[i].y}px);`;
         }
+        window.requestAnimationFrame(this.render.bind(this));
     }
 }
 const cursorController = new CursorController();
