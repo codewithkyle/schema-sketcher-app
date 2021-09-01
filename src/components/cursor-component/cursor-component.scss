@@ -3,6 +3,16 @@ cursor-component{
     top: 0;
     left: 0;
     z-index: 9999;
+    opacity: 0.87;
+    
+    &:hover{
+        opacity: 1;
+        
+        span{
+            opacity: 1;
+            visibility: visible;
+        }
+    }
     
     svg{
         width: 18px;
@@ -20,19 +30,11 @@ cursor-component{
         line-height: 14px;
         position: absolute;
         top: 100%;
-        left: 0;
+        left: 50%;
+        transform: translateX(-50%);
         font-weight: 300;
-        
-        &::before{
-            content:"";
-            display: inline-block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            heigth: 100%;
-            width: 100%;
-            background-color: var(--grey-800);
-            opacity: 0.87;
-        }
+        opacity: 0;
+        visibility: hidden;
+        background-color: var(--black);
     }
 }
