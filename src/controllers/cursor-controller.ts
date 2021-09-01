@@ -52,11 +52,12 @@ class CursorController {
     }
                                                   
     private render(){
+        const anchor = document.body.querySelector(".js-anchor");
         for (let i = 0; i < this.cursors.length; i++){
             const cursor = document.body.querySelector(`cursor-component[data-uid="${this.cursors[i].uid}"]`) || new CursorComponent(this.cursors[i]);
             if (!cursor.isConnected){
-                document.body.appendChild(cursor);
-            } else { console.log("was connected"); }
+                anchor.appendChild(cursor);
+            }
             cursor.move(this.cursors[i].x, this.cursors[i].y);
         }
         window.requestAnimationFrame(this.render.bind(this));
