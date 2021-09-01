@@ -59,6 +59,7 @@ class Socket {
         else if (this.isCollab && this.room){
             this.socket.to(this.room).emit("user-disconnect", {
                 name: this.name,
+                uid: this.socket.id,
             });
         }
     }
