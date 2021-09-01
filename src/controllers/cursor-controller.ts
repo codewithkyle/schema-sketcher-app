@@ -1,4 +1,5 @@
 import { send } from "~controllers/ws";
+import CursorComponent from "~components/cursor-component/cursor-component";
 
 interface Cursor {
     x: number,
