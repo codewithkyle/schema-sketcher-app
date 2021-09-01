@@ -1,3 +1,5 @@
+import { send } from "~controllers/ws";
+
 interface Cursor {
     x: number,
     y: number,
@@ -10,6 +12,14 @@ class CursorController {
       
     constructor(){
         this.cursors = [];
+        window.addEventListener("mousemove", this.handleMouseMove);
+    }
+    
+    private handleMouseMove:EventListener = (e:MouseEvent) => {
+        send("mouse-move", {
+            x: e.clientX,
+            y: e.clientY,
+        });
     }
       
     public addCursor(cursor:Cursor){
