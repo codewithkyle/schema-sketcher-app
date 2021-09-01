@@ -53,7 +53,10 @@ class CursorController {
                                                   
     private render(){
         const anchor = document.body.querySelector(".js-anchor");
+        const bounds = anchor.getBoundingClientRect();
         for (let i = 0; i < this.cursors.length; i++){
+            this.cursors[i].x = this.cursors[i].x - bounds.x;
+            this.cursors[i].y = this.cursors[i].y - bounds.y;
             const cursor = document.body.querySelector(`cursor-component[data-uid="${this.cursors[i].uid}"]`) || new CursorComponent(this.cursors[i]);
             if (!cursor.isConnected){
                 anchor.appendChild(cursor);
