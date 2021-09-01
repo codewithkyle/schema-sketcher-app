@@ -22,6 +22,11 @@ class Socket {
         this.socket.on("join-room", this.joinRoom.bind(this));
         this.socket.on("op", this.broadcastOP.bind(this));
         this.socket.on("log-op", this.logOP.bind(this));
+        this.socket.on("move", this.move.bind(this));
+    }
+    
+    move(data){
+        this.socket.to(this.room).emit("move", data);
     }
 
     async logOP(op){
