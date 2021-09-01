@@ -23,6 +23,15 @@ class Socket {
         this.socket.on("op", this.broadcastOP.bind(this));
         this.socket.on("log-op", this.logOP.bind(this));
         this.socket.on("move", this.move.bind(this));
+        this.socket.on("mouse-move", this.mouseMove.bind(this));
+    }
+    
+    mouseMove({ x, y}){
+        this.socket.to(this.room).emit("mouse-move", {
+            x: x,
+            y: y,
+            uid: this.socket.id,
+        });
     }
     
     move(data){
