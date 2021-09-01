@@ -2,6 +2,7 @@ interface Cursor {
     x: number,
     y: number,
     uid: string,
+    name: string,
 }
 
 class CursorController {
