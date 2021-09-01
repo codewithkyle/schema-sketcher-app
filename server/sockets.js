@@ -92,6 +92,7 @@ class Socket {
             this.isCollab = true;
             this.socket.to(room).emit("user-connected", {
                 name: this.name,
+                uid: this.socket.id
             });
             this.socket.emit("room-joined", {
                 room: this.room,
