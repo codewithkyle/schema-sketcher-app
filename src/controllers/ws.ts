@@ -80,9 +80,18 @@ function connect():Promise<void>{
                 y: 0,
                 uid: data.uid,
             });
+            // TODO: notify user that someone connected
+        });
+        socket.on("user-disconnect", (data) => {
+            cursorController.removeCursor(data.uid);
+            // TODO: notify user that someone disconnected
         });
         socket.on("mouse-move", (data) => {
             cursorController.moveCursor(data);
+        });
+        socket.on("close-room", () => {
+            navigateTo("/");
+            // TODO: notify user the room was closed
         });
     });
 }
