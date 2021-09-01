@@ -36,8 +36,10 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         subscribe("move", this.moveInbox.bind(this));
     }
     
-    private moveInbox({x, y}){
-        this.move(x, y, true);
+    private moveInbox({x, y, uid}){
+        if (uid === this.model.uid){
+            this.move(x, y, true);   
+        }
     }
 
     private handleOP(op){
@@ -148,6 +150,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             send("move", {
                 x: x,
                 y: y,
+                uid: this.model.uid,
             });   
         }
     }
