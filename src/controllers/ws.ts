@@ -81,6 +81,9 @@ function connect():Promise<void>{
                 uid: data.uid,
             });
         });
+        socket.on("mouse-move", (data) => {
+            cursorController.moveCursor(data);
+        });
     });
 }
 
