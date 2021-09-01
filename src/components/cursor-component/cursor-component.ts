@@ -13,6 +13,7 @@ export default class CursorComponent extends HTMLElement{
         this.y = cursor.y;
         this.uid = cursor.uid;
         this.name = cursor.name;
+        this.dataset.uid = this.uid;
         css(["cursor-component"]).then(this.render.bind(this));
     }
     
