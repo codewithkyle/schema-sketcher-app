@@ -41,6 +41,7 @@ class CursorController {
     }
       
     public moveCursor({x, y, uid}){
+         console.log("move", x, y, uid);
           for (let i = 0; i < this.cursors.length; i++){
               if (this.cursors[i].uid === uid){
                   this.cursors[i].x = x;
