@@ -3,6 +3,7 @@ import diagramController from "./diagram-controller";
 import db from "~lib/jsql";
 import { navigateTo } from "@codewithkyle/router";
 import { publish } from "~lib/pubsub";
+import cursorController from "~controllers/cursor-controller";
 
 let socket;
 let connected = false;
@@ -71,6 +72,14 @@ function connect():Promise<void>{
         });
         socket.on("move", (data) => {
             publish("move", data);
+        });
+        socket.on("user-connected", (data) => {
+            cursorController.addCursor({
+                name: data.name,
+                x: 0,
+                y: 0,
+                uid: data.uid,
+            });
         });
     });
 }
