@@ -56,8 +56,8 @@ class CursorController {
             const cursor = document.body.querySelector(`cursor-component[data-uid="${this.cursors[i].uid}"]`) || new CursorComponent(this.cursors[i]);
             if (!cursor.isConnected){
                 document.body.appendChild(cursor);
-            }
-            cursor.render();
+            } else { console.log("was connected"); }
+            cursor.move(this.cursors[i].x, this.cursors[i].y);
         }
         window.requestAnimationFrame(this.render.bind(this));
     }
