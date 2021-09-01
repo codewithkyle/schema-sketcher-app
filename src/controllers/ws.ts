@@ -2,6 +2,7 @@ import cc from "~controllers/control-center";
 import diagramController from "./diagram-controller";
 import db from "~lib/jsql";
 import { navigateTo } from "@codewithkyle/router";
+import { publish } from "~lib/pubsub";
 
 let socket;
 let connected = false;
@@ -67,6 +68,9 @@ function connect():Promise<void>{
         socket.on("room-error", (data) => {
             console.error(data.error);
             navigateTo("/");
+        });
+        socket.on("move", (data) => {
+            publish("move", data);
         });
     });
 }
