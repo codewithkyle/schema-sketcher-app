@@ -18,16 +18,18 @@ class CursorController {
     }
     
     private handleMouseMove:EventListener = (e:MouseEvent) => {
-        const x = e.clientX;
-        const y = e.clientY;
         const anchor = document.body.querySelector(".js-anchor");
-        const bounds = anchor.getBoundingClientRect();
-        const moveX = x - bounds.x;
-        const moveY = y - bounds.y;
-        send("mouse-move", {
-            x: moveX,
-            y: moveY,
-        });
+        if (anchor){
+            const x = e.clientX;
+            const y = e.clientY;
+            const bounds = anchor.getBoundingClientRect();
+            const moveX = x - bounds.x;
+            const moveY = y - bounds.y;
+            send("mouse-move", {
+                x: moveX,
+                y: moveY,
+            });   
+        }
     }
       
     public addCursor(cursor:Cursor){
@@ -58,12 +60,15 @@ class CursorController {
     }
                                                   
     private render(){
-        for (let i = 0; i < this.cursors.length; i++){
-            const cursor = document.body.querySelector(`cursor-component[data-uid="${this.cursors[i].uid}"]`) || new CursorComponent(this.cursors[i]);
-            if (!cursor.isConnected){
-                anchor.appendChild(cursor);
+        const anchor = document.body.querySelector(".js-anchor");
+        if (anchor){
+            for (let i = 0; i < this.cursors.length; i++){
+                const cursor = document.body.querySelector(`cursor-component[data-uid="${this.cursors[i].uid}"]`) || new CursorComponent(this.cursors[i]);
+                if (!cursor.isConnected){
+                    anchor.appendChild(cursor);
+                }
+                cursor.move(this.cursors[i].x, this.cursors[i].y);
             }
-            cursor.move(this.cursors[i].x, this.cursors[i].y);
         }
         window.requestAnimationFrame(this.render.bind(this));
     }
