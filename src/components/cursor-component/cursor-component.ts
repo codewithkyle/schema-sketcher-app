@@ -8,6 +8,7 @@ export default class CursorComponent extends HTMLElement{
     private name: string;
 
     constructor(cursor){
+        super();
         this.x = cursor.x;
         this.y = cursor.y;
         this.uid = cursor.uid;
