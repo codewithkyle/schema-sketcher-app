@@ -1,7 +1,7 @@
 import { css, mount } from "~controllers/env";
 import { html, render } from "lit-html";
 
-class CursorComponent extends HTMLElement{
+export default class CursorComponent extends HTMLElement{
     private x: number;
     private y: number;
     private uid: string;
