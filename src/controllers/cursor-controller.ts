@@ -58,7 +58,6 @@ class CursorController {
                 document.body.appendChild(cursor);
             }
             cursor.style.transform = `translate(${this.cursors[i].x}px, ${this.cursors[i].y}px);`;
-            console.log(cursor);
         }
         window.requestAnimationFrame(this.render.bind(this));
     }
