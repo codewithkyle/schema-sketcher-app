@@ -2,6 +2,7 @@ cursor-component{
     position: absolute;
     top: 0;
     left: 0;
+    z-index: 9999;
     
     svg{
         width: 24px;
@@ -28,7 +29,7 @@ cursor-component{
             left: 0;
             heigth: 100%;
             width: 100%;
-            background-color: var(--grey-900);
+            background-color: var(--grey-800);
             opacity: 0.87;
         }
     }
