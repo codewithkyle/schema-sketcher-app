@@ -101,10 +101,6 @@ column-component{
         color: var(--grey-500);
         text-align: right;
         text-align-last: right;
-        
-        &:hover{
-            color: var(--grey-700);
-        }
 
         &:focus{
             box-shadow: var(--focus-ring);
@@ -120,6 +116,7 @@ column-component{
         justify-content: center;
         align-items: center;
         transition: all 80ms var(--ease-in-out);
+        color: var(--grey-500);
 
         &:disabled{
             width: 24px;
