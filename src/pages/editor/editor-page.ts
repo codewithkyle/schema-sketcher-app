@@ -248,7 +248,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                 anchor.appendChild(el);
             });
             nodes.map(node => {
-                const el new NodeComponent(node, this.model.diagram.uid);
+                const el = new NodeComponent(node, this.model.diagram.uid);
                 anchor.appendChild(el);
             });
         }, 80);
