@@ -244,12 +244,12 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         setTimeout(()=>{
             const anchor = this.querySelector(".js-anchor");
             tables.map(table => {
-                const table = new TableComponent(table, this.model.diagram.uid);
-                anchor.appendChild(table);
+                const el = new TableComponent(table, this.model.diagram.uid);
+                anchor.appendChild(el);
             });
             nodes.map(node => {
-                const node new NodeComponent(node, this.model.diagram.uid);
-                anchor.appendChild(node);
+                const el new NodeComponent(node, this.model.diagram.uid);
+                anchor.appendChild(el);
             });
         }, 80);
     }
