@@ -40,7 +40,8 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     }
     
     private zoomInbox(zoom){
-        this.zoom = zoom;   
+        console.log(zoom);
+        this.zoom = zoom;
     }
     
     private moveInbox({x, y, uid}){
