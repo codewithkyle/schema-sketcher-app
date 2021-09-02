@@ -168,7 +168,8 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             this.wasMoved = false;
             this.prevX = e.clientX;
             this.prevY = e.clientY;
-            document.requestPointerLock();
+            const canvas = document.body.querySelector("canvas");
+            canvas.requestPointerLock();
         }
     }
 
