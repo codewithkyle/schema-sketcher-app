@@ -186,8 +186,8 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         if (e instanceof MouseEvent && this.isMoving){
             const moveX = this.prevX - e.clientX;
             const moveY = this.prevY - e.clientY;
-            const x = parseInt(this.dataset.left) - moveX * (1 - this.zoom);
-            const y = parseInt(this.dataset.top) - moveY * (1 - this.zoom);
+            const x = parseInt(this.dataset.left) - moveX * (2 - this.zoom);
+            const y = parseInt(this.dataset.top) - moveY * (2 - this.zoom);
             this.move(x, y);
             this.wasMoved = true;
             this.prevX = e.clientX;
