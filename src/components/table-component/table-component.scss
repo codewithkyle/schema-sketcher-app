@@ -7,6 +7,11 @@ table-component{
     width: 320px;
     border-radius: 0.25rem;
     transition: box-shadow 80ms var(--ease-in-out);
+    
+    &:hover,
+    &:focus-within{
+        z-index: 1000;   
+    }
 
     &:hover{
         box-shadow: var(--shadow-xl);
