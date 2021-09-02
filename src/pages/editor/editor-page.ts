@@ -54,7 +54,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                     anchor.appendChild(table);
                     break;
                 case "nodes":
-                    const node new NodeComponent(node, this.model.diagram.uid);
+                    const node = new NodeComponent(node, this.model.diagram.uid);
                     anchor.appendChild(node);
                     break;
                 default:
