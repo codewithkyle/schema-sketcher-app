@@ -40,7 +40,6 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     }
     
     private zoomInbox(zoom){
-        console.log(zoom);
         this.zoom = zoom;
     }
     
@@ -188,7 +187,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             const moveY = this.prevY - e.clientY;
             const x = parseInt(this.dataset.left) - moveX;
             const y = parseInt(this.dataset.top) - moveY;
-            console.log(x * this.zoom, y * this.zoom);
+            console.log(x - x * this.zoom, y - y * this.zoom);
             this.move(x, y);
             this.wasMoved = true;
             this.prevX = e.clientX;
