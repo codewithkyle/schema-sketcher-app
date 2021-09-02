@@ -20,9 +20,11 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     private focusLastColumn: boolean;
     private diagramID: string;
     private wasMoved: boolean;
+    private zoom: number;
 
     constructor(data:Table, diagramID:string){
         super();
+        this.zoom = 1;
         this.wasMoved = false;
         this.focusLastColumn = false;
         this.prevX = data.x;
@@ -34,6 +36,11 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         }};
         subscribe("sync", this.syncInbox.bind(this));
         subscribe("move", this.moveInbox.bind(this));
+        subscribe("zoom", this.zoomInbox.bind(this));
+    }
+    
+    private zoomInbox(zoom){
+        this.zoom = zoom;   
     }
     
     private moveInbox({x, y, uid}){
@@ -178,8 +185,8 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         if (e instanceof MouseEvent && this.isMoving){
             const moveX = this.prevX - e.clientX;
             const moveY = this.prevY - e.clientY;
-            const x = parseInt(this.dataset.left) - moveX;
-            const y = parseInt(this.dataset.top) - moveY;
+            const x = parseInt(this.dataset.left) - moveX * this.zoom;
+            const y = parseInt(this.dataset.top) - moveY * this.zoom;
             this.move(x, y);
             this.wasMoved = true;
             this.prevX = e.clientX;
