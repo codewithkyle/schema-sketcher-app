@@ -46,13 +46,28 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
 
     private syncInbox(e){
+        const anchor = this.querySelector(".js-anchor");
         if (e.op === "INSERT"){
             switch(e.table){
                 case "tables":
-                    this.render();
+                    const table = new TableComponent(table, this.model.diagram.uid);
+                    anchor.appendChild(table);
                     break;
                 case "nodes":
-                    this.render();
+                    const node new NodeComponent(node, this.model.diagram.uid);
+                    anchor.appendChild(node);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if (e.op === "DELETE"){
+            switch(e.table){
+                case "tables":
+                    this.querySelector(`table-component[data-uid="${e.key}"]`)?.remove();
+                    break;
+                case "nodes":
+                    this.querySelector(`node-component[data-uid="${e.key}"]`)?.remove();
                     break;
                 default:
                     break;
@@ -220,19 +235,23 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         const view = html`
             ${new EditorHeader(this.model.diagram.name)}
             <div cursor="${this.getCursorType()}" class="canvas js-canvas" @mousedown=${this.handleMouseDown} @mouseup=${this.handleMouseUp} @mousemove=${this.handleMouseMove} @contextmenu=${this.handleContextMenu}>
-                <div data-scale="${this.scale}" data-top="${this.y}" data-left="${this.x}" style="transform: translate(${this.x}px, ${this.y}px) scale(${this.scale});" class="diagram js-anchor">
-                    ${tables.map(table => {
-                        return new TableComponent(table, this.model.diagram.uid);
-                    })}
-                    ${nodes.map(node => {
-                        return new NodeComponent(node, this.model.diagram.uid)
-                    })}
-                </div>
+                <div data-scale="${this.scale}" data-top="${this.y}" data-left="${this.x}" style="transform: translate(${this.x}px, ${this.y}px) scale(${this.scale});" class="diagram js-anchor"></div>
             </div>
             ${new EditorControls(this.isMoving, this.scale, this.toggleMoveCallback.bind(this), this.scaleCallback.bind(this))}
             ${new CanvasComponent()}
         `;
         render(view, this);
+        setTimeout(()=>{
+            const anchor = this.querySelector(".js-anchor");
+            tables.map(table => {
+                const table = new TableComponent(table, this.model.diagram.uid);
+                anchor.appendChild(table);
+            });
+            nodes.map(node => {
+                const node new NodeComponent(node, this.model.diagram.uid);
+                anchor.appendChild(node);
+            });
+        }, 80);
     }
 }
 mount("editor-page", EditorPage);
