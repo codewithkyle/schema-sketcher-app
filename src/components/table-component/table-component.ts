@@ -168,6 +168,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             this.wasMoved = false;
             this.prevX = e.clientX;
             this.prevY = e.clientY;
+            document.requestPointerLock();
         }
     }
 
@@ -178,6 +179,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             this.broadcastMove(this.prevX, this.prevY);
             this.isMoving = false;
             this.wasMoved = false;
+            document.exitPointerLock();
         }
     }
 
