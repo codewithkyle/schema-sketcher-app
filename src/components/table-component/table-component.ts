@@ -299,7 +299,6 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     }
 
     override async render(){
-        console.log("rendder");
         this.style.transform = `translate(${this.prevX}px, ${this.prevY}px)`;
         this.dataset.top = `${this.prevY}`;
         this.dataset.left = `${this.prevX}`;
@@ -357,7 +356,6 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
                 diagramID: this.diagramID,
                 tableID: this.model.uid,
             });
-            console.log("asdf");
             const container = this.querySelector("columns-container") as HTMLElement;
             container.innerHTML = "";
             orderedColumns.map((column) => {
