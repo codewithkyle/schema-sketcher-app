@@ -168,6 +168,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             this.wasMoved = false;
             this.prevX = e.clientX;
             this.prevY = e.clientY;
+            document.body.querySelector("canvas").requestPointerLock();
         }
     }
 
@@ -178,14 +179,15 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             this.broadcastMove(this.prevX, this.prevY);
             this.isMoving = false;
             this.wasMoved = false;
+            document.exitPointerLock();
         }
     }
 
     private mouseMove:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent && this.isMoving){
             console.log(e);
-            let x = parseInt(this.dataset.left) + e.movementX * (2 - this.zoom);
-            let y = parseInt(this.dataset.top) + e.movementY * (2 - this.zoom);
+            let x = parseInt(this.dataset.left) + e.movementX;
+            let y = parseInt(this.dataset.top) + e.movementY;
             this.move(x, y);
             this.wasMoved = true;
             this.prevX = e.clientX;
