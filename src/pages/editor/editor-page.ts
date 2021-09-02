@@ -50,11 +50,11 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         if (e.op === "INSERT"){
             switch(e.table){
                 case "tables":
-                    const table = new TableComponent(table, this.model.diagram.uid);
+                    const table = new TableComponent(e.value, this.model.diagram.uid);
                     anchor.appendChild(table);
                     break;
                 case "nodes":
-                    const node = new NodeComponent(node, this.model.diagram.uid);
+                    const node = new NodeComponent(e.value, this.model.diagram.uid);
                     anchor.appendChild(node);
                     break;
                 default:
