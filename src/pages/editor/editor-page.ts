@@ -101,12 +101,11 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     private handleKeyDown:EventListener = (e:KeyboardEvent) => {
         if (e instanceof KeyboardEvent){
             const key = e.key;
-            console.log(key);
             if (key === " "){
                 this.canMove = true;
                 this.setCursor("hand");
             }
-            else if (key === "CTRL"){
+            else if (key === "Control"){
                 this.isZooming = true;
                 this.setCursor("zoom");
             }
@@ -120,7 +119,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                 this.canMove = false;
                 this.setCursor("auto");
             }
-            else if (key === "CTRL"){
+            else if (key === "Control"){
                 this.isZooming = false;
                 this.setCursor("auto");
             }
