@@ -106,6 +106,11 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     override async connected(){
         this.tabIndex = 0;
         this.setAttribute("aria-label", `use arrow keys to nudge table ${this.model.name}`);
+        document.body.addEventListener("wheel", e=>{
+            if(e.ctrlKey){
+                e.preventDefault();   
+            }
+        });
         document.addEventListener("keydown", this.handleKeyboard);
         document.addEventListener("mousemove", this.mouseMove);
         document.addEventListener("mouseup", this.mouseUp);
