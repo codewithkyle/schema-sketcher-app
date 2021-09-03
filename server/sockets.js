@@ -108,6 +108,7 @@ class Socket {
             this.socket.emit("room-joined", {
                 room: this.room,
                 diagram: diagramID,
+                requirePassword: password.trim().length > 0,
             });
         }
         else {
