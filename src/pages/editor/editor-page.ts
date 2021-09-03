@@ -167,7 +167,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
 
     private handleMouseMove:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent && this.isMoving && (this.canMove || this.forceMove)){
-            console.log("moving");
             const anchor = this.querySelector(".js-anchor") as HTMLElement;
             const x = parseInt(anchor.dataset.left) + e.movementX;
             const y = parseInt(anchor.dataset.top) + e.movementY;
