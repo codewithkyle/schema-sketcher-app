@@ -1,4 +1,5 @@
 import { connect, send } from "~controllers/ws";
+import diagramController from "~controllers/diagram-controller";
 
 class SessionController {
     public room: string;
