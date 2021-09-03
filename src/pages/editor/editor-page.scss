@@ -17,6 +17,10 @@ editor-page{
         &[cursor="grabbing"]{
             cursor: grabbing;
         }
+        
+        &[cursor="zoom"]{
+            cursor: zoom-in;
+        }
 
         .diagram{
             position: relative;
