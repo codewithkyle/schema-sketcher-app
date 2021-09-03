@@ -7,6 +7,7 @@ import { connect, disconnect, send } from "~controllers/ws";
 import { subscribe } from "~lib/pubsub";
 import { setValueFromKeypath, unsetValueFromKeypath } from "~utils/sync";
 import { navigateTo } from "@codewithkyle/router";
+import session from "~controllers/session-controller";
 
 interface IEditorHeader {
     name: string,
@@ -61,12 +62,17 @@ export default class EditorHeader extends SuperComponent<IEditorHeader>{
     }
     
     private openCollabModal:EventListener = async (e:Event) => {
-        await connect();
-        send("create-room", {
-            password: "",
-            allowAnon: true,
-            diagramID: diagramController.ID,
-        });
+        if (!session.room){
+            await connect();
+            send("create-room", {
+                password: "",
+                allowAnon: true,
+                diagramID: diagramController.ID,
+            });   
+        }
+        else {
+            prompt("Collaboration URL", session.getURL());   
+        }
     }
 
     private back:EventListener = (e:Event) => {
