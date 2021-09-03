@@ -128,6 +128,8 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
 
     private handleScroll:EventListener = (e:WheelEvent) => {
         if (this.isZooming || this.forceZoom){
+            e.preventDefault();
+            e.stopImmediatePropagation();
             const target = e.target as HTMLElement;
             if (target.closest(".js-canvas") || target.classList.contains(".js-canvas")){
                 const delta = e.deltaY * -1;
