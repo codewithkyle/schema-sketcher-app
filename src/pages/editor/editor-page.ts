@@ -27,8 +27,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     private y: number;
     private scale: number;
     private forceMove: boolean;
-    private forceZoom: boolean;
-    private isZooming: boolean;
 
     constructor(tokens, params){
         super();
@@ -41,8 +39,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         this.uid = tokens.UID;
         this.isMoving = false;
         this.forceMove = false;
-        this.forceZoom = false;
-        this.isZooming = false;
         createSubscription("zoom");
         subscribe("sync", this.syncInbox.bind(this));
     }
@@ -78,7 +74,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
 
     override async connected(){
-        window.addEventListener("mousewheel", this.handleScroll.bind(this));
+        window.addEventListener("mousewheel", this.handleScroll.bind(this), { passive: false });
         window.addEventListener("keydown", this.handleKeyDown);
         window.addEventListener("keyup", this.handleKeyUp);
         await css(["editor-page"]);
@@ -103,10 +99,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                 this.canMove = true;
                 this.setCursor("hand");
             }
-            else if (key === "Control"){
-                this.isZooming = true;
-                this.setCursor("zoom");
-            }
         }
     }
 
@@ -117,34 +109,26 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                 this.canMove = false;
                 this.setCursor("auto");
             }
-            else if (key === "Control"){
-                this.isZooming = false;
-                this.setCursor("auto");
-            }
         }
     }
 
     private handleScroll:EventListener = (e:WheelEvent) => {
-        if (this.isZooming || this.forceZoom){
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            const target = e.target as HTMLElement;
-            if (target.closest(".js-canvas") || target.classList.contains(".js-canvas")){
-                const delta = e.deltaY * -1;
-                const speed = 0.001;
-                const scroll = delta * speed;
-                const anchor = this.querySelector(".js-anchor") as HTMLElement;
-                let scale = parseFloat(anchor.dataset.scale) + scroll;
-                if (scale < 0.125){
-                    scale = 0.125;
-                } else if (scale > 2){
-                    scale = 2;
-                }
-                anchor.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${this.x}, ${this.y})`;
-                anchor.dataset.scale = `${scale}`;
-                this.scale = scale;
-                publish("zoom", scale);
+        const target = e.target as HTMLElement;
+        if (target.closest(".js-canvas") || target.classList.contains(".js-canvas")){
+            const delta = e.deltaY * -1;
+            const speed = 0.001;
+            const scroll = delta * speed;
+            const anchor = this.querySelector(".js-anchor") as HTMLElement;
+            let scale = parseFloat(anchor.dataset.scale) + scroll;
+            if (scale < 0.125){
+                scale = 0.125;
+            } else if (scale > 2){
+                scale = 2;
             }
+            anchor.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${this.x}, ${this.y})`;
+            anchor.dataset.scale = `${scale}`;
+            this.scale = scale;
+            publish("zoom", scale);
         }
     }
 
@@ -232,9 +216,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         }
         else if (this.forceMove) {
             cursor = "hand";   
-        }
-        else if (this.forceZoom){
-            cursor = "zoom";   
         }
         return cursor;
     }
