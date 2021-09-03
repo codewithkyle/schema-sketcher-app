@@ -31,6 +31,7 @@ class Socket {
             x: x,
             y: y,
             uid: this.socket.id,
+            name: this.name,
         });
     }
     
