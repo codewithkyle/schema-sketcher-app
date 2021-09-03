@@ -48,11 +48,12 @@ function connect():Promise<void>{
         socket.on("room-created", async (data) => {
             const { room, diagram, requirePassword } = data;
             await diagramController.sendOPcodesToSession();
-            session.createSession(room, diagram, requirePassword);
+            session.set(room, diagram, requirePassword);
             prompt("Collaboration URL", session.getURL());
         });
         socket.on("room-joined", async (data) => {
-            const { room, diagram } = data;
+            const { room, diagram, requirePassword } = data;
+            session.set(room, diagram, requirePassword);
             suspendOPs = true;
             await db.ingest(`${location.origin}/session/${room}`, "ledger");
             const results = await db.query("SELECT * FROM ledger WHERE diagramID = $uid ORDER BY timestamp", {
