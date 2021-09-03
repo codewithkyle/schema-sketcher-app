@@ -23,6 +23,7 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
     private prevY: number;
     private isMoving: boolean;
     private wasMoved: boolean;
+    private zoom: number;
 
     constructor(node:Node, diagramID:string){
         super();
@@ -35,8 +36,14 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
         this.prevX = node.x;
         this.prevY = node.y;
         this.isMoving = false;
+        this.zoom = 1;
         subscribe("sync", this.syncInbox.bind(this));
         subscribe("move", this.moveInbox.bind(this));
+        subscribe("zoom", this.zoomInbox.bind(this));
+    }
+    
+    private zoomInbox(zoom){
+        this.zoom = zoom;
     }
     
     private moveInbox({x, y, uid}){
@@ -330,13 +337,9 @@ export default class NodeComponent extends SuperComponent<INodeComponent>{
 
     private mouseMove:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent && this.isMoving){
-            const moveX = this.prevX - e.clientX;
-            const moveY = this.prevY - e.clientY;
-            const x = parseInt(this.dataset.left) - moveX;
-            const y = parseInt(this.dataset.top) - moveY;
+            let x = parseInt(this.dataset.left) + (e.movementX / this.zoom);
+            let y = parseInt(this.dataset.top) + (e.movementY / this.zoom);
             this.move(x, y);
-            this.prevX = e.clientX;
-            this.prevY = e.clientY;
             this.wasMoved = true;
         }
     }
