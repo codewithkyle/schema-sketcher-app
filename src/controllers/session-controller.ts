@@ -9,9 +9,10 @@ class SessionController {
         this.requiresPassword = false;
     }
 
-    public createSession(room, diagram){
+    public createSession(room, diagram, requiresPassword){
         this.room = room;
         this.diagram = diagram;
+        this.requiresPassword = requiresPassword;
     }
 
     public getURL(){
