@@ -4,6 +4,7 @@ import db from "~lib/jsql";
 import { navigateTo } from "@codewithkyle/router";
 import { publish } from "~lib/pubsub";
 import cursorController from "~controllers/cursor-controller";
+import session from "~controllers/session-controller";
 
 let socket;
 let connected = false;
@@ -47,6 +48,7 @@ function connect():Promise<void>{
         socket.on("room-created", async (data) => {
             const { room, diagram, requirePassword } = data;
             await diagramController.sendOPcodesToSession();
+            session.createSession(room, diagram, requirePassword);
             prompt("Collaboration URL", `${location.origin}/session/${diagram}/${room}${requirePassword ? "?auth=pwd" : ""}`);
         });
         socket.on("room-joined", async (data) => {
