@@ -46,8 +46,8 @@ export default class EditorControls extends SuperComponent<IEditorControls>{
         if (newValue < 0.125){
             newValue = 0;
         }
-        else if (newValue > 2) {
-            newValue = 2;
+        else if (newValue > 1) {
+            newValue = 1;
         }
         this.scaleCallback(newValue);
         this.update({
@@ -60,8 +60,8 @@ export default class EditorControls extends SuperComponent<IEditorControls>{
         if (newValue < 0.125){
             newValue = 0;
         }
-        else if (newValue > 2) {
-            newValue = 2;
+        else if (newValue > 1) {
+            newValue = 1;
         }
         this.scaleCallback(newValue);
         this.update({
