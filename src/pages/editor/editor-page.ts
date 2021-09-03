@@ -135,7 +135,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     private handleMouseDown:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent && (this.canMove || this.forceMove)){
             this.isMoving = true;
-            this.setCursor("grabbing");
+            this.setCursor("hand");
         }
     }
 
@@ -152,6 +152,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     private handleMouseMove:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent && this.isMoving && (this.canMove || this.forceMove)){
             const anchor = this.querySelector(".js-anchor") as HTMLElement;
+            this.setCursor("grabbing");
             const x = parseInt(anchor.dataset.left) + e.movementX;
             const y = parseInt(anchor.dataset.top) + e.movementY;
             anchor.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${x}, ${y})`;
