@@ -183,8 +183,8 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
 
     private mouseMove:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent && this.isMoving){
-            let x = parseInt(this.dataset.left) + e.movementX;
-            let y = parseInt(this.dataset.top) + e.movementY;
+            let x = parseInt(this.dataset.left) + e.movementX + (1 - this.zoom);
+            let y = parseInt(this.dataset.top) + e.movementY + (1 - this.zoom);
             this.move(x, y);
             this.wasMoved = true;
             this.prevX = e.clientX;
