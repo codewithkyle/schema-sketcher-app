@@ -1,5 +1,6 @@
 import { css, mount } from "~controllers/env";
 import { html, render } from "lit-html";
+import { subscribe } from "~lib/pubsub";
 
 export default class CursorComponent extends HTMLElement{
     private x: number;
