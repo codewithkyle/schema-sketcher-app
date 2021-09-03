@@ -49,14 +49,20 @@ class CursorController {
         }
     }
       
-    public moveCursor({x, y, uid}){
+    public moveCursor(cursor){
+        const {x, y, uid, name} = cursor;
+        let found = false;
           for (let i = 0; i < this.cursors.length; i++){
               if (this.cursors[i].uid === uid){
                   this.cursors[i].x = x;
                   this.cursors[i].y = y;
+                  found = true;
                   break;
               }
           }
+        if (!found){
+            this.addCursor(cursor);
+        }
     }
                                                   
     private render(){
