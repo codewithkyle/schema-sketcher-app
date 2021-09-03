@@ -78,7 +78,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
 
     override async connected(){
-        window.addEventListener("mousewheel", this.handleScroll.bind(this), {capture:true});
+        window.addEventListener("mousewheel", this.handleScroll.bind(this));
         window.addEventListener("keydown", this.handleKeyDown);
         window.addEventListener("keyup", this.handleKeyUp);
         await css(["editor-page"]);
