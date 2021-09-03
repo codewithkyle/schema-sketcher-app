@@ -49,7 +49,7 @@ function connect():Promise<void>{
             const { room, diagram, requirePassword } = data;
             await diagramController.sendOPcodesToSession();
             session.createSession(room, diagram, requirePassword);
-            prompt("Collaboration URL", `${location.origin}/session/${diagram}/${room}${requirePassword ? "?auth=pwd" : ""}`);
+            prompt("Collaboration URL", session.getURL());
         });
         socket.on("room-joined", async (data) => {
             const { room, diagram } = data;
