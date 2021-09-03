@@ -37,7 +37,11 @@ class SessionController {
     }
 
     public getURL(){
-        return `${location.origin}/session/${diagram}/${room}${requirePassword ? "?auth=pwd" : ""}`;
+        let url = "";
+        if (this.room){
+            url = `${location.origin}/session/${this.diagram}/${this.room}${this.requirePassword ? "?auth=pwd" : ""}`;
+        }
+        return url;
     }
 }
 const session = new SessionController();
