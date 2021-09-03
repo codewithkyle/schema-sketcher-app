@@ -17,7 +17,7 @@ class SessionController {
         this.requiresPassword = requiresPassword;
     }
     
-    public create(){
+    public async create(){
         if (!this.room){
             // TODO: add user modal to get the following details
             await connect();
