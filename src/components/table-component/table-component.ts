@@ -106,11 +106,6 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
     override async connected(){
         this.tabIndex = 0;
         this.setAttribute("aria-label", `use arrow keys to nudge table ${this.model.name}`);
-        document.body.addEventListener("wheel", e=>{
-            if(e.ctrlKey){
-                e.preventDefault();   
-            }
-        });
         document.addEventListener("keydown", this.handleKeyboard);
         document.addEventListener("mousemove", this.mouseMove);
         document.addEventListener("mouseup", this.mouseUp);
@@ -192,8 +187,8 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             let y = parseInt(this.dataset.top) + (e.movementY / this.zoom);
             this.move(x, y);
             this.wasMoved = true;
-            this.prevX = e.clientX;
-            this.prevY = e.clientY;
+            this.prevX = x;
+            this.prevY = y;
         }
     }
 
