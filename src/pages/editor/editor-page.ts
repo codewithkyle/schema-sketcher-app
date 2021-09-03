@@ -176,7 +176,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
             const moveY = this.startY - e.clientY;
             const x = parseInt(anchor.dataset.left) - moveX;
             const y = parseInt(anchor.dataset.top) - moveY;
-            anchor.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${this.x}px, ${this.y}px)`;
+            anchor.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.x}px, ${this.y}px)`;
             anchor.dataset.top = `${y}`;
             anchor.dataset.left = `${x}`;
             this.startX = e.clientX;
@@ -253,7 +253,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         const view = html`
             ${new EditorHeader(this.model.diagram.name)}
             <div cursor="${this.getCursorType()}" class="canvas js-canvas" @mousedown=${this.handleMouseDown} @mouseup=${this.handleMouseUp} @mousemove=${this.handleMouseMove} @contextmenu=${this.handleContextMenu}>
-                <div data-scale="${this.scale}" data-top="${this.y}" data-left="${this.x}" style=`transform: matrix(${scale}, 0, 0, ${scale}, ${this.x}px, ${this.y}px);` class="diagram js-anchor"></div>
+                <div data-scale="${this.scale}" data-top="${this.y}" data-left="${this.x}" style="transform: matrix(${this.scale}, 0, 0, ${this.scale}, ${this.x}px, ${this.y}px);" class="diagram js-anchor"></div>
             </div>
             ${new EditorControls(this.isMoving, this.scale, this.toggleMoveCallback.bind(this), this.scaleCallback.bind(this))}
             ${new CanvasComponent()}
