@@ -21,8 +21,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     private uid:string;
     private isMoving: boolean;
     private canMove: boolean;
-    private startX: number;
-    private startY: number;
     private placeX: number;
     private placeY: number;
     private x: number;
@@ -153,8 +151,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     private handleMouseDown:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent && (this.canMove || this.forceMove)){
             this.isMoving = true;
-            this.startX = e.clientX;
-            this.startY = e.clientY;
             this.setCursor("grabbing");
         }
     }
@@ -173,15 +169,11 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         if (e instanceof MouseEvent && this.isMoving && (this.canMove || this.forceMove)){
             console.log("moving");
             const anchor = this.querySelector(".js-anchor") as HTMLElement;
-            const moveX = this.startX - e.clientX;
-            const moveY = this.startY - e.clientY;
-            const x = parseInt(anchor.dataset.left) - moveX;
-            const y = parseInt(anchor.dataset.top) - moveY;
-            anchor.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.x}, ${this.y})`;
+            const x = parseInt(anchor.dataset.left) + e.movementX;
+            const y = parseInt(anchor.dataset.top) + e.movementY;
+            anchor.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${x}, ${y})`;
             anchor.dataset.top = `${y}`;
             anchor.dataset.left = `${x}`;
-            this.startX = e.clientX;
-            this.startY = e.clientY;
         }
     }
 
