@@ -29,6 +29,8 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     private y: number;
     private scale: number;
     private forceMove: boolean;
+    private forceZoom: boolean;
+    private isZooming: boolean;
 
     constructor(tokens, params){
         super();
@@ -41,6 +43,8 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         this.uid = tokens.UID;
         this.isMoving = false;
         this.forceMove = false;
+        this.forceZoom = false;
+        this.isZooming = false;
         createSubscription("zoom");
         subscribe("sync", this.syncInbox.bind(this));
     }
@@ -89,7 +93,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         });
     }
 
-    private setCursor(type:"auto"|"hand"|"grabbing"){
+    private setCursor(type:"auto"|"hand"|"grabbing"|"zoom"){
         const canvas = this.querySelector(".js-canvas");
         canvas.setAttribute("cursor", type);
     }
@@ -97,9 +101,14 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     private handleKeyDown:EventListener = (e:KeyboardEvent) => {
         if (e instanceof KeyboardEvent){
             const key = e.key;
+            console.log(key);
             if (key === " "){
                 this.canMove = true;
                 this.setCursor("hand");
+            }
+            else if (key === "CTRL"){
+                this.isZooming = true;
+                this.setCursor("zoom");
             }
         }
     }
@@ -111,26 +120,32 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                 this.canMove = false;
                 this.setCursor("auto");
             }
+            else if (key === "CTRL"){
+                this.isZooming = false;
+                this.setCursor("auto");
+            }
         }
     }
 
     private handleScroll:EventListener = (e:WheelEvent) => {
-        const target = e.target as HTMLElement;
-        if (target.closest(".js-canvas") || target.classList.contains(".js-canvas")){
-            const delta = e.deltaY * -1;
-            const speed = 0.001;
-            const scroll = delta * speed;
-            const anchor = this.querySelector(".js-anchor") as HTMLElement;
-            let scale = parseFloat(anchor.dataset.scale) + scroll;
-            if (scale < 0.125){
-                scale = 0.125;
-            } else if (scale > 2){
-                scale = 2;
+        if (this.isZooming || this.forceZoom){
+            const target = e.target as HTMLElement;
+            if (target.closest(".js-canvas") || target.classList.contains(".js-canvas")){
+                const delta = e.deltaY * -1;
+                const speed = 0.001;
+                const scroll = delta * speed;
+                const anchor = this.querySelector(".js-anchor") as HTMLElement;
+                let scale = parseFloat(anchor.dataset.scale) + scroll;
+                if (scale < 0.125){
+                    scale = 0.125;
+                } else if (scale > 2){
+                    scale = 2;
+                }
+                anchor.style.transform = `translate(${this.x}px, ${this.y}px) scale(${scale})`;
+                anchor.dataset.scale = `${scale}`;
+                this.scale = scale;
+                publish("zoom", scale);
             }
-            anchor.style.transform = `translate(${this.x}px, ${this.y}px) scale(${scale})`;
-            anchor.dataset.scale = `${scale}`;
-            this.scale = scale;
-            publish("zoom", scale);
         }
     }
 
@@ -161,7 +176,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
             const moveY = this.startY - e.clientY;
             const x = parseInt(anchor.dataset.left) - moveX;
             const y = parseInt(anchor.dataset.top) - moveY;
-            anchor.style.transform = `translate(${x}px, ${y}px) scale(${this.scale})`;
+            anchor.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${this.x}px, ${this.y}px)`;
             anchor.dataset.top = `${y}`;
             anchor.dataset.left = `${x}`;
             this.startX = e.clientX;
@@ -203,7 +218,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         } else if (scale > 2){
             scale = 2;
         }
-        anchor.style.transform = `translate(${this.x}px, ${this.y}px) scale(${scale})`;
+        anchor.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${this.x}px, ${this.y}px)`;
         anchor.dataset.scale = `${scale}`;
         this.scale = scale;
     }
@@ -226,6 +241,9 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         else if (this.forceMove) {
             cursor = "hand";   
         }
+        else if (this.forceZoom){
+            cursor = "zoom";   
+        }
         return cursor;
     }
     
@@ -235,7 +253,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         const view = html`
             ${new EditorHeader(this.model.diagram.name)}
             <div cursor="${this.getCursorType()}" class="canvas js-canvas" @mousedown=${this.handleMouseDown} @mouseup=${this.handleMouseUp} @mousemove=${this.handleMouseMove} @contextmenu=${this.handleContextMenu}>
-                <div data-scale="${this.scale}" data-top="${this.y}" data-left="${this.x}" style="transform: translate(${this.x}px, ${this.y}px) scale(${this.scale});" class="diagram js-anchor"></div>
+                <div data-scale="${this.scale}" data-top="${this.y}" data-left="${this.x}" style=`transform: matrix(${scale}, 0, 0, ${scale}, ${this.x}px, ${this.y}px);` class="diagram js-anchor"></div>
             </div>
             ${new EditorControls(this.isMoving, this.scale, this.toggleMoveCallback.bind(this), this.scaleCallback.bind(this))}
             ${new CanvasComponent()}
