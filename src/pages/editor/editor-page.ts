@@ -122,8 +122,8 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
             let scale = parseFloat(anchor.dataset.scale) + scroll;
             if (scale < 0.125){
                 scale = 0.125;
-            } else if (scale > 2){
-                scale = 2;
+            } else if (scale > 1){
+                scale = 1;
             }
             anchor.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${this.x}, ${this.y})`;
             anchor.dataset.scale = `${scale}`;
@@ -191,8 +191,8 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         const anchor = this.querySelector(".js-anchor") as HTMLElement;
         if (scale < 0.125){
             scale = 0.125;
-        } else if (scale > 2){
-            scale = 2;
+        } else if (scale > 1){
+            scale = 1;
         }
         anchor.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${this.x}, ${this.y})`;
         anchor.dataset.scale = `${scale}`;
