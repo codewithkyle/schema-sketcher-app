@@ -140,7 +140,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                 } else if (scale > 2){
                     scale = 2;
                 }
-                anchor.style.transform = `translate(${this.x}px, ${this.y}px) scale(${scale})`;
+                anchor.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${this.x}px, ${this.y}px)`;
                 anchor.dataset.scale = `${scale}`;
                 this.scale = scale;
                 publish("zoom", scale);
