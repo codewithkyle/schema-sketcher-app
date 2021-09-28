@@ -589,10 +589,10 @@ export default class CanvasComponent extends HTMLElement{
                 const mouseY = this.mousePos.y - bounds.y;
                 const { x: startX, y: startY } = line.start;
                 const { x: endX, y: endY } = line.end;
-                const aX = startX <= endX ? startX : endX;
-                const aY = startY <= endY ? startY : endY;
-                const bX = startX >= endX ? startX : endX;
-                const bY = startY >= endY ? startY : endY;
+                const aX = startX <= endX ? startX - 16 : endX - 16;
+                const aY = startY <= endY ? startY - 16 : endY - 16;
+                const bX = startX >= endX ? startX + 16 : endX + 16;
+                const bY = startY >= endY ? startY + 16 : endY + 16;
                 if (
                     mouseX >= aX && mouseX <= bX &&
                     mouseY >= aY && mouseY <= bY
