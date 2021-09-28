@@ -275,7 +275,7 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX, endY);
 
                 this.hitCTX.fillStyle = "red";
-                this.hitCTX.fillRect(startX, startY, centerX + offsetX, startY + offsetY);
+                this.hitCTX.fillRect(startX, startY, endX, endY);
             }
         }
         else if (startSide === "bottom" && endSide === "top"){
@@ -387,8 +387,9 @@ export default class CanvasComponent extends HTMLElement{
         const highlightedLines = [];
 
         this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
-            const bounds = this.canvas.getBoundingClientRect();
-            this.ctx.lineWidth = 1;
+        this.hitCTX.clearRect(0,0,this.canvas.width,this.canvas.height);
+        const bounds = this.canvas.getBoundingClientRect();
+        this.ctx.lineWidth = 1;
         
         try {
             if (this.openStartPoint !== null){
