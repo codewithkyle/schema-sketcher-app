@@ -597,34 +597,48 @@ export default class CanvasComponent extends HTMLElement{
                     mouseX >= aX && mouseX <= bX &&
                     mouseY >= aY && mouseY <= bY
                 ) {
-                    console.log("We in there like swimwear")
-                    const centerX = (startX + endX) * 0.5;
-                    const centerY = (startY + endY) * 0.5;
-                    const direction = startX <= endX ? -1 : 1;
-                    if (mouseX >= centerX - 8 && mouseX <= centerX + 8){
-                        highlightedLines.push(line.uid);
-                    }
-                    else if (mouseY >= startY - 8 && mouseY <= startY + 8){
-                        if (direction === -1){
-                            if (mouseX <= centerX){
-                                highlightedLines.push(line.uid);
+                    console.log("We in there like swimwear");
+                    if (line.startSide === "left" && line.endSide === "right" || line.startSide === "right" && line.endSide === "left"){
+                        const centerX = (startX + endX) * 0.5;
+                        const centerY = (startY + endY) * 0.5;
+                        const direction = startX <= endX ? -1 : 1;
+                        if (mouseX >= centerX - 8 && mouseX <= centerX + 8){
+                            highlightedLines.push(line.uid);
+                        }
+                        else if (mouseY >= startY - 8 && mouseY <= startY + 8){
+                            if (direction === -1){
+                                if (mouseX <= centerX){
+                                    highlightedLines.push(line.uid);
+                                }
+                            } else {
+                                if (mouseX >= centerX){
+                                    highlightedLines.push(line.uid);
+                                }
                             }
-                        } else {
-                            if (mouseX >= centerX){
-                                highlightedLines.push(line.uid);
+                        }
+                        else if (mouseY >= endY - 8 && mouseY <= endY + 8){
+                            if (direction === -1){
+                                if (mouseX >= centerX){
+                                    highlightedLines.push(line.uid);
+                                }
+                            } else {
+                                if (mouseX <= centerX){
+                                    highlightedLines.push(line.uid);
+                                }
                             }
                         }
                     }
-                    else if (mouseY >= endY - 8 && mouseY <= endY + 8){
-                        if (direction === -1){
-                            if (mouseX >= centerX){
-                                highlightedLines.push(line.uid);
-                            }
-                        } else {
-                            if (mouseX <= centerX){
-                                highlightedLines.push(line.uid);
-                            }
-                        }
+                    else if (line.startSide === "left" && line.endSide === "left"){
+                        console.log("Left to left highlight");
+                    }
+                    else if (line.startSide === "right" && line.endSide === "right"){
+                        console.log("Right to right highlight");
+                    }
+                    else if (line.startSide === "top" && line.startSide === "bottom"){
+                        console.log("Top to bottom highlight");
+                    }
+                    else if (line.startSide === "bottom" && line.endSide === "top"){
+                        console.log("Bottom to top highlight");
                     }
                 }
             }
