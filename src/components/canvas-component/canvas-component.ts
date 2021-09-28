@@ -275,8 +275,8 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX, endY);
 
                 this.hitCTX.fillStyle = "red";
-                this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX) + offsetX, startY + 8);
-                this.hitCTX.fillRect(centerX - offsetX, endY - 8, Math.abs(endX - centerX), endY + 8);
+                this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX) + offsetX, 16);
+                this.hitCTX.fillRect(centerX + offsetX, endY - 8, Math.abs(endX - centerX), 16);
             }
         }
         else if (startSide === "bottom" && endSide === "top"){
