@@ -577,46 +577,46 @@ export default class CanvasComponent extends HTMLElement{
             }
             
             // Highlight logic
-            // const mouseX = this.mousePos.x - bounds.x;
-            // const mouseY = this.mousePos.y - bounds.y;
-            // const { x: startX, y: startY } = start;
-            // const { x: endX, y: endY } = end;
-            // const aX = startX <= endX ? startX : endX;
-            // const aY = startY <= endY ? startY : endY;
-            // const bX = startX >= endX ? startX : endX;
-            // const bY = startY >= endY ? startY : endY;
-            // if (
-            //     mouseX >= aX && mouseX <= bX &&
-            //     mouseY >= aY && mouseY <= bY
-            // ) {
-            //     const centerX = (startX + endX) / 2;
-            //     const direction = startX <= endX ? -1 : 1;
-            //     if (mouseX >= centerX - 8 && mouseX <= centerX + 8){
-            //         this.highlightedLines.push(this.lines[i].uid);
-            //     }
-            //     else if (mouseY >= startY - 8 && mouseY <= startY + 8){
-            //         if (direction === -1){
-            //             if (mouseX <= centerX){
-            //                 this.highlightedLines.push(this.lines[i].uid);
-            //             }
-            //         } else {
-            //             if (mouseX >= centerX){
-            //                 this.highlightedLines.push(this.lines[i].uid);
-            //             }
-            //         }
-            //     }
-            //     else if (mouseY >= endY - 8 && mouseY <= endY + 8){
-            //         if (direction === -1){
-            //             if (mouseX >= centerX){
-            //                 this.highlightedLines.push(this.lines[i].uid);
-            //             }
-            //         } else {
-            //             if (mouseX <= centerX){
-            //                 this.highlightedLines.push(this.lines[i].uid);
-            //             }
-            //         }
-            //     }
-            // }
+            const mouseX = this.mousePos.x - bounds.x;
+            const mouseY = this.mousePos.y - bounds.y;
+            const { x: startX, y: startY } = start;
+            const { x: endX, y: endY } = end;
+            const aX = startX <= endX ? startX : endX;
+            const aY = startY <= endY ? startY : endY;
+            const bX = startX >= endX ? startX : endX;
+            const bY = startY >= endY ? startY : endY;
+            if (
+                mouseX >= aX && mouseX <= bX &&
+                mouseY >= aY && mouseY <= bY
+            ) {
+                const centerX = (startX + endX) / 2;
+                const direction = startX <= endX ? -1 : 1;
+                if (mouseX >= centerX - 8 && mouseX <= centerX + 8){
+                    this.highlightedLines.push(this.lines[i].uid);
+                }
+                else if (mouseY >= startY - 8 && mouseY <= startY + 8){
+                    if (direction === -1){
+                        if (mouseX <= centerX){
+                            this.highlightedLines.push(this.lines[i].uid);
+                        }
+                    } else {
+                        if (mouseX >= centerX){
+                            this.highlightedLines.push(this.lines[i].uid);
+                        }
+                    }
+                }
+                else if (mouseY >= endY - 8 && mouseY <= endY + 8){
+                    if (direction === -1){
+                        if (mouseX >= centerX){
+                            this.highlightedLines.push(this.lines[i].uid);
+                        }
+                    } else {
+                        if (mouseX <= centerX){
+                            this.highlightedLines.push(this.lines[i].uid);
+                        }
+                    }
+                }
+            }
         }
         
         // Set highlighted lines
