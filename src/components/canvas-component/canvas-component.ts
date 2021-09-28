@@ -147,9 +147,9 @@ export default class CanvasComponent extends HTMLElement{
             else {
                 centerX = endX - 16;
             }
+            let offsetY;
+            let offsetX;
             if (Math.abs(startY - endY) >= 32){
-                let offsetY;
-                let offsetX;
                 if (endX <= startX){
                     offsetY = endY >= startY ? -8 : 8;
                     offsetX = endX <= startX ? 8 : -8;
