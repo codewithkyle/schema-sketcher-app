@@ -600,27 +600,27 @@ export default class CanvasComponent extends HTMLElement{
                     const centerX = (startX + endX) / 2;
                     const direction = startX <= endX ? -1 : 1;
                     if (mouseX >= centerX - 8 && mouseX <= centerX + 8){
-                        this.highlightedLines.push(this.lines[i].uid);
+                        highlightedLines.push(line.uid);
                     }
                     else if (mouseY >= startY - 8 && mouseY <= startY + 8){
                         if (direction === -1){
                             if (mouseX <= centerX){
-                                this.highlightedLines.push(this.lines[i].uid);
+                                highlightedLines.push(line.uid);
                             }
                         } else {
                             if (mouseX >= centerX){
-                                this.highlightedLines.push(this.lines[i].uid);
+                                highlightedLines.push(line.uid);
                             }
                         }
                     }
                     else if (mouseY >= endY - 8 && mouseY <= endY + 8){
                         if (direction === -1){
                             if (mouseX >= centerX){
-                                this.highlightedLines.push(this.lines[i].uid);
+                                highlightedLines.push(line.uid);
                             }
                         } else {
                             if (mouseX <= centerX){
-                                this.highlightedLines.push(this.lines[i].uid);
+                                highlightedLines.push(line.uid);
                             }
                         }
                     }
