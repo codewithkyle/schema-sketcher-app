@@ -589,10 +589,10 @@ export default class CanvasComponent extends HTMLElement{
                 const mouseY = this.mousePos.y - bounds.y;
                 const { x: startX, y: startY } = line.start;
                 const { x: endX, y: endY } = line.end;
-                const aX = startX <= endX ? startX - 16 : endX - 16;
-                const aY = startY <= endY ? startY - 16 : endY - 16;
-                const bX = startX >= endX ? startX + 16 : endX + 16;
-                const bY = startY >= endY ? startY + 16 : endY + 16;
+                const aX = startX <= endX ? startX - 24 : endX - 24;
+                const aY = startY <= endY ? startY - 24 : endY - 24;
+                const bX = startX >= endX ? startX + 24 : endX + 24;
+                const bY = startY >= endY ? startY + 24 : endY + 24;
                 if (
                     mouseX >= aX && mouseX <= bX &&
                     mouseY >= aY && mouseY <= bY
@@ -600,7 +600,6 @@ export default class CanvasComponent extends HTMLElement{
                     console.log("We in there like swimwear");
                     if (line.startSide === "left" && line.endSide === "right" || line.startSide === "right" && line.endSide === "left"){
                         const centerX = (startX + endX) * 0.5;
-                        const centerY = (startY + endY) * 0.5;
                         const direction = startX <= endX ? -1 : 1;
                         if (mouseX >= centerX - 8 && mouseX <= centerX + 8){
                             highlightedLines.push(line.uid);
