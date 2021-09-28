@@ -268,6 +268,11 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(centerX, (endY + offsetY));
                 this.ctx.arcTo(centerX, endY, (centerX + offsetX * -1), endY, 8);
                 this.ctx.lineTo(endX, endY);
+
+                this.hitCTX.fillStyle = "red";
+                this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
+                this.hitCTX.fillRect(centerX, endY - 8, Math.abs(endX - centerX), 16);
+                this.hitCTX.fillRect(centerX + offsetX, endY - 8, 16, Math.abs(startY - endY) + 16);
             } else {
                 // square
                 this.ctx.lineTo(centerX, startY);
@@ -277,7 +282,7 @@ export default class CanvasComponent extends HTMLElement{
                 this.hitCTX.fillStyle = "red";
                 this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
                 this.hitCTX.fillRect(centerX, endY - 8, Math.abs(endX - centerX), 16);
-                this.hitCTX.fillRect(centerX - offsetX, endY - 8, 16, Math.abs(startY - endY) + 16);
+                this.hitCTX.fillRect(centerX + offsetX, endY - 8, 16, Math.abs(startY - endY) + 16);
             }
         }
         else if (startSide === "bottom" && endSide === "top"){
