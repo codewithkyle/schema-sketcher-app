@@ -17,7 +17,9 @@ interface StartPoint extends Point {
 
 export default class CanvasComponent extends HTMLElement{
     private canvas: HTMLCanvasElement;
+    private hitCanvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
+    private hitCTX: CanvasRenderingContext2D;
     private x: number;
     private y: number;
     private w: number;
@@ -49,14 +51,24 @@ export default class CanvasComponent extends HTMLElement{
         if (!this.canvas.isConnected){
             this.appendChild(this.canvas);
         }
+        this.hitCanvas = this.querySelector("canvas.hit") || document.createElement("canvas");
+        if (!this.hitCanvas.isConnected){
+            this.hitCanvas.classList.add("hit");
+            this.appendChild(this.hitCanvas);
+        }
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight - 64;
+        this.hitCanvas.width = window.innerWidth;
+        this.hitCanvas.height = window.innerHeight - 64;
         this.ctx = this.canvas.getContext("2d");
+        this.hitCTX = this.hitCanvas.getContext("2d");
         window.addEventListener("mousemove", this.handleMouseMove);
         window.addEventListener("mouseup", this.endMouseMove);
         window.addEventListener("resize", debounce(()=>{
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight - 64;
+            this.hitCanvas.width = window.innerWidth;
+            this.hitCanvas.height = window.innerHeight - 64;
         }, 300));
         this.oldTime = performance.now();
         this.eventLoop();   
@@ -247,10 +259,10 @@ export default class CanvasComponent extends HTMLElement{
             }
         }
         else if (startSide === "right" && endSide === "left" || startSide === "left" && endSide === "right") {
+            const offsetY = endY >= startY ? -8 : 8;
+            const offsetX = endX <= startX ? 8 : -8;
             if (Math.abs(startY - endY) >= 16 && Math.abs(startX - endX) >= 16){
                 // round
-                const offsetY = endY >= startY ? -8 : 8;
-                const offsetX = endX <= startX ? 8 : -8;
                 this.ctx.lineTo((centerX + offsetX), startY);
                 this.ctx.arcTo(centerX, startY, centerX, (startY + offsetY * -1), 8);
                 this.ctx.lineTo(centerX, (endY + offsetY));
@@ -261,6 +273,9 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(centerX, startY);
                 this.ctx.lineTo(centerX, endY);
                 this.ctx.lineTo(endX, endY);
+
+                this.hitCTX.fillStyle = "red";
+                this.hitCTX.fillRect(startX, startY, centerX + offsetX, startY + offsetY);
             }
         }
         else if (startSide === "bottom" && endSide === "top"){
@@ -582,64 +597,6 @@ export default class CanvasComponent extends HTMLElement{
             const line = lines[i];
             if (this.forceHighlight !== null && line.refs.includes(this.forceHighlight)){
                 highlightedLines.push(line.uid);
-            }
-            else {
-                // Highlight logic
-                const mouseX = this.mousePos.x - bounds.x;
-                const mouseY = this.mousePos.y - bounds.y;
-                const { x: startX, y: startY } = line.start;
-                const { x: endX, y: endY } = line.end;
-                const aX = startX <= endX ? startX - 24 : endX - 24;
-                const aY = startY <= endY ? startY - 24 : endY - 24;
-                const bX = startX >= endX ? startX + 24 : endX + 24;
-                const bY = startY >= endY ? startY + 24 : endY + 24;
-                if (
-                    mouseX >= aX && mouseX <= bX &&
-                    mouseY >= aY && mouseY <= bY
-                ) {
-                    console.log("We in there like swimwear");
-                    if (line.startSide === "left" && line.endSide === "right" || line.startSide === "right" && line.endSide === "left"){
-                        const centerX = (startX + endX) * 0.5;
-                        const direction = startX <= endX ? -1 : 1;
-                        if (mouseX >= centerX - 8 && mouseX <= centerX + 8){
-                            highlightedLines.push(line.uid);
-                        }
-                        else if (mouseY >= startY - 8 && mouseY <= startY + 8){
-                            if (direction === -1){
-                                if (mouseX <= centerX){
-                                    highlightedLines.push(line.uid);
-                                }
-                            } else {
-                                if (mouseX >= centerX){
-                                    highlightedLines.push(line.uid);
-                                }
-                            }
-                        }
-                        else if (mouseY >= endY - 8 && mouseY <= endY + 8){
-                            if (direction === -1){
-                                if (mouseX >= centerX){
-                                    highlightedLines.push(line.uid);
-                                }
-                            } else {
-                                if (mouseX <= centerX){
-                                    highlightedLines.push(line.uid);
-                                }
-                            }
-                        }
-                    }
-                    else if (line.startSide === "left" && line.endSide === "left"){
-                        console.log("Left to left highlight");
-                    }
-                    else if (line.startSide === "right" && line.endSide === "right"){
-                        console.log("Right to right highlight");
-                    }
-                    else if (line.startSide === "top" && line.startSide === "bottom"){
-                        console.log("Top to bottom highlight");
-                    }
-                    else if (line.startSide === "bottom" && line.endSide === "top"){
-                        console.log("Bottom to top highlight");
-                    }
-                }
             }
         }
         
