@@ -168,6 +168,17 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(centerX, endY);
                 this.ctx.lineTo(endX, endY);
             }
+
+            // AABB hit detection
+            this.hitCTX.fillStyle = "red";
+            this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
+            this.hitCTX.fillRect(centerX, endY - 8, Math.abs(endX - centerX), 16);
+            if (endY < startY){
+                this.hitCTX.fillRect(centerX + offsetX, endY - 8, 16, Math.abs(startY - endY) + 16);
+            }
+            else {
+                this.hitCTX.fillRect(centerX + offsetX, startY - 8, 16, Math.abs(startY - endY) + 16);
+            }
         }
         else if (startSide === "right" && endSide === "right"){
             if (startX >= endX){
@@ -267,33 +278,23 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.arcTo(centerX, startY, centerX, (startY + offsetY * -1), 8);
                 this.ctx.lineTo(centerX, (endY + offsetY));
                 this.ctx.arcTo(centerX, endY, (centerX + offsetX * -1), endY, 8);
-                this.ctx.lineTo(endX, endY);
-
-                this.hitCTX.fillStyle = "red";
-                this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
-                this.hitCTX.fillRect(centerX, endY - 8, Math.abs(endX - centerX), 16);
-                if (endY < startY){
-                    this.hitCTX.fillRect(centerX + offsetX, endY - 8, 16, Math.abs(startY - endY) + 16);
-                }
-                else {
-                    this.hitCTX.fillRect(centerX + offsetX, startY - 8, 16, Math.abs(startY - endY) + 16);
-                }
-                
+                this.ctx.lineTo(endX, endY);                
             } else {
                 // square
                 this.ctx.lineTo(centerX, startY);
                 this.ctx.lineTo(centerX, endY);
                 this.ctx.lineTo(endX, endY);
+            }
 
-                this.hitCTX.fillStyle = "red";
-                this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
-                this.hitCTX.fillRect(centerX, endY - 8, Math.abs(endX - centerX), 16);
-                if (endY < startY){
-                    this.hitCTX.fillRect(centerX + offsetX, endY - 8, 16, Math.abs(startY - endY) + 16);
-                }
-                else {
-                    this.hitCTX.fillRect(centerX + offsetX, startY - 8, 16, Math.abs(startY - endY) + 16);
-                }
+            // AABB hit detection
+            this.hitCTX.fillStyle = "red";
+            this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
+            this.hitCTX.fillRect(centerX, endY - 8, Math.abs(endX - centerX), 16);
+            if (endY < startY){
+                this.hitCTX.fillRect(centerX + offsetX, endY - 8, 16, Math.abs(startY - endY) + 16);
+            }
+            else {
+                this.hitCTX.fillRect(centerX + offsetX, startY - 8, 16, Math.abs(startY - endY) + 16);
             }
         }
         else if (startSide === "bottom" && endSide === "top"){
