@@ -13,61 +13,68 @@ import { send } from "~controllers/ws";
 interface ITableComponent extends Table {
     showAllColumnOptions: boolean;
 }
-export default class TableComponent extends SuperComponent<ITableComponent>{
-    private prevX: number;
-    private prevY: number;
+export default class TableComponent extends SuperComponent<ITableComponent> {
     private isMoving: boolean;
     private focusLastColumn: boolean;
     private diagramID: string;
     private wasMoved: boolean;
     private zoom: number;
+    private pos1: number;
+    private pos2: number;
+    private pos3: number;
+    private pos4: number;
 
-    constructor(data:Table, diagramID:string){
+    constructor(data: Table, diagramID: string) {
         super();
         this.zoom = 1;
         this.wasMoved = false;
         this.focusLastColumn = false;
-        this.prevX = data.x;
-        this.prevY = data.y;
+        this.pos1 = data.x;
+        this.pos2 = data.y;
+        this.pos3 = 0;
+        this.pos4 = 0;
         this.isMoving = false;
         this.diagramID = diagramID;
-        this.model = {...data, ...{
-            showAllColumnOptions: false,
-        }};
+        this.model = {
+            ...data,
+            ...{
+                showAllColumnOptions: false,
+            },
+        };
         subscribe("sync", this.syncInbox.bind(this));
         subscribe("move", this.moveInbox.bind(this));
         subscribe("zoom", this.zoomInbox.bind(this));
     }
-    
-    private zoomInbox(zoom){
+
+    private zoomInbox(zoom) {
         this.zoom = zoom;
     }
-    
-    private moveInbox({x, y, uid}){
-        if (uid === this.model.uid){
-            this.move(x, y, true);   
+
+    private moveInbox({ x, y, uid }) {
+        if (uid === this.model.uid) {
+            this.move(x, y, true);
         }
     }
 
-    private handleOP(op){
-        switch(op.op){
+    private handleOP(op) {
+        switch (op.op) {
             case "UNSET":
-                const updatedModel = {...this.model};
+                const updatedModel = { ...this.model };
                 unsetValueFromKeypath(updatedModel, op.keypath);
                 this.update(updatedModel);
                 break;
             case "SET":
-                switch(op.keypath){
+                switch (op.keypath) {
                     case "x":
                         this.move(op.value, parseInt(this.dataset.top));
-                        this.prevX = op.value;
+                        this.pos1 = op.value;
                         break;
                     case "y":
                         this.move(parseInt(this.dataset.left), op.value);
-                        this.prevY = op.value;
+                        this.pos2 = op.value;
                         break;
                     default:
-                        const updatedModel = {...this.model};
+                        const updatedModel = { ...this.model };
                         setValueFromKeypath(updatedModel, op.keypath, op.value);
                         this.update(updatedModel);
                         break;
@@ -77,7 +84,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
                 this.remove();
                 break;
             case "BATCH":
-                for (const subOP of op.ops){
+                for (const subOP of op.ops) {
                     this.handleOP(subOP);
                 }
                 break;
@@ -86,12 +93,11 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         }
     }
 
-    private syncInbox(op){
-        if (op.table === "tables" && op.key === this.model.uid){
+    private syncInbox(op) {
+        if (op.table === "tables" && op.key === this.model.uid) {
             this.handleOP(op);
-        }
-        else if (op.table === "columns" && (op.op === "INSERT" && op.value.tableID === this.model.uid) || op.op === "DELETE"){
-            switch(op.op){
+        } else if ((op.table === "columns" && op.op === "INSERT" && op.value.tableID === this.model.uid) || op.op === "DELETE") {
+            switch (op.op) {
                 case "INSERT":
                     const column = new ColumnComponent(op.value, false, this.model.uid);
                     this.querySelector("columns-container").appendChild(column);
@@ -103,44 +109,44 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         }
     }
 
-    override async connected(){
+    override async connected() {
         this.tabIndex = 0;
         this.setAttribute("aria-label", `use arrow keys to nudge table ${this.model.name}`);
-        document.addEventListener("keydown", this.handleKeyboard);
-        document.addEventListener("mousemove", this.mouseMove);
-        document.addEventListener("mouseup", this.mouseUp);
+        window.addEventListener("keydown", this.handleKeyboard, { passive: true, capture: true });
+        window.addEventListener("mousemove", this.mouseMove, { passive: true, capture: true });
+        window.addEventListener("mouseup", this.mouseUp, { passive: true, capture: true });
         await css(["table-component", "overflow-menu"]);
         this.render();
     }
-    
-    private handleMouseEnter:EventListener = (e:Event) => {
+
+    private handleMouseEnter: EventListener = (e: Event) => {
         e.preventDefault();
         e.stopImmediatePropagation();
         publish("canvas", {
             type: "highlight",
             ref: this.model.uid,
         });
-    }
-    
-    private handleMouseLeave:EventListener = (e:Event) => {
+    };
+
+    private handleMouseLeave: EventListener = (e: Event) => {
         e.preventDefault();
         e.stopImmediatePropagation();
         publish("canvas", {
             type: "clear-highlight",
             ref: this.model.uid,
         });
-    }
+    };
 
-    private async confirmDelete(){
+    private async confirmDelete() {
         const doDelete = confirm(`Are you sure you want to delete table ${this.model.name}?`);
-        if (doDelete){
+        if (doDelete) {
             await diagramController.deleteTable(this.model.uid);
             this.remove();
         }
     }
 
-    private broadcastMove(x:number, y: number){
-        if (this.wasMoved){
+    private broadcastMove(x: number, y: number) {
+        if (this.wasMoved) {
             const op1 = cc.set("tables", this.model.uid, "x", x);
             const op2 = cc.set("tables", this.model.uid, "y", y);
             const op = cc.batch("tables", this.model.uid, [op1, op2]);
@@ -149,55 +155,69 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         }
     }
 
-    private move(x:number, y:number, skipBroadcast = false){
+    private move(x: number, y: number, skipBroadcast = false) {
         this.style.transform = `translate(${x}px, ${y}px)`;
         this.dataset.top = `${y}`;
         this.dataset.left = `${x}`;
-        if (!skipBroadcast){
+        if (!skipBroadcast) {
             send("move", {
                 x: x,
                 y: y,
                 uid: this.model.uid,
-            });   
+            });
         }
     }
 
-    private mouseDown:EventListener = (e:MouseEvent) => {
-        if (e instanceof MouseEvent){
-            this.isMoving = true;
-            this.wasMoved = false;
-            this.prevX = e.clientX;
-            this.prevY = e.clientY;
+    private mouseDown: EventListener = (e: MouseEvent | TouchEvent) => {
+        this.isMoving = true;
+        if (e instanceof MouseEvent) {
+            this.pos3 = e.clientX;
+            this.pos4 = e.clientY;
+        } else if (e instanceof TouchEvent) {
+            this.pos3 = e.touches[0].clientX;
+            this.pos4 = e.touches[0].clientY;
         }
-    }
+    };
 
-    private mouseUp:EventListener = (e:MouseEvent) => {
-        if (e instanceof MouseEvent && this.isMoving){
-            this.prevX = parseInt(this.dataset.left);
-            this.prevY = parseInt(this.dataset.top);
-            this.broadcastMove(this.prevX, this.prevY);
+    private mouseUp: EventListener = (e: MouseEvent) => {
+        if (e instanceof MouseEvent && this.isMoving) {
+            this.broadcastMove(parseInt(this.dataset.left), parseInt(this.dataset.top));
             this.isMoving = false;
             this.wasMoved = false;
         }
-    }
+    };
 
-    private mouseMove:EventListener = (e:MouseEvent) => {
-        if (e instanceof MouseEvent && this.isMoving){
-            let x = parseInt(this.dataset.left) + (e.movementX / this.zoom);
-            let y = parseInt(this.dataset.top) + (e.movementY / this.zoom);
-            this.move(x, y);
-            this.wasMoved = true;
-            this.prevX = x;
-            this.prevY = y;
+    private mouseMove: EventListener = (e: MouseEvent | TouchEvent) => {
+        if (this.isMoving) {
+            if (e instanceof MouseEvent) {
+                this.pos1 = this.pos3 - e.clientX;
+                this.pos2 = this.pos4 - e.clientY;
+                this.pos3 = e.clientX;
+                this.pos4 = e.clientY;
+            } else if (e instanceof TouchEvent) {
+                this.pos1 = this.pos3 - e.touches[0].clientX;
+                this.pos2 = this.pos4 - e.touches[0].clientY;
+                this.pos3 = e.touches[0].clientX;
+                this.pos4 = e.touches[0].clientY;
+            } else {
+                return;
+            }
+
+            let top = parseInt(this.dataset.top) - this.pos2;
+            let left = parseInt(this.dataset.left) - this.pos1;
+
+            this.style.transform = `translate(${left}px, ${top}px)`;
+            this.dataset.top = `${top}`;
+            this.dataset.left = `${left}`;
         }
-    }
+    };
 
-    private handleKeyboard:EventListener = (e:KeyboardEvent) => {
-        if (e instanceof KeyboardEvent && document.activeElement === this){
+    private handleKeyboard: EventListener = (e: KeyboardEvent) => {
+        if (e instanceof KeyboardEvent && document.activeElement === this) {
             let moveX = false;
             let moveY = false;
             let direction = 0;
-            switch(e.key){
+            switch (e.key) {
                 case "ArrowUp":
                     e.preventDefault();
                     moveY = true;
@@ -224,42 +244,41 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
                     break;
                 case "d":
                     e.preventDefault();
-                    if (e.ctrlKey || e.metaKey){
+                    if (e.ctrlKey || e.metaKey) {
                         console.log("Duplicate table");
                     }
                     break;
                 default:
                     break;
             }
-            if (e.shiftKey){
+            if (e.shiftKey) {
                 direction *= 10;
             }
-            if (moveX){
+            if (moveX) {
                 const x = parseInt(this.dataset.left) + direction;
                 const y = parseInt(this.dataset.top);
                 this.wasMoved = true;
                 this.move(x, y);
-                this.prevX = x;
-                this.prevY = y;
+                this.pos1 = x;
+                this.pos2 = y;
                 this.broadcastMove(x, y);
-            }
-            else if (moveY) {
+            } else if (moveY) {
                 const x = parseInt(this.dataset.left);
                 const y = parseInt(this.dataset.top) + direction;
                 this.wasMoved = true;
                 this.move(x, y);
-                this.prevX = x;
-                this.prevY = y;
+                this.pos1 = x;
+                this.pos2 = y;
                 this.broadcastMove(x, y);
             }
         }
-    }
+    };
 
-    private renameTable:EventListener = (e:Event) => {
+    private renameTable: EventListener = (e: Event) => {
         // @ts-ignore
         document.activeElement?.blur();
         const newName = prompt(`New name for table ${this.model.name}?`);
-        if (newName.length){
+        if (newName.length) {
             this.update({
                 name: newName,
             });
@@ -267,46 +286,46 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             cc.perform(op);
             cc.dispatch(op);
         }
-    }
+    };
 
-    private deleteTable:EventListener = (e:Event) => {
+    private deleteTable: EventListener = (e: Event) => {
         // @ts-ignore
         document.activeElement?.blur();
         this.confirmDelete();
-    }
+    };
 
     private addColumn = async (focusColumn) => {
         await diagramController.createColumn(this.model.uid);
         // @ts-ignore
         document.activeElement?.blur();
-        if (typeof focusColumn === "boolean" && focusColumn === true){
+        if (typeof focusColumn === "boolean" && focusColumn === true) {
             this.focusLastColumn = true;
         }
-    }
+    };
 
-    private noop:EventListener = (e:Event) => {
+    private noop: EventListener = (e: Event) => {
         e.stopImmediatePropagation();
-    }
+    };
 
-    private toggleColumnSettings:EventListener = () => {
+    private toggleColumnSettings: EventListener = () => {
         // @ts-ignore
         document.activeElement?.blur();
-        if (this.model.showAllColumnOptions){
+        if (this.model.showAllColumnOptions) {
             this.update({
                 showAllColumnOptions: false,
             });
-        }
-        else {
+        } else {
             this.update({
                 showAllColumnOptions: true,
             });
         }
-    }
+    };
 
-    override async render(){
-        this.style.transform = `translate(${this.prevX}px, ${this.prevY}px)`;
-        this.dataset.top = `${this.prevY}`;
-        this.dataset.left = `${this.prevX}`;
+    override async render() {
+        console.log("render");
+        this.style.transform = `translate(${this.pos1}px, ${this.pos2}px)`;
+        this.dataset.left = `${this.pos1}`;
+        this.dataset.top = `${this.pos2}`;
         this.dataset.uid = this.model.uid;
         const view = html`
             <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseenter=${this.handleMouseEnter} @mouseleave=${this.handleMouseLeave}>
@@ -314,38 +333,60 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
                 <overflow-button @mousedown=${this.noop}>
                     <button>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                            />
                         </svg>
                     </button>
                     <overflow-menu>
                         <button @click=${this.renameTable}>
                             <i>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                    />
                                 </svg>
                             </i>
                             Rename table
                         </button>
                         <button @click=${this.addColumn}>
                             <i>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
                             </i>
                             Add column
                         </button>
                         <button @click=${this.toggleColumnSettings}>
                             <i>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                                    />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
                             </i>
                             Column settings
                         </button>
-                        <hr>
+                        <hr />
                         <button color="danger" @click=${this.deleteTable}>
                             <i>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                    />
                                 </svg>
                             </i>
                             Delete table
@@ -356,7 +397,7 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
             <columns-container></columns-container>
         `;
         render(view, this);
-        setTimeout(async ()=>{
+        setTimeout(async () => {
             const orderedColumns = await db.query("SELECT * FROM columns WHERE diagramID = $diagramID AND tableID = $tableID ORDER BY weight", {
                 diagramID: this.diagramID,
                 tableID: this.model.uid,
@@ -370,9 +411,9 @@ export default class TableComponent extends SuperComponent<ITableComponent>{
         }, 80);
     }
 
-    override updated(){
-        setTimeout(()=>{
-            if (this.focusLastColumn){
+    override updated() {
+        setTimeout(() => {
+            if (this.focusLastColumn) {
                 this.focusLastColumn = false;
                 // @ts-ignore
                 this.querySelector("column-component:last-of-type input")?.focus();
