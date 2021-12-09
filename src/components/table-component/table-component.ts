@@ -202,13 +202,10 @@ export default class TableComponent extends SuperComponent<ITableComponent> {
             } else {
                 return;
             }
-
-            let top = parseInt(this.dataset.top) - this.pos2;
-            let left = parseInt(this.dataset.left) - this.pos1;
-
-            this.style.transform = `translate(${left}px, ${top}px)`;
-            this.dataset.top = `${top}`;
-            this.dataset.left = `${left}`;
+            this.wasMoved = true;
+            let left = Math.round(parseInt(this.dataset.left) - this.pos1 / this.zoom);
+            let top = Math.round(parseInt(this.dataset.top) - this.pos2 / this.zoom);
+            this.move(left, top);
         }
     };
 
@@ -322,7 +319,6 @@ export default class TableComponent extends SuperComponent<ITableComponent> {
     };
 
     override async render() {
-        console.log("render");
         this.style.transform = `translate(${this.pos1}px, ${this.pos2}px)`;
         this.dataset.left = `${this.pos1}`;
         this.dataset.top = `${this.pos2}`;
