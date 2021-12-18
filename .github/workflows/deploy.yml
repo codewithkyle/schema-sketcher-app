@@ -29,6 +29,15 @@ jobs:
               with:
                   ssh-private-key: ${{ secrets.SSHKEY }}
 
+            - name: Pre Deployment
+              uses: appleboy/ssh-action@master
+              with:
+                  host: ${{ secrets.HOST }}
+                  USERNAME: ${{ secrets.USERNAME }}
+                  PORT: 22
+                  KEY: ${{ secrets.SSHKEY }}
+                  script: sudo chown -R $USER:$USER /var/www/schema-sketcher
+
             - name: Deploy
               run: rsync -azh --delete-after --exclude={'/server/diagrams/','/public/config.js','/server/.env','./.github/','./.gitignore','./tsconfig.json','./asset-manager.config.js','./brixi.config.js','./cssmosnter.config.js'} -e "ssh -o StrictHostKeyChecking=no" ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/schema-sketcher/
 
