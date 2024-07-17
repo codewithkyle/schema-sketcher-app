@@ -1,14 +1,13 @@
 import SuperComponent from "@codewithkyle/supercomponent";
 import { render, html } from "lit-html";
-import { css, mount } from "~controllers/env";
-
+import env from "~brixi/controllers/env";
 interface IBasicHeader {
 
 }
 export default class BasicHeader extends SuperComponent<IBasicHeader>{
     constructor(){
         super();
-        css(["basic-header", "buttons"]).then(() => {
+        env.css(["basic-header", "button"]).then(() => {
             this.render();
         });
     }
@@ -31,4 +30,4 @@ export default class BasicHeader extends SuperComponent<IBasicHeader>{
         render(view, this);
     }
 }
-mount("basic-header", BasicHeader);
+env.bind("basic-header", BasicHeader);

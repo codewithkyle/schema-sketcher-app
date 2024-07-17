@@ -1,7 +1,7 @@
 {
     "scripts": {
         "install:ui": "install-ui --audio=./public/audio --framework=./src/framework",
-        "install:brixi": "brixi",
+        "install:brixi": "brixi && mv ./brixi ./src/styles/brixi",
         "bundle": "node ./build/bundle.js",
         "production": "npm run bundle && asset-manager",
         "build": "run-s build:*",

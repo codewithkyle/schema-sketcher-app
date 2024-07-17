@@ -1,13 +1,9 @@
-import { configure, mount } from "@codewithkyle/router";
+import { router, mount } from "@codewithkyle/router";
 
 (() => {
+    router.add("/", "home-page");
+    router.add("/*", "missing-page");
+
     const main = document.body;
     mount(main);
-
-    configure({
-        "/": "home-page",
-        "/diagram/{UID}": "editor-page",
-        "/session/{diagram}/{room}": "collab-page",
-        "404": "missing-page",
-    });
 })();
