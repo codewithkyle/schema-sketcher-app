@@ -1,0 +1,35 @@
+main-menu{
+    display: inline-block;
+    padding: 1rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+
+    & > button {
+        width: 42px;
+        height: 42px;
+        border-radius: 0.5rem;
+        background-color: var(--grey-200);
+        color: var(--grey-700);
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        transition: background-color 150ms var(--ease-in-out);
+
+        &:hover,
+        &:focus {
+            background-color: var(--grey-300);
+        }
+
+        &:active {
+            background-color: var(--grey-400);
+            transition: background-color 80ms var(--ease-in-out);
+        }
+
+        svg {
+            width: 20px;
+            height: 20px;
+        }
+    }
+}

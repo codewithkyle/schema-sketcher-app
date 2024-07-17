@@ -1,8 +1,7 @@
-import SuperComponent from "@codewithkyle/supercomponent";
+import SuperComponent from "~brixi/component";
 import { render, html } from "lit-html";
 import env from "~brixi/controllers/env";
-import BasicHeader from "~components/basic-header/basic-header";
-
+import "~components/main-menu/main-menu";
 
 interface IHomepage{
 }
@@ -20,7 +19,7 @@ export default class Homepage extends SuperComponent<IHomepage>{
 
     override render(){
         const view = html`
-            ${new BasicHeader()}
+            <main-menu></main-menu>
         `;
         render(view, this);
     }

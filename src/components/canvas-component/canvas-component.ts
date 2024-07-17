@@ -1,9 +1,7 @@
-import { css, mount } from "~controllers/env";
+import env from "~brixi/controllers/env";
 import { createSubscription, subscribe, unsubscribe } from "~lib/pubsub";
 import type { Connection, Point } from "~types/diagram";
-import { v4 as uuid } from "uuid";
 import debounce from "../../utils/debounce";
-import cc from "~controllers/control-center";
 import diagramController from "~controllers/diagram-controller";
 
 const LINE_COLOUR = "#9CA3AF";
@@ -41,7 +39,7 @@ export default class CanvasComponent extends HTMLElement{
         this.mousePos = null;
         this.lines = [];
         this.forceHighlight = null;
-        css(["canvas-component"]);
+        env.css(["canvas-component"]);
         createSubscription("canvas");
         this.ticketID = subscribe("canvas", this.inbox.bind(this));
     }
@@ -402,7 +400,7 @@ export default class CanvasComponent extends HTMLElement{
         const newTime = performance.now();
         const deltaTime = (newTime - this.oldTime) / 1000;
         this.oldTime = newTime;
-        this.lines = await diagramController.getConnections();
+        this.lines = diagramController.getConnections();
         const highlightedLines = [];
 
         this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
@@ -645,4 +643,4 @@ export default class CanvasComponent extends HTMLElement{
         window.requestAnimationFrame(this.eventLoop.bind(this));
     }
 }
-mount("canvas-component", CanvasComponent);
+env.bind("canvas-component", CanvasComponent);

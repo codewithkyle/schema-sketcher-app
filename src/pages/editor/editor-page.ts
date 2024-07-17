@@ -2,17 +2,14 @@ import SuperComponent from "@codewithkyle/supercomponent";
 import { html, render } from "lit-html";
 import EditorHeader from "~components/editor-header/editor-header";
 import diagramController from "~controllers/diagram-controller";
-import { css, mount } from "~controllers/env";
+import env from "~brixi/controllers/env";
 import { Diagram } from "~types/diagram";
-import ContextMenu from "~components/context-menu/context-menu";
 import TableComponent from "~components/table-component/table-component";
 import { navigateTo } from "@codewithkyle/router";
 import EditorControls from "~components/editor-controls/editor-controls";
 import { createSubscription, publish, subscribe } from "~lib/pubsub";
 import NodeComponent from "~components/node-component/node-component";
 import CanvasComponent from "~components/canvas-component/canvas-component";
-import db from "@codewithkyle/jsql";
-import cursorController from "~controllers/cursor-controller";
 
 interface IEditorPage {
     diagram: Diagram,
@@ -77,12 +74,12 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         window.addEventListener("mousewheel", this.handleScroll.bind(this), { passive: false });
         window.addEventListener("keydown", this.handleKeyDown);
         window.addEventListener("keyup", this.handleKeyUp);
-        await css(["editor-page"]);
+        await env.css(["editor-page"]);
         const diagram = await diagramController.loadDiagram(this.uid);
         if (!diagram){
             navigateTo("/");
         }
-        this.update({
+        this.set({
             diagram: diagram,
         });
     }
@@ -176,16 +173,16 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
 
     private handleContextMenu:EventListener = (e:MouseEvent) => {
         e.preventDefault();
-        if (e instanceof MouseEvent){
-            const x = e.clientX;
-            const y = e.clientY;
-            const anchor = this.querySelector(".js-anchor");
-            const bounds = anchor.getBoundingClientRect();
-            this.placeX = x - bounds.x;
-            this.placeY = y - bounds.y;
-            const menu = new ContextMenu(x, y, this.spawn.bind(this));
-            document.body.appendChild(menu);
-        }
+        //if (e instanceof MouseEvent){
+            //const x = e.clientX;
+            //const y = e.clientY;
+            //const anchor = this.querySelector(".js-anchor");
+            //const bounds = anchor.getBoundingClientRect();
+            //this.placeX = x - bounds.x;
+            //this.placeY = y - bounds.y;
+            //const menu = new ContextMenu(x, y, this.spawn.bind(this));
+            //document.body.appendChild(menu);
+        //}
     }
 
     private scaleCallback(scale:number){
@@ -222,13 +219,9 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
     
     override async render(){
-        const tables = await diagramController.getTables();
-        const nodes = await diagramController.getNodes();
+        const tables = diagramController.getTables();
+        const nodes = diagramController.getNodes();
         const view = html`
-            ${new EditorHeader(this.model.diagram.name)}
-            <div cursor="${this.getCursorType()}" class="canvas js-canvas" @mousedown=${this.handleMouseDown} @mouseup=${this.handleMouseUp} @mousemove=${this.handleMouseMove} @contextmenu=${this.handleContextMenu}>
-                <div data-scale="${this.scale}" data-top="${this.y}" data-left="${this.x}" style="transform: matrix(${this.scale}, 0, 0, ${this.scale}, ${this.x}, ${this.y});" class="diagram js-anchor"></div>
-            </div>
             ${new EditorControls(this.isMoving, this.scale, this.toggleMoveCallback.bind(this), this.scaleCallback.bind(this))}
             ${new CanvasComponent()}
         `;

@@ -1,5 +1,5 @@
 import SuperComponent from "@codewithkyle/supercomponent";
-import { css, mount } from "~controllers/env";
+import env from "~brixi/controllers/env";
 import { html, render } from "lit-html";
 import { subscribe } from "~lib/pubsub";
 
@@ -23,20 +23,20 @@ export default class EditorControls extends SuperComponent<IEditorControls>{
     }
 
     private zoomInbox(e){
-        this.update({
+        this.set({
             scale: e,
         });
     }
 
     override async connected(){
-        await css(["editor-controls"]);
+        await env.css(["editor-controls"]);
         this.render();
     }
 
     private toggleMove:EventListener = (e:Event) => {
         const doMove = this.model.isMoving ? false : true;
         this.toggleMoveCallback(doMove);
-        this.update({
+        this.set({
             isMoving: doMove,
         });
     }
@@ -50,7 +50,7 @@ export default class EditorControls extends SuperComponent<IEditorControls>{
             newValue = 1;
         }
         this.scaleCallback(newValue);
-        this.update({
+        this.set({
             scale: newValue,
         });
     }
@@ -64,7 +64,7 @@ export default class EditorControls extends SuperComponent<IEditorControls>{
             newValue = 1;
         }
         this.scaleCallback(newValue);
-        this.update({
+        this.set({
             scale: newValue,
         });
     }
@@ -87,4 +87,4 @@ export default class EditorControls extends SuperComponent<IEditorControls>{
         render(view, this);
     }
 }
-mount("editor-controls", EditorControls);
+env.bind("editor-controls", EditorControls);
