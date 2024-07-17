@@ -1,10 +1,8 @@
-import db from "@codewithkyle/jsql";
 import SuperComponent from "@codewithkyle/supercomponent";
 import { html, render } from "lit-html";
 import ConnectorComponent from "~components/connector-component/connector-component";
-import cc from "~controllers/control-center";
 import diagramController from "~controllers/diagram-controller";
-import { css, mount } from "~controllers/env";
+import env from "~brixi/controllers/env";
 import { publish, subscribe } from "~lib/pubsub";
 import type { Column } from "~types/diagram";
 import type { SelectOption } from "~types/general";
@@ -25,57 +23,13 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
             columnTypes: [],
         }};
         this.style.order = `${this.model.weight}`;
-        subscribe("sync", this.syncInbox.bind(this));
-    }
-
-    private async syncInbox(e){
-        if (e.table === "types"){
-            const types = await diagramController.getTypes();
-            const updatedModel = {...this.model};
-            updatedModel.columnTypes = [];
-            for (let i = 0; i < types.length; i++){
-                updatedModel.columnTypes.push({
-                    label: types[i].name,
-                    value: types[i].uid,
-                });
-            }
-            this.update(updatedModel);
-        }
-        else if (e.table === "columns" && e.key === this.model.uid){
-            const updatedModel = {...this.model};
-            let doUpdate = false;
-            switch(e.op){
-                case "UNSET":
-                    doUpdate = true;
-                    unsetValueFromKeypath(updatedModel, e.keypath);
-                    break;
-                case "SET":
-                    if (e.keypath === "weight"){
-                        this.style.order = `${e.value}`;
-                        this.classList.remove("is-disabled", "is-drop-target");
-                    }
-                    else {
-                        doUpdate = true;
-                        setValueFromKeypath(updatedModel, e.keypath, e.value);
-                    }
-                    break;
-                case "DELETE":
-                    this.remove();
-                    break;
-                default:
-                    break;
-            }
-            if (doUpdate){
-                this.update(updatedModel);
-            }
-        }
     }
 
     override async connected(){
         this.addEventListener("mouseenter", this.handleMouseEnter);
         this.addEventListener("mouseleave", this.handleMouseLeave);
-        await css(["column-component"]);
-        const types = await diagramController.getTypes();
+        await env.css(["column-component"]);
+        const types = diagramController.getTypes();
         const updatedModel = {...this.model};
         for (let i = 0; i < types.length; i++){
             updatedModel.columnTypes.push({
@@ -83,7 +37,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
                 value: types[i].uid,
             });
         }
-        this.update(updatedModel);
+        this.set(updatedModel);
     }
     
     private handleMouseEnter:EventListener = (e:Event) => {
@@ -104,47 +58,8 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         });
     }
 
-    private handleDragStart:EventListener = (e:DragEvent) => {
-        if (e instanceof DragEvent){
-            e.preventDefault();
-            this.classList.add("is-disabled");
-            diagramController.startSwap(this.model.uid);
-        }
-    }
-
-    private handleDragEnd:EventListener = (e:DragEvent) => {
-        if (e instanceof DragEvent){
-            e.preventDefault();
-            this.classList.remove("is-disabled");
-        }
-    }
-
-    private handleDragOver:EventListener = (e:DragEvent) => {
-        if (e instanceof DragEvent){
-            e.preventDefault();
-            this.classList.add("is-drop-target");
-        }
-    }
-
-    private handleDragLeave:EventListener = (e:DragEvent) => {
-        if (e instanceof DragEvent){
-            e.preventDefault();
-            this.classList.remove("is-drop-target");
-        }
-    }
-
-    private handleDrop:EventListener = (e:DragEvent) => {
-        if (e instanceof DragEvent){
-            e.preventDefault();
-            diagramController.swapColumn(this.model.uid, this.tableUID);
-        }
-    }
-
     private updateName(value){
-        const op = cc.set("columns", this.model.uid, "name", value);
-        cc.perform(op);
-        cc.dispatch(op);
-        this.update({
+        this.set({
             name: value,
         });
     }
@@ -160,36 +75,26 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         switch(target.dataset.type){
             case "primary":
                 const isPrimaryKey = this.model.isPrimaryKey ? false : true;
-                this.update({
+                this.set({
                     isPrimaryKey: isPrimaryKey,
                 });
-                op = cc.set("columns", this.model.uid, "isPrimaryKey", isPrimaryKey);
                 break;
             case "unique":
                 const isUnique = this.model.isUnique ? false : true;
-                this.update({
+                this.set({
                     isUnique: isUnique,
                 });
-                op = cc.set("columns", this.model.uid, "isUnique", isUnique);
                 break;
             case "index":
                 const isIndex = this.model.isIndex ? false : true;
-                this.update({
+                this.set({
                     isIndex: isIndex,
                 });
-                op = cc.set("columns", this.model.uid, "isIndex", isIndex);
                 break;
-        }
-        if (op){
-            cc.perform(op);
-            cc.dispatch(op);
         }
     }
 
     private deleteColumn:EventListener = (e:Event) => {
-        const op = cc.delete("columns", this.model.uid);
-        cc.perform(op);
-        cc.dispatch(op);
         this.remove();
     }
 
@@ -203,39 +108,31 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
                     break;
                 case "Delete":
                     e.preventDefault();
-                    op = cc.delete("columns", this.model.uid);
                     this.remove();
                     break;
                 case "p":
                     e.preventDefault();
                     const isPrimaryKey = this.model.isPrimaryKey ? false : true;
-                    this.update({
+                    this.set({
                         isPrimaryKey: isPrimaryKey,
                     });
-                    op = cc.set("columns", this.model.uid, "isPrimaryKey", isPrimaryKey);
                     break;
                 case "u":
                     e.preventDefault();
                     const isUnique = this.model.isUnique ? false : true;
-                    this.update({
+                    this.set({
                         isUnique: isUnique,
                     });
-                    op = cc.set("columns", this.model.uid, "isUnique", isUnique);
                     break;
                 case "i":
                     e.preventDefault();
                     const isIndex = this.model.isIndex ? false : true;
-                    this.update({
+                    this.set({
                         isIndex: isIndex,
                     });
-                    op = cc.set("columns", this.model.uid, "isIndex", isIndex);
                     break;
                 default:
                     break;
-            }
-            if (op){
-                cc.perform(op);
-                cc.dispatch(op);
             }
         }
     }
@@ -303,12 +200,9 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
     private changeType:EventListener = (e:Event) => {
         const target = e.currentTarget as HTMLSelectElement;
         const value = target.value;
-        this.update({
+        this.set({
             type: value,  
         });
-        const op = cc.set("columns", this.model.uid, "type", value);
-        cc.perform(op);
-        cc.dispatch(op);
     }
 
     private endDraw:EventListener = (e:Event) => {
@@ -327,7 +221,7 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         this.style.order = `${this.model.weight}`;
         const view = html`
             ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -6px;`, this.model.uid, "left", this.tableUID, [this.tableUID, this.model.uid])}
-            <div @mouseup=${this.endDraw} tabindex="0" draggable="true" class="w-full" flex="row nowrap items-center" @drag=${this.handleDragStart} @dragover=${this.handleDragOver} @dragend=${this.handleDragEnd} @drop=${this.handleDrop} @dragleave=${this.handleDragLeave}>
+            <div @mouseup=${this.endDraw} tabindex="0" draggable="true" class="w-full" flex="row nowrap items-center">
                 <div flex="row nowrap items-center" style="flex:1;width:100%">
                     ${this.renderPrimaryKey()}
                     ${this.renderIndex()}
@@ -348,4 +242,4 @@ export default class ColumnComponent extends SuperComponent<IColumnComponent>{
         render(view, this);
     }
 }
-mount("column-component", ColumnComponent);
+env.bind("column-component", ColumnComponent);

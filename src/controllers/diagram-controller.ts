@@ -28,7 +28,7 @@ class DiagramController {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
     
-    public async createDiagram(type:"local"|"cloud"){
+    public createDiagram():Diagram{
         const uid = UUID();
         this.ID = uid;
         const types = {};
@@ -40,6 +40,7 @@ class DiagramController {
             name: "UNTITLED",
             timestamp: Date.now(),
         };
+        return this.diagram;
     }
 
     public async createTable(placeX:number, placeY:number){

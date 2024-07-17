@@ -55,18 +55,18 @@ export default class CanvasComponent extends HTMLElement{
             this.appendChild(this.hitCanvas);
         }
         this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight - 64;
+        this.canvas.height = window.innerHeight;
         this.hitCanvas.width = window.innerWidth;
-        this.hitCanvas.height = window.innerHeight - 64;
+        this.hitCanvas.height = window.innerHeight;
         this.ctx = this.canvas.getContext("2d");
         this.hitCTX = this.hitCanvas.getContext("2d");
         window.addEventListener("mousemove", this.handleMouseMove);
         window.addEventListener("mouseup", this.endMouseMove);
         window.addEventListener("resize", debounce(()=>{
             this.canvas.width = window.innerWidth;
-            this.canvas.height = window.innerHeight - 64;
+            this.canvas.height = window.innerHeight;
             this.hitCanvas.width = window.innerWidth;
-            this.hitCanvas.height = window.innerHeight - 64;
+            this.hitCanvas.height = window.innerHeight;
         }, 300));
         this.oldTime = performance.now();
         this.eventLoop();   

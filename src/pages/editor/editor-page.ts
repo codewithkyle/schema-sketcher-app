@@ -1,14 +1,13 @@
 import SuperComponent from "@codewithkyle/supercomponent";
 import { html, render } from "lit-html";
 import EditorHeader from "~components/editor-header/editor-header";
+import "~components/main-menu/main-menu";
 import diagramController from "~controllers/diagram-controller";
 import env from "~brixi/controllers/env";
 import { Diagram } from "~types/diagram";
 import TableComponent from "~components/table-component/table-component";
-import { navigateTo } from "@codewithkyle/router";
 import EditorControls from "~components/editor-controls/editor-controls";
 import { createSubscription, publish, subscribe } from "~lib/pubsub";
-import NodeComponent from "~components/node-component/node-component";
 import CanvasComponent from "~components/canvas-component/canvas-component";
 
 interface IEditorPage {
@@ -25,7 +24,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     private scale: number;
     private forceMove: boolean;
 
-    constructor(tokens, params){
+    constructor(){
         super();
         this.model = {
             diagram: null,
@@ -33,41 +32,9 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         this.x = window.innerWidth / 2;
         this.y = (window.innerHeight - 64) / 2;
         this.scale = 1;
-        this.uid = tokens.UID;
         this.isMoving = false;
         this.forceMove = false;
         createSubscription("zoom");
-        subscribe("sync", this.syncInbox.bind(this));
-    }
-
-    private syncInbox(e){
-        const anchor = this.querySelector(".js-anchor");
-        if (e.op === "INSERT"){
-            switch(e.table){
-                case "tables":
-                    const table = new TableComponent(e.value, this.model.diagram.uid);
-                    anchor.appendChild(table);
-                    break;
-                case "nodes":
-                    const node = new NodeComponent(e.value, this.model.diagram.uid);
-                    anchor.appendChild(node);
-                    break;
-                default:
-                    break;
-            }
-        }
-        else if (e.op === "DELETE"){
-            switch(e.table){
-                case "tables":
-                    this.querySelector(`table-component[data-uid="${e.key}"]`)?.remove();
-                    break;
-                case "nodes":
-                    this.querySelector(`node-component[data-uid="${e.key}"]`)?.remove();
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 
     override async connected(){
@@ -75,10 +42,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         window.addEventListener("keydown", this.handleKeyDown);
         window.addEventListener("keyup", this.handleKeyUp);
         await env.css(["editor-page"]);
-        const diagram = await diagramController.loadDiagram(this.uid);
-        if (!diagram){
-            navigateTo("/");
-        }
+        const diagram = diagramController.createDiagram();
         this.set({
             diagram: diagram,
         });
@@ -163,9 +127,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
             case "table":
                 await diagramController.createTable(this.placeX, this.placeY);
                 break;
-            case "node":
-                await diagramController.createNode(this.placeX, this.placeY);
-                break;
             default:
                 break;
         }
@@ -219,24 +180,20 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
     
     override async render(){
-        const tables = diagramController.getTables();
-        const nodes = diagramController.getNodes();
+        //const tables = diagramController.getTables();
         const view = html`
+            <main-menu></main-menu>
             ${new EditorControls(this.isMoving, this.scale, this.toggleMoveCallback.bind(this), this.scaleCallback.bind(this))}
             ${new CanvasComponent()}
         `;
         render(view, this);
-        setTimeout(()=>{
-            const anchor = this.querySelector(".js-anchor");
-            tables.map(table => {
-                const el = new TableComponent(table, this.model.diagram.uid);
-                anchor.appendChild(el);
-            });
-            nodes.map(node => {
-                const el = new NodeComponent(node, this.model.diagram.uid);
-                anchor.appendChild(el);
-            });
-        }, 80);
+        //setTimeout(()=>{
+            //const anchor = this.querySelector(".js-anchor");
+            //tables.map(table => {
+                //const el = new TableComponent(table, this.model.diagram.uid);
+                //anchor.appendChild(el);
+            //});
+        //}, 80);
     }
 }
-mount("editor-page", EditorPage);
+env.bind("editor-page", EditorPage);

@@ -1,6 +1,6 @@
-import { css, mount } from "~controllers/env";
+import env from "~brixi/controllers/env";
 import { publish } from "~lib/pubsub";
-import { v4 as uuid } from "uuid";
+import { UUID } from "@codewithkyle/uuid";
 
 
 export default class ConnectorComponent extends HTMLElement{
@@ -11,13 +11,13 @@ export default class ConnectorComponent extends HTMLElement{
     
     constructor(style:string, columnID:string, side:string, tableID:string, refs:Array<string> = []){
         super();
-        this.uid = uuid();
+        this.uid = UUID();
         this.style.cssText = style;
         this.columnID = columnID;
         this.dataset.uid = `${columnID}_${side}`;
         this.tableID = tableID;
         this.refs = refs;
-        css(["connector-component"]);
+        env.css(["connector-component"]);
     }
 
     connectedCallback(){
@@ -70,4 +70,4 @@ export default class ConnectorComponent extends HTMLElement{
         });
     }
 }
-mount("connector-component", ConnectorComponent);
+env.bind("connector-component", ConnectorComponent);

@@ -10,7 +10,7 @@ editor-controls {
     .move{
         width: 36px;
         height: 36px;
-        background-color: var(--grey-300);
+        background-color: var(--grey-200);
         color: var(--grey-600);
         display: inline-flex;
         align-items: center;
@@ -19,7 +19,6 @@ editor-controls {
         box-shadow: var(--shadow-md);
         border-radius: 0.5rem;
         transition: all 80ms var(--ease-in-out);
-        border: 1px solid var(--grey-400);
 
         &.is-active{
             background-color: var(--primary-500);
@@ -61,13 +60,12 @@ editor-controls {
         button{
             width: 36px;
             height: 36px;
-            background-color: var(--grey-300);
+            background-color: var(--grey-200);
             color: var(--grey-600);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             transition: all 80ms var(--ease-in-out);
-            border: 1px solid var(--grey-400);
 
             &:first-of-type{
                 border-radius: 0.5rem 0 0 0.5rem;
@@ -104,10 +102,7 @@ editor-controls {
             text-align: center;
             font-weight: var(--font-medium);
             font-size: var(--font-base);
-            background-color: var(--grey-300);
-            border-width: 1px 0 1px 0;
-            border-color: var(--grey-400);
-            border-style: solid;
+            background-color: var(--grey-200);
             cursor: default;
             user-select: none;
         }

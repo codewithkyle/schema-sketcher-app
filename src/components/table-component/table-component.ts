@@ -1,14 +1,10 @@
 import SuperComponent from "@codewithkyle/supercomponent";
 import { html, render } from "lit-html";
 import ColumnComponent from "./column-component/column-component";
-import { css, mount } from "~controllers/env";
+import env from "~brixi/controllers/env";
 import { publish, subscribe } from "~lib/pubsub";
 import type { Column, Table } from "~types/diagram";
-import cc from "~controllers/control-center";
 import diagramController from "~controllers/diagram-controller";
-import db from "~lib/jsql";
-import { setValueFromKeypath, unsetValueFromKeypath } from "~utils/sync";
-import { send } from "~controllers/ws";
 
 interface ITableComponent extends Table {
     showAllColumnOptions: boolean;
@@ -41,7 +37,6 @@ export default class TableComponent extends SuperComponent<ITableComponent> {
                 showAllColumnOptions: false,
             },
         };
-        subscribe("sync", this.syncInbox.bind(this));
         subscribe("move", this.moveInbox.bind(this));
         subscribe("zoom", this.zoomInbox.bind(this));
     }
@@ -56,66 +51,13 @@ export default class TableComponent extends SuperComponent<ITableComponent> {
         }
     }
 
-    private handleOP(op) {
-        switch (op.op) {
-            case "UNSET":
-                const updatedModel = { ...this.model };
-                unsetValueFromKeypath(updatedModel, op.keypath);
-                this.update(updatedModel);
-                break;
-            case "SET":
-                switch (op.keypath) {
-                    case "x":
-                        this.move(op.value, parseInt(this.dataset.top));
-                        this.pos1 = op.value;
-                        break;
-                    case "y":
-                        this.move(parseInt(this.dataset.left), op.value);
-                        this.pos2 = op.value;
-                        break;
-                    default:
-                        const updatedModel = { ...this.model };
-                        setValueFromKeypath(updatedModel, op.keypath, op.value);
-                        this.update(updatedModel);
-                        break;
-                }
-                break;
-            case "DELETE":
-                this.remove();
-                break;
-            case "BATCH":
-                for (const subOP of op.ops) {
-                    this.handleOP(subOP);
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    private syncInbox(op) {
-        if (op.table === "tables" && op.key === this.model.uid) {
-            this.handleOP(op);
-        } else if ((op.table === "columns" && op.op === "INSERT" && op.value.tableID === this.model.uid) || op.op === "DELETE") {
-            switch (op.op) {
-                case "INSERT":
-                    const column = new ColumnComponent(op.value, false, this.model.uid);
-                    this.querySelector("columns-container").appendChild(column);
-                    break;
-                case "DELETE":
-                    this.querySelector(`column-component[data-uid="${op.key}"]`)?.remove();
-                    break;
-            }
-        }
-    }
-
     override async connected() {
         this.tabIndex = 0;
         this.setAttribute("aria-label", `use arrow keys to nudge table ${this.model.name}`);
         window.addEventListener("keydown", this.handleKeyboard, { passive: true, capture: true });
         window.addEventListener("mousemove", this.mouseMove, { passive: true, capture: true });
         window.addEventListener("mouseup", this.mouseUp, { passive: true, capture: true });
-        await css(["table-component", "overflow-menu"]);
+        await env.css(["table-component", "overflow-menu"]);
         this.render();
     }
 
@@ -145,27 +87,10 @@ export default class TableComponent extends SuperComponent<ITableComponent> {
         }
     }
 
-    private broadcastMove(x: number, y: number) {
-        if (this.wasMoved) {
-            const op1 = cc.set("tables", this.model.uid, "x", x);
-            const op2 = cc.set("tables", this.model.uid, "y", y);
-            const op = cc.batch("tables", this.model.uid, [op1, op2]);
-            cc.perform(op);
-            cc.dispatch(op);
-        }
-    }
-
-    private move(x: number, y: number, skipBroadcast = false) {
+    private move(x: number, y: number) {
         this.style.transform = `translate(${x}px, ${y}px)`;
         this.dataset.top = `${y}`;
         this.dataset.left = `${x}`;
-        if (!skipBroadcast) {
-            send("move", {
-                x: x,
-                y: y,
-                uid: this.model.uid,
-            });
-        }
     }
 
     private mouseDown: EventListener = (e: MouseEvent | TouchEvent) => {
@@ -181,7 +106,6 @@ export default class TableComponent extends SuperComponent<ITableComponent> {
 
     private mouseUp: EventListener = (e: MouseEvent) => {
         if (e instanceof MouseEvent && this.isMoving) {
-            this.broadcastMove(parseInt(this.dataset.left), parseInt(this.dataset.top));
             this.isMoving = false;
             this.wasMoved = false;
         }
@@ -258,7 +182,6 @@ export default class TableComponent extends SuperComponent<ITableComponent> {
                 this.move(x, y);
                 this.pos1 = x;
                 this.pos2 = y;
-                this.broadcastMove(x, y);
             } else if (moveY) {
                 const x = parseInt(this.dataset.left);
                 const y = parseInt(this.dataset.top) + direction;
@@ -266,7 +189,6 @@ export default class TableComponent extends SuperComponent<ITableComponent> {
                 this.move(x, y);
                 this.pos1 = x;
                 this.pos2 = y;
-                this.broadcastMove(x, y);
             }
         }
     };
@@ -276,12 +198,9 @@ export default class TableComponent extends SuperComponent<ITableComponent> {
         document.activeElement?.blur();
         const newName = prompt(`New name for table ${this.model.name}?`);
         if (newName.length) {
-            this.update({
+            this.set({
                 name: newName,
             });
-            const op = cc.set("tables", this.model.uid, "name", newName);
-            cc.perform(op);
-            cc.dispatch(op);
         }
     };
 
@@ -308,11 +227,11 @@ export default class TableComponent extends SuperComponent<ITableComponent> {
         // @ts-ignore
         document.activeElement?.blur();
         if (this.model.showAllColumnOptions) {
-            this.update({
+            this.set({
                 showAllColumnOptions: false,
             });
         } else {
-            this.update({
+            this.set({
                 showAllColumnOptions: true,
             });
         }
@@ -393,28 +312,28 @@ export default class TableComponent extends SuperComponent<ITableComponent> {
             <columns-container></columns-container>
         `;
         render(view, this);
-        setTimeout(async () => {
-            const orderedColumns = await db.query("SELECT * FROM columns WHERE diagramID = $diagramID AND tableID = $tableID ORDER BY weight", {
-                diagramID: this.diagramID,
-                tableID: this.model.uid,
-            });
-            const container = this.querySelector("columns-container") as HTMLElement;
-            container.innerHTML = "";
-            orderedColumns.map((column) => {
-                const newColumn = new ColumnComponent(column, this.model.showAllColumnOptions, this.model.uid);
-                container.appendChild(newColumn);
-            });
-        }, 80);
+        //setTimeout(async () => {
+            //const orderedColumns = await db.query("SELECT * FROM columns WHERE diagramID = $diagramID AND tableID = $tableID ORDER BY weight", {
+                //diagramID: this.diagramID,
+                //tableID: this.model.uid,
+            //});
+            //const container = this.querySelector("columns-container") as HTMLElement;
+            //container.innerHTML = "";
+            //orderedColumns.map((column) => {
+                //const newColumn = new ColumnComponent(column, this.model.showAllColumnOptions, this.model.uid);
+                //container.appendChild(newColumn);
+            //});
+        //}, 80);
     }
 
-    override updated() {
-        setTimeout(() => {
-            if (this.focusLastColumn) {
-                this.focusLastColumn = false;
-                // @ts-ignore
-                this.querySelector("column-component:last-of-type input")?.focus();
-            }
-        }, 80);
-    }
+    //override updated() {
+        //setTimeout(() => {
+            //if (this.focusLastColumn) {
+                //this.focusLastColumn = false;
+                //// @ts-ignore
+                //this.querySelector("column-component:last-of-type input")?.focus();
+            //}
+        //}, 80);
+    //}
 }
-mount("table-component", TableComponent);
+env.bind("table-component", TableComponent);
