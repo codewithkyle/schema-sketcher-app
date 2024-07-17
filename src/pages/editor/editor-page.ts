@@ -6,9 +6,9 @@ import diagramController from "~controllers/diagram-controller";
 import env from "~brixi/controllers/env";
 import { Diagram } from "~types/diagram";
 import TableComponent from "~components/table-component/table-component";
-import EditorControls from "~components/editor-controls/editor-controls";
+import "~components/editor-controls/editor-controls";
 import { createSubscription, publish, subscribe } from "~lib/pubsub";
-import CanvasComponent from "~components/canvas-component/canvas-component";
+import "~components/canvas-component/canvas-component";
 
 interface IEditorPage {
     diagram: Diagram,
@@ -46,11 +46,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         this.set({
             diagram: diagram,
         });
-    }
-
-    private setCursor(type:"auto"|"hand"|"grabbing"|"zoom"){
-        const canvas = this.querySelector(".js-canvas");
-        canvas.setAttribute("cursor", type);
     }
 
     private handleKeyDown:EventListener = (e:KeyboardEvent) => {
@@ -122,6 +117,22 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         }
     }
 
+    private handleMove:EventListener = (e:CustomEvent) => {
+        console.log(e.detail);
+        if (e.detail.isMoving){
+            this.isMoving = true;
+            this.setCursor("hand");
+        } else {
+            this.isMoving = false;
+            this.setCursor("auto");
+        }
+    }
+
+    private setCursor(type:"auto"|"hand"|"grabbing"|"zoom"){
+        const canvas = this.querySelector("canvas-component");
+        canvas.setAttribute("cursor", type);
+    }
+
     private async spawn(type:"table"|"node"){
         switch(type){
             case "table":
@@ -146,28 +157,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         //}
     }
 
-    private scaleCallback(scale:number){
-        const anchor = this.querySelector(".js-anchor") as HTMLElement;
-        if (scale < 0.125){
-            scale = 0.125;
-        } else if (scale > 1){
-            scale = 1;
-        }
-        anchor.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${this.x}, ${this.y})`;
-        anchor.dataset.scale = `${scale}`;
-        this.scale = scale;
-    }
-
-    private toggleMoveCallback(isMoving){
-        this.forceMove = isMoving;
-        if (isMoving){
-            this.setCursor("hand");
-        }
-        else {
-            this.setCursor("auto");
-        }
-    }
-    
     private getCursorType(){
         let cursor = "auto";
         if (this.isMoving){
@@ -183,8 +172,8 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         //const tables = diagramController.getTables();
         const view = html`
             <main-menu></main-menu>
-            ${new EditorControls(this.isMoving, this.scale, this.toggleMoveCallback.bind(this), this.scaleCallback.bind(this))}
-            ${new CanvasComponent()}
+            <editor-controls @move=${this.handleMove} data-is-moving="${this.isMoving}" data-scale="${this.scale}"></editor-controls>
+            <canvas-component></canvas-component>
         `;
         render(view, this);
         //setTimeout(()=>{

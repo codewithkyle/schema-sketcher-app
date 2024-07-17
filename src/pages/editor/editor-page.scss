@@ -6,29 +6,4 @@ editor-page{
     height: 100vh;
     position: relative;
     background-color: var(--grey-50);
-
-    .canvas{
-        height: 100vh;
-        overflow: hidden;
-
-        &[cursor="hand"]{
-            cursor: grab;
-        }
-
-        &[cursor="grabbing"]{
-            cursor: grabbing;
-        }
-        
-        &[cursor="zoom"]{
-            cursor: zoom-in;
-        }
-
-        .diagram{
-            position: relative;
-            width: 0;
-            height: 0;
-            display: inline-block;
-            overflow: visible;
-        }
-    }
 }

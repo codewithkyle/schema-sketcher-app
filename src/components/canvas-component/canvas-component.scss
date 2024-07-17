@@ -5,6 +5,27 @@ canvas-component{
     width: 100vw;
     height: 100vh;
     z-index: -1;
+    overflow: hidden;
+
+    &[cursor="hand"]{
+        cursor: grab;
+    }
+
+    &[cursor="grabbing"]{
+        cursor: grabbing;
+    }
+
+    &[cursor="zoom"]{
+        cursor: zoom-in;
+    }
+
+    .diagram{
+        position: relative;
+        width: 0;
+        height: 0;
+        display: inline-block;
+        overflow: visible;
+    }
 
     canvas{
         position: absolute;

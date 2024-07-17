@@ -1,4 +1,4 @@
-import SuperComponent from "@codewithkyle/supercomponent";
+import SuperComponent from "~brixi/component";
 import env from "~brixi/controllers/env";
 import { html, render } from "lit-html";
 import { subscribe } from "~lib/pubsub";
@@ -8,18 +8,17 @@ interface IEditorControls {
     scale: number,
 }
 export default class EditorControls extends SuperComponent<IEditorControls>{
-    private toggleMoveCallback:Function;
-    private scaleCallback:Function;
-
-    constructor(isMoving: boolean, scale:number, toggleMoveCallback:Function, scaleCallback:Function){
+    constructor(isMoving: boolean, scale:number){
         super();
         this.model = {
             isMoving: isMoving,
             scale: scale,
         };
-        this.toggleMoveCallback = toggleMoveCallback;
-        this.scaleCallback = scaleCallback;
         subscribe("zoom", this.zoomInbox.bind(this));
+    }
+
+    static get observedAttributes() {
+        return ["data-is-moving", "data-scale"];
     }
 
     private zoomInbox(e){
@@ -35,10 +34,10 @@ export default class EditorControls extends SuperComponent<IEditorControls>{
 
     private toggleMove:EventListener = (e:Event) => {
         const doMove = this.model.isMoving ? false : true;
-        this.toggleMoveCallback(doMove);
         this.set({
             isMoving: doMove,
         });
+        this.dispatchEvent(new CustomEvent("move", { detail: { isMoving: doMove } }));
     }
 
     private zoomOut:EventListener = (e:Event) => {
@@ -49,7 +48,6 @@ export default class EditorControls extends SuperComponent<IEditorControls>{
         else if (newValue > 1) {
             newValue = 1;
         }
-        this.scaleCallback(newValue);
         this.set({
             scale: newValue,
         });
@@ -63,10 +61,21 @@ export default class EditorControls extends SuperComponent<IEditorControls>{
         else if (newValue > 1) {
             newValue = 1;
         }
-        this.scaleCallback(newValue);
         this.set({
             scale: newValue,
         });
+    }
+
+    private scaleCallback(scale:number){
+        //const anchor = this.querySelector(".js-anchor") as HTMLElement;
+        //if (scale < 0.125){
+            //scale = 0.125;
+        //} else if (scale > 1){
+            //scale = 1;
+        //}
+        //anchor.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${this.x}, ${this.y})`;
+        //anchor.dataset.scale = `${scale}`;
+        this.set({ scale });
     }
 
     override render(){
