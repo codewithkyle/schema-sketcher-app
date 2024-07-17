@@ -5,6 +5,10 @@ module.exports = {
             publicDir: "/js"
         },
         {
+            files: "./public/lib/*.js",
+            publicDir: "/lib"
+        },
+        {
             files: "./public/css/*.css",
             publicDir: "/css"
         }

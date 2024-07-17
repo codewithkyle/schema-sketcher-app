@@ -11,9 +11,10 @@ server/diagrams
 
 # Source files
 src/lib
+src/framework
 
 # Public
 public/js
 public/css
-public/config.js
+public/audio
 public/service-worker-assets.js
