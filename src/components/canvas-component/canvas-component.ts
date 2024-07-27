@@ -31,6 +31,7 @@ export default class CanvasComponent extends HTMLElement{
     private colorRef: {
         [key:string]: string,
     }
+    private activeLineId: string;
 
     constructor(){
         super();
@@ -42,6 +43,7 @@ export default class CanvasComponent extends HTMLElement{
         this.mousePos = null;
         this.lines = [];
         this.forceHighlight = null;
+        this.activeLineId = null;
         this.colorRef = {};
         env.css(["canvas-component"]);
         createSubscription("canvas");
@@ -65,7 +67,7 @@ export default class CanvasComponent extends HTMLElement{
         this.ctx = this.canvas.getContext("2d");
         this.hitCTX = this.hitCanvas.getContext("2d");
         window.addEventListener("mousemove", this.handleMouseMove);
-        window.addEventListener("mouseup", this.endMouseMove);
+        window.addEventListener("mousedown", this.endMouseMove);
         window.addEventListener("resize", debounce(()=>{
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
@@ -73,18 +75,31 @@ export default class CanvasComponent extends HTMLElement{
             this.hitCanvas.height = window.innerHeight;
         }, 300));
         this.oldTime = performance.now();
-        this.eventLoop();   
+        this.eventLoop();
     }
 
     disconnectedCallback(){
         this.eventLoop = async ()=>{};
         unsubscribe(this.ticketID);
         window.removeEventListener("mousemove", this.handleMouseMove);
-        window.removeEventListener("mouseup", this.endMouseMove);
+        window.removeEventListener("mousedown", this.endMouseMove);
     }
 
     private endMouseMove:EventListener = (e:MouseEvent) => {
         this.openStartPoint = null;
+        const px = this.hitCTX.getImageData(e.clientX, e.clientY, 1, 1);
+        const data = px.data;
+        const color = `rgb(${data[0]},${data[1]},${data[2]})`;
+        if (color !== "rgb(0,0,0)"){
+            const ref = this.colorRef[color];
+            if (ref !== undefined){
+                this.activeLineId = ref;
+            } else {
+                this.activeLineId = null;
+            }
+        } else {
+            this.activeLineId = null;
+        }
     }
 
     private handleMouseMove:EventListener = (e:MouseEvent) => {
@@ -450,10 +465,6 @@ export default class CanvasComponent extends HTMLElement{
         return el as HTMLElement;
     }
 
-    private randomColour(){
-        return `#${Math.floor(Math.random()*16777215).toString(16)}`;
-    }
-
     private async eventLoop() {
         const newTime = performance.now();
         const deltaTime = (newTime - this.oldTime) / 1000;
@@ -513,7 +524,7 @@ export default class CanvasComponent extends HTMLElement{
                 const endColumnEL:HTMLElement = this.getElement(`[data-uid="${this.lines[i].endNodeID}"]`);
 
                 if (!(this.lines[i].uid in this.colorRef)){
-                    this.colorRef[this.lines[i].uid] = this.randomColour();
+                    this.colorRef[this.lines[i].color] = this.lines[i].uid;
                 }
 
                 const startColumnBounds = startColumnEL.getBoundingClientRect();
@@ -665,6 +676,7 @@ export default class CanvasComponent extends HTMLElement{
                     startSide: startSide,
                     endSide: endSide,
                     refs: this.lines[i].refs,
+                    color: this.lines[i].color,
                 });
             }
             catch (e){
@@ -679,6 +691,9 @@ export default class CanvasComponent extends HTMLElement{
                 highlightedLines.push(line.uid);
             }
         }
+        if (this.activeLineId !== null){
+            highlightedLines.push(this.activeLineId);
+        }
         
         // Draw normal lines
         for (let i = 0; i < lines.length; i++){
@@ -687,7 +702,7 @@ export default class CanvasComponent extends HTMLElement{
                 const { x: startX, y: startY } = line.start;
                 const { x: endX, y: endY } = line.end;
                 this.ctx.strokeStyle = LINE_COLOUR;
-                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide, this.colorRef[line.uid]);
+                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide, line.color);
             }
         }    
         
@@ -698,7 +713,7 @@ export default class CanvasComponent extends HTMLElement{
                 const { x: startX, y: startY } = line.start;
                 const { x: endX, y: endY } = line.end;
                 this.ctx.strokeStyle = LINE_HOVER_COLOUR;
-                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide, this.colorRef[line.uid]);
+                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide, line.color);
             }
         }
 

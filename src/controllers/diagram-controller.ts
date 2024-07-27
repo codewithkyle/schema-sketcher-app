@@ -266,6 +266,7 @@ class DiagramController {
             endNodeID: endNodeID,
             type: "one-one",
             refs: refs,
+            color: this.randomRGBColor(),
         };
         this.diagram.connections[uid] = connection;
     }
@@ -324,6 +325,10 @@ class DiagramController {
 
     private deleteElement(uid:string){
         document.body.querySelector(`[data-uid="${uid}"]`)?.remove();
+    }
+
+    private randomRGBColor(){
+        return `rgb(${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)})`;
     }
 }
 const diagramController = new DiagramController();
