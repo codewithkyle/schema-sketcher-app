@@ -59,7 +59,7 @@ export default class TableComponent extends Component<ITableComponent> {
     override async connected() {
         this.tabIndex = 0;
         this.setAttribute("aria-label", `use arrow keys to nudge table ${this.model.name}`);
-        window.addEventListener("keydown", this.handleKeyboard, { passive: true, capture: true });
+        window.addEventListener("keydown", this.handleKeyboard, { passive: false, capture: true });
         window.addEventListener("mousemove", this.mouseMove, { passive: true, capture: true });
         window.addEventListener("mouseup", this.mouseUp, { passive: true, capture: true });
         await env.css(["table-component", "overflow-menu"]);
@@ -89,14 +89,6 @@ export default class TableComponent extends Component<ITableComponent> {
             ref: this.model.uid,
         });
     };
-
-    private confirmDelete() {
-        const doDelete = confirm(`Are you sure you want to delete table ${this.model.name}?`);
-        if (doDelete) {
-            diagramController.deleteTable(this.model.uid);
-            this.remove();
-        }
-    }
 
     private move(x: number, y: number) {
         this.style.transform = `translate(${x}px, ${y}px)`;
@@ -148,36 +140,32 @@ export default class TableComponent extends Component<ITableComponent> {
 
     private handleKeyboard: EventListener = (e: KeyboardEvent) => {
         if (e instanceof KeyboardEvent && document.activeElement === this) {
+            e.preventDefault();
             let moveX = false;
             let moveY = false;
             let direction = 0;
             switch (e.key) {
                 case "ArrowUp":
-                    e.preventDefault();
                     moveY = true;
                     direction = -1;
                     break;
                 case "ArrowDown":
-                    e.preventDefault();
                     moveY = true;
                     direction = 1;
                     break;
                 case "ArrowLeft":
-                    e.preventDefault();
                     moveX = true;
                     direction = -1;
                     break;
                 case "ArrowRight":
-                    e.preventDefault();
                     moveX = true;
                     direction = 1;
                     break;
                 case "Delete":
-                    e.preventDefault();
-                    this.confirmDelete();
+                    diagramController.deleteTable(this.model.uid);
+                    this.remove();
                     break;
                 case "d":
-                    e.preventDefault();
                     if (e.ctrlKey || e.metaKey) {
                         console.log("Duplicate table");
                     }

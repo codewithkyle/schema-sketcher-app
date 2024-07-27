@@ -33,6 +33,7 @@ export default class ColumnComponent extends Component<IColumnComponent>{
     override async connected(){
         this.addEventListener("mouseenter", this.handleMouseEnter);
         this.addEventListener("mouseleave", this.handleMouseLeave);
+        this.addEventListener("keydown", this.handleKeyboard, { passive: false, capture: true });
         await env.css(["column-component"]);
         const settings = parseDataset(this.dataset, this.model);
         const col = diagramController.getColumn(settings.uid);
@@ -187,7 +188,7 @@ export default class ColumnComponent extends Component<IColumnComponent>{
                     ${this.renderPrimaryKey()}
                     ${this.renderIndex()}
                     ${this.renderUnique()}
-                    <input type="text" .value="${this.model.name}" @input=${this.handleNameInput} @keydown=${this.handleKeyboard}>
+                    <input type="text" .value="${this.model.name}" @input=${this.handleNameInput}>
                 </div>
                 <div flex="row nowrap items-center">
                     <select @change=${this.changeType}>
