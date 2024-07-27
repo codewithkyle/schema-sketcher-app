@@ -1,19 +1,15 @@
 import SuperComponent from "@codewithkyle/supercomponent";
 import { html, render } from "lit-html";
-import EditorHeader from "~components/editor-header/editor-header";
 import "~components/main-menu/main-menu";
 import diagramController from "~controllers/diagram-controller";
 import env from "~brixi/controllers/env";
-import { Diagram } from "~types/diagram";
-import TableComponent from "~components/table-component/table-component";
+import "~components/table-component/table-component";
 import "~components/editor-controls/editor-controls";
 import { createSubscription, publish, subscribe } from "~lib/pubsub";
 import "~components/canvas-component/canvas-component";
 import ContextMenu from "~brixi/components/context-menu/context-menu";
 
-interface IEditorPage {
-    diagram: Diagram,
-}
+interface IEditorPage {}
 export default class EditorPage extends SuperComponent<IEditorPage>{
     private uid:string;
     private isMoving: boolean;
@@ -27,9 +23,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
 
     constructor(){
         super();
-        this.model = {
-            diagram: null,
-        };
         this.x = window.innerWidth / 2;
         this.y = (window.innerHeight - 64) / 2;
         this.scale = 1;
@@ -44,9 +37,8 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         window.addEventListener("keyup", this.handleKeyUp);
         await env.css(["editor-page"]);
         const diagram = diagramController.createDiagram();
-        this.set({
-            diagram: diagram,
-        });
+        this.uid = diagram.uid;
+        this.render();
     }
 
     private handleKeyDown:EventListener = (e:KeyboardEvent) => {
@@ -134,10 +126,11 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         canvas.setAttribute("cursor", type);
     }
 
-    private async spawn(type:"table"|"node"){
+    private spawn(type:"table"|"node"){
         switch(type){
             case "table":
-                await diagramController.createTable(this.placeX, this.placeY);
+                diagramController.createTable(this.placeX, this.placeY);
+                this.render();
                 break;
             default:
                 break;
@@ -195,10 +188,13 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
     
     override async render(){
-        //const tables = diagramController.getTables();
         const view = html`
             <canvas-component @contextmenu=${this.handleContextMenu}></canvas-component>
-            <div class="anchor"></div>
+            <div class="anchor">
+            ${diagramController.getTables().map(table => {
+                return html`<table-component data-uid="${table.uid}"></table-component>`;
+            })}
+            </div>
             <main-menu></main-menu>
             <editor-controls @move=${this.handleMove} data-is-moving="${this.isMoving}" data-scale="${this.scale}"></editor-controls>
         `;

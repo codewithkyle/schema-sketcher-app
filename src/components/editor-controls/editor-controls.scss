@@ -43,6 +43,21 @@ editor-controls {
             color: var(--grey-700);
         }
 
+        @media (prefers-color-scheme: dark){
+            background-color: var(--grey-800);
+            color: var(--grey-300);
+
+            &:hover{
+                background-color: var(--grey-700);
+                color: var(--white);
+            }
+
+            &:active{
+                background-color: var(--grey-600);
+                color: var(--white);
+            }
+        }
+
         svg{
             width: 18px;
             height: 18px;
@@ -85,6 +100,21 @@ editor-controls {
                 color: var(--grey-700);
             }
 
+            @media (prefers-color-scheme: dark){
+                background-color: var(--grey-800);
+                color: var(--grey-300);
+
+                &:hover{
+                    background-color: var(--grey-700);
+                    color: var(--white);
+                }
+
+                &:active{
+                    background-color: var(--grey-600);
+                    color: var(--white);
+                }
+            }
+
             svg{
                 width: 18px;
                 height: 18px;
@@ -105,6 +135,11 @@ editor-controls {
             background-color: var(--grey-200);
             cursor: default;
             user-select: none;
+
+            @media (prefers-color-scheme: dark){
+                background-color: var(--grey-800);
+                color: var(--grey-300);
+            }
         }
     }
 }

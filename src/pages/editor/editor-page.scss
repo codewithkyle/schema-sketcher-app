@@ -7,6 +7,10 @@ editor-page{
     position: relative;
     background-color: var(--grey-50);
 
+    @media (prefers-color-scheme: dark){
+        background-color: var(--grey-900);
+    }
+
     .anchor {
         position: absolute;
         width: 0px;

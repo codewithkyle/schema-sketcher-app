@@ -3,10 +3,11 @@ table-component{
     top: 0;
     left: 0;
     background-color: var(--white);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-black-sm);
     width: 320px;
     border-radius: 0.25rem;
     transition: box-shadow 80ms var(--ease-in-out);
+    outline-offset: 0px;
     
     &:hover,
     &:focus-within{
@@ -14,13 +15,20 @@ table-component{
     }
 
     &:hover{
-        box-shadow: var(--shadow-xl);
+        box-shadow: var(--shadow-black-md);
     }
 
     &:focus{
-        box-shadow: var(--shadow-xl), var(--focus-ring);
+        box-shadow: var(--shadow-black-lg);
+        outline: solid 4px var(--primary-400);
+        outline-offset: 6px;
+        transition: outline-offset 80ms var(--ease-out);
     }
-    
+
+    @media (prefers-color-scheme: dark){
+        background-color: var(--grey-800);
+    }
+
     .canvas:not([cursor="auto"]) & {
         pointer-events: none;
     }
@@ -35,9 +43,15 @@ table-component{
         padding: 0 0 0 1rem;
         background-color: var(--grey-50);
         border-radius: 0.25rem 0.25rem 0 0;
-        border-top: 0.5rem solid var(--pink-400);
+        border-top: 0.5rem solid var(--grey-400);
         border-bottom: 1px solid var(--grey-300);
         cursor: move;
+
+        @media (prefers-color-scheme: dark){
+            background-color: var(--grey-800);
+            border-top-color: var(--grey-700);
+            border-bottom-color: var(--grey-700);
+        }
 
         h4{
             user-select: none;
@@ -49,6 +63,10 @@ table-component{
             white-space: nowrap;
             text-overflow: ellipsis;
             padding-right: 0.5rem;
+
+            @media (prefers-color-scheme: dark){
+                color: var(--grey-300);
+            }
         }
     }
 
