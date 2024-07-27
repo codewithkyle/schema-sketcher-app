@@ -202,7 +202,6 @@ class DiagramController {
         const columns = Object.values(this.diagram.columns).filter(column => {
             return column.tableID === this.diagram.columns[columnID].tableID;
         });
-        console.log(columns.length);
         if (columns.length-1 === 0){
             this.deleteTable(this.diagram.columns[columnID].tableID);
         } else {

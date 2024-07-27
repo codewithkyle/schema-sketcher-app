@@ -182,12 +182,12 @@ export default class ColumnComponent extends Component<IColumnComponent>{
         this.style.order = `${this.model.weight}`;
         const view = html`
             ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -6px;`, this.model.uid, "left", this.model.tableID, [this.model.tableID, this.model.uid])}
-            <div @mouseup=${this.endDraw} tabindex="0" draggable="true" class="w-full" flex="row nowrap items-center">
+            <div @mouseup=${this.endDraw} tabindex="0" class="w-full" flex="row nowrap items-center">
                 <div flex="row nowrap items-center" style="flex:1;width:100%">
                     ${this.renderPrimaryKey()}
                     ${this.renderIndex()}
                     ${this.renderUnique()}
-                    <input type="text" ?autofocus=${this.model.name === ""} .value="${this.model.name}" @input=${this.handleNameInput} @keydown=${this.handleKeyboard}>
+                    <input type="text" .value="${this.model.name}" @input=${this.handleNameInput} @keydown=${this.handleKeyboard}>
                 </div>
                 <div flex="row nowrap items-center">
                     <select @change=${this.changeType}>

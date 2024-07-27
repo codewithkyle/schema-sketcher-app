@@ -235,7 +235,6 @@ export default class TableComponent extends Component<ITableComponent> {
     public focusLastColumn() {
         setTimeout(() => {
             const input = this.querySelector('column-component:last-of-type input') as HTMLInputElement;
-            console.log(input);
             if (input){
                 // @ts-ignore
                 document.activeElement?.blur();
