@@ -28,6 +28,9 @@ export default class CanvasComponent extends HTMLElement{
     private mousePos:Point;
     private ticketID: string;
     private forceHighlight: string;
+    private colorRef: {
+        [key:string]: string,
+    }
 
     constructor(){
         super();
@@ -39,6 +42,7 @@ export default class CanvasComponent extends HTMLElement{
         this.mousePos = null;
         this.lines = [];
         this.forceHighlight = null;
+        this.colorRef = {};
         env.css(["canvas-component"]);
         createSubscription("canvas");
         this.ticketID = subscribe("canvas", this.inbox.bind(this));
@@ -133,7 +137,7 @@ export default class CanvasComponent extends HTMLElement{
         }
     }
 
-    private drawLine(startX, startY, endX, endY, startSide, endSide){
+    private drawLine(startX, startY, endX, endY, startSide, endSide, aabbColor){
         let centerX = (startX + endX) * 0.5;
         let centerY = (startY + endY) * 0.5;
         this.ctx.beginPath();
@@ -168,7 +172,7 @@ export default class CanvasComponent extends HTMLElement{
             }
 
             // AABB hit detection
-            this.hitCTX.fillStyle = "red";
+            this.hitCTX.fillStyle = aabbColor;
             this.hitCTX.fillRect(centerX, startY - 8, Math.abs(startX - centerX), 16);
             this.hitCTX.fillRect(centerX, endY - 8, Math.abs(endX - centerX), 16);
             if (endY < startY){
@@ -208,7 +212,7 @@ export default class CanvasComponent extends HTMLElement{
             }
 
             // AABB hit detection
-            this.hitCTX.fillStyle = "red";
+            this.hitCTX.fillStyle = aabbColor;
             this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
             this.hitCTX.fillRect(endX, endY - 8, Math.abs(endX - centerX), 16);
             if (endY < startY){
@@ -249,7 +253,7 @@ export default class CanvasComponent extends HTMLElement{
             }
 
             // AABB hit detection
-            this.hitCTX.fillStyle = "red";
+            this.hitCTX.fillStyle = aabbColor;
             this.hitCTX.fillRect(startX - 16, startY - 8, 16, 16);
             this.hitCTX.fillRect(endX, endY - 8, 16, 16);
             this.hitCTX.fillRect(startX - 24, centerY - 8, Math.abs(endX - startX) + 32, 16);
@@ -293,7 +297,7 @@ export default class CanvasComponent extends HTMLElement{
             }
 
             // AABB hit detection
-            this.hitCTX.fillStyle = "red";
+            this.hitCTX.fillStyle = aabbColor;
             this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
             this.hitCTX.fillRect(endX - 16, endY - 8, Math.abs(endX - centerX), 16);
             this.hitCTX.fillRect(endX - 24, centerY - 8, Math.abs(endX - startX) + 32, 16);
@@ -324,7 +328,7 @@ export default class CanvasComponent extends HTMLElement{
             }
 
             // AABB hit detection
-            this.hitCTX.fillStyle = "red";
+            this.hitCTX.fillStyle = aabbColor;
             if (startSide === "right" && endSide === "left"){
                 this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
                 this.hitCTX.fillRect(centerX, endY - 8, Math.abs(endX - centerX), 16);
@@ -446,6 +450,10 @@ export default class CanvasComponent extends HTMLElement{
         return el as HTMLElement;
     }
 
+    private randomColour(){
+        return `#${Math.floor(Math.random()*16777215).toString(16)}`;
+    }
+
     private async eventLoop() {
         const newTime = performance.now();
         const deltaTime = (newTime - this.oldTime) / 1000;
@@ -491,7 +499,7 @@ export default class CanvasComponent extends HTMLElement{
                 const startBounds = startEl.getBoundingClientRect();
                 const startX = startBounds.x - bounds.x + startBounds.width * 0.5;
                 const startY = startBounds.y - bounds.y + startBounds.height * 0.5;
-                this.drawLine(startX, startY, endX - bounds.x, endY - bounds.y, startSide, endSide);
+                this.drawLine(startX, startY, endX - bounds.x, endY - bounds.y, startSide, endSide, "#000000");
             }
         }
         catch (e){
@@ -503,6 +511,10 @@ export default class CanvasComponent extends HTMLElement{
             try {
                 const startColumnEL:HTMLElement = this.getElement(`[data-uid="${this.lines[i].startNodeID}"]`);
                 const endColumnEL:HTMLElement = this.getElement(`[data-uid="${this.lines[i].endNodeID}"]`);
+
+                if (!(this.lines[i].uid in this.colorRef)){
+                    this.colorRef[this.lines[i].uid] = this.randomColour();
+                }
 
                 const startColumnBounds = startColumnEL.getBoundingClientRect();
                 const endColumnBounds = endColumnEL.getBoundingClientRect();
@@ -675,7 +687,7 @@ export default class CanvasComponent extends HTMLElement{
                 const { x: startX, y: startY } = line.start;
                 const { x: endX, y: endY } = line.end;
                 this.ctx.strokeStyle = LINE_COLOUR;
-                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide);
+                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide, this.colorRef[line.uid]);
             }
         }    
         
@@ -686,7 +698,7 @@ export default class CanvasComponent extends HTMLElement{
                 const { x: startX, y: startY } = line.start;
                 const { x: endX, y: endY } = line.end;
                 this.ctx.strokeStyle = LINE_HOVER_COLOUR;
-                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide);
+                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide, this.colorRef[line.uid]);
             }
         }
 

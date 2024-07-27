@@ -6,6 +6,7 @@ export interface Connection {
     endNodeID: string,
     type: ConnectionType,
     refs: Array<string>,
+    color: string,
 }
 
 export interface Column {
