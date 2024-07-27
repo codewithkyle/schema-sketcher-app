@@ -169,13 +169,13 @@ export default class CanvasComponent extends HTMLElement{
 
             // AABB hit detection
             this.hitCTX.fillStyle = "red";
-            this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
+            this.hitCTX.fillRect(centerX, startY - 8, Math.abs(startX - centerX), 16);
             this.hitCTX.fillRect(centerX, endY - 8, Math.abs(endX - centerX), 16);
             if (endY < startY){
-                this.hitCTX.fillRect(centerX + offsetX, endY - 8, 16, Math.abs(startY - endY) + 16);
+                this.hitCTX.fillRect(centerX - 8, endY - 8, 16, Math.abs(startY - endY) + 16);
             }
             else {
-                this.hitCTX.fillRect(centerX + offsetX, startY - 8, 16, Math.abs(startY - endY) + 16);
+                this.hitCTX.fillRect(centerX - 8, startY - 8, 16, Math.abs(startY - endY) + 16);
             }
         }
         else if (startSide === "right" && endSide === "right"){
@@ -205,6 +205,17 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(centerX, startY);
                 this.ctx.lineTo(centerX, endY);
                 this.ctx.lineTo(endX, endY);
+            }
+
+            // AABB hit detection
+            this.hitCTX.fillStyle = "red";
+            this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
+            this.hitCTX.fillRect(endX, endY - 8, Math.abs(endX - centerX), 16);
+            if (endY < startY){
+                this.hitCTX.fillRect(centerX - 8, endY - 8, 16, Math.abs(startY - endY) + 16);
+            }
+            else {
+                this.hitCTX.fillRect(centerX - 8, startY - 8, 16, Math.abs(startY - endY) + 16);
             }
         }
         else if (startSide === "left" && endSide === "right" && startX <= endX){
@@ -236,6 +247,20 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.arcTo(endX + 16, endY, endX - 8, endY, 8);
                 this.ctx.lineTo(endX, endY);
             }
+
+            // AABB hit detection
+            this.hitCTX.fillStyle = "red";
+            this.hitCTX.fillRect(startX - 16, startY - 8, 16, 16);
+            this.hitCTX.fillRect(endX, endY - 8, 16, 16);
+            this.hitCTX.fillRect(startX - 24, centerY - 8, Math.abs(endX - startX) + 32, 16);
+            if (endY < startY){
+                this.hitCTX.fillRect(centerX - 8, centerY - 8, 16, (Math.abs(startY - endY) * 0.5) + 16);
+                this.hitCTX.fillRect(endX + 8, endY - 8, 16, (Math.abs(startY - endY) * 0.5) + 16);
+            }
+            else {
+                this.hitCTX.fillRect(startX - 32, startY - 8, 16, (Math.abs(startY - endY) * 0.5) + 16);
+                this.hitCTX.fillRect(endX + 8, centerY - 8, 16, (Math.abs(startY - endY) * 0.5) + 16);
+            }
         }
         else if (startSide === "right" && endSide === "left" && endX <= startX){
             if (startX >= endX){
@@ -266,6 +291,20 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.arcTo(endX - 16, endY, endX + 8, endY, 8);
                 this.ctx.lineTo(endX, endY);
             }
+
+            // AABB hit detection
+            this.hitCTX.fillStyle = "red";
+            this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
+            this.hitCTX.fillRect(endX - 16, endY - 8, Math.abs(endX - centerX), 16);
+            this.hitCTX.fillRect(endX - 24, centerY - 8, Math.abs(endX - startX) + 32, 16);
+            if (endY < startY){
+                this.hitCTX.fillRect(centerX - 8, centerY - 8, 16, (Math.abs(startY - endY) * 0.5) + 16);
+                this.hitCTX.fillRect(endX - 24, endY - 8, 16, (Math.abs(startY - endY) * 0.5) + 16);
+            }
+            else {
+                this.hitCTX.fillRect(centerX - 8, startY - 8, 16, (Math.abs(startY - endY) * 0.5) + 16);
+                this.hitCTX.fillRect(endX - 24, centerY - 8, 16, (Math.abs(startY - endY) * 0.5) + 16);
+            }
         }
         else if (startSide === "right" && endSide === "left" || startSide === "left" && endSide === "right") {
             const offsetY = endY >= startY ? -8 : 8;
@@ -286,104 +325,115 @@ export default class CanvasComponent extends HTMLElement{
 
             // AABB hit detection
             this.hitCTX.fillStyle = "red";
-            this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
-            this.hitCTX.fillRect(centerX, endY - 8, Math.abs(endX - centerX), 16);
-            if (endY < startY){
-                this.hitCTX.fillRect(centerX + offsetX, endY - 8, 16, Math.abs(startY - endY) + 16);
-            }
-            else {
-                this.hitCTX.fillRect(centerX + offsetX, startY - 8, 16, Math.abs(startY - endY) + 16);
-            }
-        }
-        else if (startSide === "bottom" && endSide === "top"){
-            const centerY = (endY + startY) * 0.5;
-            if (Math.abs(startX - endX) >= 16){
-                if (endX < startX){
-                    this.ctx.lineTo(startX, centerY - 8);
-                    this.ctx.arcTo(startX, centerY, startX - 8, centerY, 8);
-                    this.ctx.lineTo(endX + 8, centerY);
-                    this.ctx.arcTo(endX, centerY, endX, centerY + 8, 8);
-                    this.ctx.lineTo(endX, endY);
+            if (startSide === "right" && endSide === "left"){
+                this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
+                this.hitCTX.fillRect(centerX, endY - 8, Math.abs(endX - centerX), 16);
+                if (endY < startY){
+                    this.hitCTX.fillRect(centerX + offsetX, endY - 8, 16, Math.abs(startY - endY) + 16);
                 }
                 else {
-                    this.ctx.lineTo(startX, centerY - 8);
-                    this.ctx.arcTo(startX, centerY, startX + 8, centerY, 8);
-                    this.ctx.lineTo(endX - 8, centerY);
-                    this.ctx.arcTo(endX, centerY, endX, centerY + 8, 8);
-                    this.ctx.lineTo(endX, endY);
+                    this.hitCTX.fillRect(centerX + offsetX, startY - 8, 16, Math.abs(startY - endY) + 16);
+                }
+            } else {
+                this.hitCTX.fillRect(endX, endY - 8, Math.abs(endX - centerX), 16);
+                this.hitCTX.fillRect(centerX, startY - 8, Math.abs(startX - centerX), 16);
+                if (endY < startY){
+                    this.hitCTX.fillRect(centerX - 8, endY - 8, 16, Math.abs(startY - endY) + 16);
+                }
+                else {
+                    this.hitCTX.fillRect(centerX - 8, startY - 8, 16, Math.abs(startY - endY) + 16);
                 }
             }
-            else {
-                this.ctx.lineTo(startX, centerY);
-                this.ctx.lineTo(endX, centerY);
-                this.ctx.lineTo(endX, endY);
-            }
+        }
+        //else if (startSide === "bottom" && endSide === "top"){
+            //const centerY = (endY + startY) * 0.5;
+            //if (Math.abs(startX - endX) >= 16){
+                //if (endX < startX){
+                    //this.ctx.lineTo(startX, centerY - 8);
+                    //this.ctx.arcTo(startX, centerY, startX - 8, centerY, 8);
+                    //this.ctx.lineTo(endX + 8, centerY);
+                    //this.ctx.arcTo(endX, centerY, endX, centerY + 8, 8);
+                    //this.ctx.lineTo(endX, endY);
+                //}
+                //else {
+                    //this.ctx.lineTo(startX, centerY - 8);
+                    //this.ctx.arcTo(startX, centerY, startX + 8, centerY, 8);
+                    //this.ctx.lineTo(endX - 8, centerY);
+                    //this.ctx.arcTo(endX, centerY, endX, centerY + 8, 8);
+                    //this.ctx.lineTo(endX, endY);
+                //}
+            //}
+            //else {
+                //this.ctx.lineTo(startX, centerY);
+                //this.ctx.lineTo(endX, centerY);
+                //this.ctx.lineTo(endX, endY);
+            //}
             
-        }
-        else if (startSide === "top" && endSide === "bottom"){
-            const centerY = (startY + endY) * 0.5;
-            if (Math.abs(startX - endX) >= 16){
-                if (endX >= startX){
-                    this.ctx.lineTo(startX, centerY + 8);
-                    this.ctx.arcTo(startX, centerY, startX + 8, centerY, 8);
-                    this.ctx.lineTo(endX - 8, centerY);
-                    this.ctx.arcTo(endX, centerY, endX, centerY - 8, 8);
-                    this.ctx.lineTo(endX, endY);
-                }
-                else {
-                    this.ctx.lineTo(startX, centerY + 8);
-                    this.ctx.arcTo(startX, centerY, startX - 8, centerY, 8);
-                    this.ctx.lineTo(endX + 8, centerY);
-                    this.ctx.arcTo(endX, centerY, endX, centerY - 8, 8);
-                    this.ctx.lineTo(endX, endY);
-                }
-            }
-            else {
-                this.ctx.lineTo(startX, centerY);
-                this.ctx.lineTo(endX, centerY);
-                this.ctx.lineTo(endX, endY);
-            }
-        }
-        else if (startSide === "right" && endSide === "top"){
-            this.ctx.lineTo(endX - 8, startY);
-            this.ctx.arcTo(endX, startY, endX, startY + 8, 8);
-            this.ctx.lineTo(endX, endY);
-        }
-        else if (startSide === "right" && endSide === "bottom"){
-            this.ctx.lineTo(endX - 8, startY);
-            this.ctx.arcTo(endX, startY, endX, startY - 8, 8);
-            this.ctx.lineTo(endX, endY);
-        }
-        else if (startSide === "left" && endSide === "top"){
-            this.ctx.lineTo(endX + 8, startY);
-            this.ctx.arcTo(endX, startY, endX, startY + 8, 8);
-            this.ctx.lineTo(endX, endY);
-        }
-        else if (startSide === "left" && endSide === "bottom"){
-            this.ctx.lineTo(endX + 8, startY);
-            this.ctx.arcTo(endX, startY, endX, startY - 8, 8);
-            this.ctx.lineTo(endX, endY);
-        }
-        else if (startSide === "bottom" && endSide === "left"){
-            this.ctx.lineTo(startX, endY - 8);
-            this.ctx.arcTo(startX, endY, endX - 8, endY, 8);
-            this.ctx.lineTo(endX, endY);
-        }
-        else if (startSide === "bottom" && endSide === "right"){
-            this.ctx.lineTo(startX, endY - 8);
-            this.ctx.arcTo(startX, endY, endX + 8, endY, 8);
-            this.ctx.lineTo(endX, endY);
-        }
-        else if (startSide === "top" && endSide === "left"){
-            this.ctx.lineTo(startX, endY - 8);
-            this.ctx.arcTo(startX, endY, endX - 8, endY, 8);
-            this.ctx.lineTo(endX, endY);
-        }
-        else if (startSide === "top" && endSide === "left"){
-            this.ctx.lineTo(startX, endY - 8);
-            this.ctx.arcTo(startX, endY, endX + 8, endY, 8);
-            this.ctx.lineTo(endX, endY);
-        }
+        //}
+        //else if (startSide === "top" && endSide === "bottom"){
+            //const centerY = (startY + endY) * 0.5;
+            //if (Math.abs(startX - endX) >= 16){
+                //if (endX >= startX){
+                    //this.ctx.lineTo(startX, centerY + 8);
+                    //this.ctx.arcTo(startX, centerY, startX + 8, centerY, 8);
+                    //this.ctx.lineTo(endX - 8, centerY);
+                    //this.ctx.arcTo(endX, centerY, endX, centerY - 8, 8);
+                    //this.ctx.lineTo(endX, endY);
+                //}
+                //else {
+                    //this.ctx.lineTo(startX, centerY + 8);
+                    //this.ctx.arcTo(startX, centerY, startX - 8, centerY, 8);
+                    //this.ctx.lineTo(endX + 8, centerY);
+                    //this.ctx.arcTo(endX, centerY, endX, centerY - 8, 8);
+                    //this.ctx.lineTo(endX, endY);
+                //}
+            //}
+            //else {
+                //this.ctx.lineTo(startX, centerY);
+                //this.ctx.lineTo(endX, centerY);
+                //this.ctx.lineTo(endX, endY);
+            //}
+        //}
+        //else if (startSide === "right" && endSide === "top"){
+            //this.ctx.lineTo(endX - 8, startY);
+            //this.ctx.arcTo(endX, startY, endX, startY + 8, 8);
+            //this.ctx.lineTo(endX, endY);
+        //}
+        //else if (startSide === "right" && endSide === "bottom"){
+            //this.ctx.lineTo(endX - 8, startY);
+            //this.ctx.arcTo(endX, startY, endX, startY - 8, 8);
+            //this.ctx.lineTo(endX, endY);
+        //}
+        //else if (startSide === "left" && endSide === "top"){
+            //this.ctx.lineTo(endX + 8, startY);
+            //this.ctx.arcTo(endX, startY, endX, startY + 8, 8);
+            //this.ctx.lineTo(endX, endY);
+        //}
+        //else if (startSide === "left" && endSide === "bottom"){
+            //this.ctx.lineTo(endX + 8, startY);
+            //this.ctx.arcTo(endX, startY, endX, startY - 8, 8);
+            //this.ctx.lineTo(endX, endY);
+        //}
+        //else if (startSide === "bottom" && endSide === "left"){
+            //this.ctx.lineTo(startX, endY - 8);
+            //this.ctx.arcTo(startX, endY, endX - 8, endY, 8);
+            //this.ctx.lineTo(endX, endY);
+        //}
+        //else if (startSide === "bottom" && endSide === "right"){
+            //this.ctx.lineTo(startX, endY - 8);
+            //this.ctx.arcTo(startX, endY, endX + 8, endY, 8);
+            //this.ctx.lineTo(endX, endY);
+        //}
+        //else if (startSide === "top" && endSide === "left"){
+            //this.ctx.lineTo(startX, endY - 8);
+            //this.ctx.arcTo(startX, endY, endX - 8, endY, 8);
+            //this.ctx.lineTo(endX, endY);
+        //}
+        //else if (startSide === "top" && endSide === "left"){
+            //this.ctx.lineTo(startX, endY - 8);
+            //this.ctx.arcTo(startX, endY, endX + 8, endY, 8);
+            //this.ctx.lineTo(endX, endY);
+        //}
         else {
             this.ctx.lineTo(endX, endY);
             console.warn(`missing type: ${startSide} ${endSide}`);
