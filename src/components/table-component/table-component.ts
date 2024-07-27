@@ -61,7 +61,7 @@ export default class TableComponent extends Component<ITableComponent> {
         this.tabIndex = 0;
         this.setAttribute("aria-label", `use arrow keys to nudge table ${this.model.name}`);
         window.addEventListener("keydown", this.handleKeyboard, { passive: false, capture: true });
-        window.addEventListener("mousemove", this.mouseMove, { passive: true, capture: true });
+        window.addEventListener("mousemove", this.mouseMove, { passive: false, capture: true });
         window.addEventListener("mouseup", this.mouseUp, { passive: true, capture: true });
         await env.css(["table-component", "overflow-menu"]);
         const settings = parseDataset(this.dataset, this.model);
