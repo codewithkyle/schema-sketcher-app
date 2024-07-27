@@ -74,6 +74,28 @@ column-component{
         }
     }
 
+    @media (prefers-color-scheme: dark){
+        &:hover{
+            background-color: var(--grey-700);
+
+            *{
+                color: var(--primary-400);
+            }
+        }
+
+        &:focus-within{
+            background-color: var(--grey-800);
+
+            *{
+                color: var(--primary-400);
+            }
+        }
+
+        &.is-disabled{
+            background-color: var(--grey-900);
+        }
+    }
+
     input {
         width: 100%;
         flex: 1;
@@ -86,6 +108,10 @@ column-component{
 
         &:focus{
             box-shadow: var(--focus-ring);
+        }
+
+        @media (prefers-color-scheme: dark){
+            color: var(--grey-300);
         }
     }
 
@@ -108,7 +134,7 @@ column-component{
         }
     }
 
-    button{
+    i{
         width: 28px;
         height: 28px;
         position: relative;
@@ -118,40 +144,13 @@ column-component{
         transition: all 80ms var(--ease-in-out);
         color: var(--grey-500);
 
-        &:disabled{
-            width: 24px;
-            height: 24px;
-        }
-
-        &::before{
-            content:"";
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            border-radius: 0.25rem;
-            background-color: var(--primary-500);
-            opacity: 0;
-            transition: all 80ms var(--ease-in-out);
-        }
-
-        &.is-active,
-        &:hover{
-            color: var(--primary-500);
-
-            &::before{
-                opacity: 0.07;
-            }
-        }
-
-        &:active{
-            &::before{
-                opacity: 0.15;
-            }
+        @media (prefers-color-scheme: dark){
+            color: var(--grey-300);
         }
 
         svg{
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             display: inline-block;
             position: absolute;
         }

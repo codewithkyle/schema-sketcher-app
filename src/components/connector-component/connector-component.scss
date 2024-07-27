@@ -16,4 +16,14 @@ connector-component{
         border-color: var(--primary-500);
         background-color: var(--primary-200);
     }
+
+    @media (prefers-color-scheme: dark){
+        border-color: var(--grey-500);
+        background-color: var(--grey-500);
+
+        &:hover{
+            border-color: var(--primary-300);
+            background-color: var(--primary-400);
+        }
+    }
 }

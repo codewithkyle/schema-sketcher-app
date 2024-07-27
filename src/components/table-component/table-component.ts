@@ -1,5 +1,5 @@
 import { html, render } from "lit-html";
-import ColumnComponent from "./column-component/column-component";
+import "./column-component/column-component";
 import env from "~brixi/controllers/env";
 import { publish, subscribe } from "~lib/pubsub";
 import type { Column, Table } from "~types/diagram";
@@ -13,7 +13,6 @@ interface ITableComponent extends Table {
 }
 export default class TableComponent extends Component<ITableComponent> {
     private isMoving: boolean;
-    private focusLastColumn: boolean;
     private diagramID: string;
     private wasMoved: boolean;
     private zoom: number;
@@ -26,7 +25,6 @@ export default class TableComponent extends Component<ITableComponent> {
         super();
         this.zoom = 1;
         this.wasMoved = false;
-        this.focusLastColumn = false;
         this.pos1 = 0;
         this.pos2 = 0;
         this.pos3 = 0;
@@ -220,15 +218,6 @@ export default class TableComponent extends Component<ITableComponent> {
         }
     };
 
-    private addColumn = (focusColumn) => {
-        diagramController.createColumn(this.model.uid);
-        // @ts-ignore
-        document.activeElement?.blur();
-        if (typeof focusColumn === "boolean" && focusColumn === true) {
-            this.focusLastColumn = true;
-        }
-    };
-
     private toggleColumnSettings: EventListener = () => {
         // @ts-ignore
         document.activeElement?.blur();
@@ -243,37 +232,31 @@ export default class TableComponent extends Component<ITableComponent> {
         }
     };
 
+    public focusLastColumn() {
+        setTimeout(() => {
+            const input = this.querySelector('column-component:last-of-type input') as HTMLInputElement;
+            console.log(input);
+            if (input){
+                // @ts-ignore
+                document.activeElement?.blur();
+                input.focus();
+            }
+        }, 80);
+    }
+
     override async render() {
         this.style.transform = `translate(${this.dataset.left}px, ${this.dataset.top}px)`;
         const view = html`
             <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseenter=${this.handleMouseEnter} @mouseleave=${this.handleMouseLeave}>
                 <h4 @dblclick=${this.renameTable} title="${this.model.name}">${this.model.name}</h4>
             </header>
-            <columns-container></columns-container>
+            <columns-container>
+                ${diagramController.getColumnsByTable(this.model.uid).map((column: Column) => {
+                    return html`<column-component data-uid="${column.uid}"></column-component>`;
+                })}
+            </columns-container>
         `;
         render(view, this);
-        //setTimeout(async () => {
-            //const orderedColumns = await db.query("SELECT * FROM columns WHERE diagramID = $diagramID AND tableID = $tableID ORDER BY weight", {
-                //diagramID: this.diagramID,
-                //tableID: this.model.uid,
-            //});
-            //const container = this.querySelector("columns-container") as HTMLElement;
-            //container.innerHTML = "";
-            //orderedColumns.map((column) => {
-                //const newColumn = new ColumnComponent(column, this.model.showAllColumnOptions, this.model.uid);
-                //container.appendChild(newColumn);
-            //});
-        //}, 80);
     }
-
-    //override updated() {
-        //setTimeout(() => {
-            //if (this.focusLastColumn) {
-                //this.focusLastColumn = false;
-                //// @ts-ignore
-                //this.querySelector("column-component:last-of-type input")?.focus();
-            //}
-        //}, 80);
-    //}
 }
 env.bind("table-component", TableComponent);

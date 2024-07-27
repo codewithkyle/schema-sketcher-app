@@ -150,7 +150,11 @@ class DiagramController {
         this.ID = uid;
         const types = {};
         TYPES.map(type => {
-            types[UUID()] = type;
+            const uid = UUID();
+            types[uid] = {
+                name: type,
+                uid: uid,
+            };
         });
         this.diagram = {
             uid: uid,
@@ -175,23 +179,53 @@ class DiagramController {
             y: placeY,
         };
         this.diagram.tables[uid] = table;
-        this.createColumn(uid);
+        this.createColumn(uid, "id", true);
     }
 
-    public createColumn(tableID:string){
+    public createColumn(tableID:string, name = "", primaryKey = false){
         const columnUid = UUID();
         const column:Column = {
-            name: "id",
-            type: "",
+            name: name,
+            type: this.diagram.types[Object.keys(this.diagram.types)[0]].uid,
             isNullable: false,
             isUnique: false,
             isIndex: false,
-            isPrimaryKey: true,
+            isPrimaryKey: primaryKey,
             weight: 0,
             uid: columnUid,
             tableID: tableID,
         };
         this.diagram.columns[columnUid] = column;
+    }
+
+    public deleteColumn(columnID:string){
+        const columns = Object.values(this.diagram.columns).filter(column => {
+            return column.tableID === this.diagram.columns[columnID].tableID;
+        });
+        console.log(columns.length);
+        if (columns.length-1 === 0){
+            this.deleteTable(this.diagram.columns[columnID].tableID);
+        } else {
+            this.deleteElement(columnID);
+            delete this.diagram.columns[columnID];
+        }
+        publish("canvas", {
+            type: "reload",
+        });
+    }
+
+    public getColumnsByTable(tableID:string):Array<Column>{
+        const columns = Object.values(this.diagram.columns).filter(column => {
+            return column.tableID === tableID;
+        });
+        columns.sort((a, b) => {
+            return a.weight - b.weight;
+        });
+        return columns;
+    }
+
+    public getColumn(uid:string):Column{
+        return this.diagram.columns[uid];
     }
 
     public renameTable(uid:string, value:string){
@@ -228,7 +262,7 @@ class DiagramController {
     }
 
     public getTypes():Array<ColumnType>{
-        return [];
+        return Object.values(this.diagram.types);
     }
 
     public deleteType(uid:string){
@@ -256,6 +290,7 @@ class DiagramController {
 
     public deleteTable(tableID:string){
         delete this.diagram.tables[tableID];
+        this.deleteElement(tableID);
         const columnIDs = Object.keys(this.diagram.columns).filter(columnID => {
             return this.diagram.columns[columnID].tableID === tableID;
         });
@@ -271,6 +306,10 @@ class DiagramController {
         publish("canvas", {
             type: "reload",
         });
+    }
+
+    private deleteElement(uid:string){
+        document.body.querySelector(`[data-uid="${uid}"]`)?.remove();
     }
 }
 const diagramController = new DiagramController();
