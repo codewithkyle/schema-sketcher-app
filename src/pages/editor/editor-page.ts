@@ -3,7 +3,7 @@ import { html, render } from "lit-html";
 import "~components/main-menu/main-menu";
 import diagramController from "~controllers/diagram-controller";
 import env from "~brixi/controllers/env";
-import "~components/table-component/table-component";
+import TableComponent from "~components/table-component/table-component";
 import "~components/editor-controls/editor-controls";
 import { createSubscription, publish, subscribe } from "~lib/pubsub";
 import "~components/canvas-component/canvas-component";
@@ -190,22 +190,19 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     override async render(){
         const view = html`
             <canvas-component @contextmenu=${this.handleContextMenu}></canvas-component>
-            <div class="anchor">
-            ${diagramController.getTables().map(table => {
-                return html`<table-component data-uid="${table.uid}"></table-component>`;
-            })}
-            </div>
+            <div class="anchor"></div>
             <main-menu></main-menu>
             <editor-controls @move=${this.handleMove} data-is-moving="${this.isMoving}" data-scale="${this.scale}"></editor-controls>
         `;
         render(view, this);
-        //setTimeout(()=>{
-            //const anchor = this.querySelector(".js-anchor");
-            //tables.map(table => {
-                //const el = new TableComponent(table, this.model.diagram.uid);
-                //anchor.appendChild(el);
-            //});
-        //}, 80);
+        const anchor = this.querySelector(".anchor");
+        diagramController.getTables().map(table => {
+            const el:HTMLElement = anchor.querySelector(`[data-uid="${table.uid}"]`) || new TableComponent();
+            if (!el.isConnected){
+                el.dataset.uid = table.uid;
+                anchor.appendChild(el);
+            }
+        });
     }
 }
 env.bind("editor-page", EditorPage);

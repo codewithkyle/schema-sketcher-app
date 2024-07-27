@@ -216,13 +216,8 @@ export default class TableComponent extends Component<ITableComponent> {
             this.set({
                 name: newName,
             });
+            diagramController.renameTable(this.model.uid, newName);
         }
-    };
-
-    private deleteTable: EventListener = (e: Event) => {
-        // @ts-ignore
-        document.activeElement?.blur();
-        this.confirmDelete();
     };
 
     private addColumn = (focusColumn) => {
@@ -232,10 +227,6 @@ export default class TableComponent extends Component<ITableComponent> {
         if (typeof focusColumn === "boolean" && focusColumn === true) {
             this.focusLastColumn = true;
         }
-    };
-
-    private noop: EventListener = (e: Event) => {
-        e.stopImmediatePropagation();
     };
 
     private toggleColumnSettings: EventListener = () => {
@@ -256,7 +247,7 @@ export default class TableComponent extends Component<ITableComponent> {
         this.style.transform = `translate(${this.dataset.left}px, ${this.dataset.top}px)`;
         const view = html`
             <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseenter=${this.handleMouseEnter} @mouseleave=${this.handleMouseLeave}>
-                <h4 title="${this.model.name}">${this.model.name}</h4>
+                <h4 @dblclick=${this.renameTable} title="${this.model.name}">${this.model.name}</h4>
             </header>
             <columns-container></columns-container>
         `;

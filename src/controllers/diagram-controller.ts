@@ -125,10 +125,12 @@ class DiagramController {
     private diagram:Diagram;
     private movingColumnUID:string;
     public ID:string;
+    private tableCount:number;
 
     constructor(){
         this.movingColumnUID = null;
         this.ID = null;
+        this.tableCount = 0;
     }
     
     private getRandomColor():string{
@@ -167,7 +169,7 @@ class DiagramController {
         const uid = UUID();
         const table:Table = {
             uid: uid,
-            name: `table_${Object.keys(this.diagram.tables).length + 1}`,
+            name: `table_${++this.tableCount}`,
             color: this.getRandomColor(),
             x: placeX,
             y: placeY,
@@ -190,6 +192,10 @@ class DiagramController {
             tableID: tableID,
         };
         this.diagram.columns[columnUid] = column;
+    }
+
+    public renameTable(uid:string, value:string){
+        this.diagram.tables[uid].name = value;
     }
     
     public async createNode(placeX:number, placeY:number){
@@ -249,6 +255,13 @@ class DiagramController {
     }
 
     public deleteTable(tableID:string){
+        delete this.diagram.tables[tableID];
+        const columnIDs = Object.keys(this.diagram.columns).filter(columnID => {
+            return this.diagram.columns[columnID].tableID === tableID;
+        });
+        columnIDs.map(columnID => {
+            delete this.diagram.columns[columnID];
+        });
         publish("canvas", {
             type: "reload",
         });
