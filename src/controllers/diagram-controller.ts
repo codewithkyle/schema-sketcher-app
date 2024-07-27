@@ -271,7 +271,7 @@ class DiagramController {
     }
 
     public getConnections():Array<Connection>{
-        return [];
+        return Object.values(this.diagram.connections);
     }
 
     public getTypes():Array<ColumnType>{
@@ -279,6 +279,7 @@ class DiagramController {
     }
 
     public deleteType(uid:string){
+        delete this.diagram.types[uid];
     }
 
     public createType(value = ""){
