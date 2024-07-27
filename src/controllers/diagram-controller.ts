@@ -1,5 +1,5 @@
 import { UUID } from "@codewithkyle/uuid";
-import { Connection, Diagram, Node, Table, Column, ColumnType } from "~types/diagram";
+import { Connection, Diagram, Node, Table, Column, ColumnType, ConnectionType } from "~types/diagram";
 import { publish } from "@codewithkyle/pubsub";
 
 const TYPES = ["int", "bigint", "binary", "blob", "boolean", "char", "date", "datetime", "decimal", "double", "enum", "float", "geometry", "json", "bson", "longtext", "mediumint", "mediumtext", "multipoint", "point", "smallint", "time", "text", "timestamp", "tinyint", "uuid", "varchar"];
@@ -273,6 +273,10 @@ class DiagramController {
 
     public getConnections():Array<Connection>{
         return Object.values(this.diagram.connections);
+    }
+
+    public updateConnectionType(uid:string, type:ConnectionType){
+        this.diagram.connections[uid].type = type;
     }
 
     public getTypes():Array<ColumnType>{

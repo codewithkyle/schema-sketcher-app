@@ -1,8 +1,9 @@
 import env from "~brixi/controllers/env";
 import { createSubscription, subscribe, unsubscribe } from "~lib/pubsub";
-import type { Connection, Point } from "~types/diagram";
+import type { Connection, ConnectionType, Point } from "~types/diagram";
 import debounce from "../../utils/debounce";
 import diagramController from "~controllers/diagram-controller";
+import ContextMenu from "~brixi/components/context-menu/context-menu";
 
 const LINE_COLOUR = "#9CA3AF";
 const LINE_HOVER_COLOUR = "#EC4899";
@@ -68,6 +69,7 @@ export default class CanvasComponent extends HTMLElement{
         this.hitCTX = this.hitCanvas.getContext("2d");
         window.addEventListener("mousemove", this.handleMouseMove);
         window.addEventListener("mousedown", this.endMouseMove);
+        window.addEventListener("contextmenu", this.onContextMenu);
         window.addEventListener("resize", debounce(()=>{
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
@@ -85,8 +87,55 @@ export default class CanvasComponent extends HTMLElement{
         window.removeEventListener("mousedown", this.endMouseMove);
     }
 
+    private onContextMenu: EventListener = (e:MouseEvent) => {
+        e.preventDefault();
+        if (this.openStartPoint === null && this.activeLineId !== null && e instanceof MouseEvent){
+            const lineId = this.activeLineId;
+            const x = e.clientX;
+            const y = e.clientY;
+            new ContextMenu({
+                items: [
+                    {
+                        label: "One-to-one",
+                        callback: () => {
+                            diagramController.updateConnectionType(lineId, "one-one");
+                        }
+                    },
+                    null,
+                    {
+                        label: "One-to-many",
+                        callback: () => {
+                            diagramController.updateConnectionType(lineId, "one-many");
+                        },
+                    },
+                    {
+                        label: "Many-to-one",
+                        callback: () => {
+                            diagramController.updateConnectionType(lineId, "many-one");
+                        },
+                    },
+                    {
+                        label: "Many-to-many",
+                        callback: () => {
+                            diagramController.updateConnectionType(lineId, "many-many");
+                        },
+                    },
+                ],
+                x: x, 
+                y: y,
+            });
+        }
+    }
+
     private endMouseMove:EventListener = (e:MouseEvent) => {
         this.openStartPoint = null;
+    }
+
+    private handleMouseMove:EventListener = (e:MouseEvent) => {
+        this.mousePos = {
+            x: e.clientX,
+            y: e.clientY,
+        };
         const px = this.hitCTX.getImageData(e.clientX, e.clientY, 1, 1);
         const data = px.data;
         const color = `rgb(${data[0]},${data[1]},${data[2]})`;
@@ -100,13 +149,6 @@ export default class CanvasComponent extends HTMLElement{
         } else {
             this.activeLineId = null;
         }
-    }
-
-    private handleMouseMove:EventListener = (e:MouseEvent) => {
-        this.mousePos = {
-            x: e.clientX,
-            y: e.clientY,
-        };
     }
 
     private startNewLine(x:number, y:number, id:string, tableID:string, refs: Array<string> = []){
@@ -152,7 +194,7 @@ export default class CanvasComponent extends HTMLElement{
         }
     }
 
-    private drawLine(startX, startY, endX, endY, startSide, endSide, aabbColor){
+    private drawLine(startX, startY, endX, endY, startSide, endSide, aabbColor, type:ConnectionType = "one-one"){
         let centerX = (startX + endX) * 0.5;
         let centerY = (startY + endY) * 0.5;
         this.ctx.beginPath();
@@ -184,6 +226,33 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(centerX, startY);
                 this.ctx.lineTo(centerX, endY);
                 this.ctx.lineTo(endX, endY);
+            }
+
+            switch(type){
+                case "one-one":
+                    break;
+                case "one-many":
+                    this.ctx.moveTo(endX, endY - 8);
+                    this.ctx.lineTo(endX - 8, endY);
+                    this.ctx.moveTo(endX, endY + 8);
+                    this.ctx.lineTo(endX - 8, endY);
+                    break;
+                case "many-one":
+                    this.ctx.moveTo(startX, startY - 8);
+                    this.ctx.lineTo(startX - 8, startY);
+                    this.ctx.moveTo(startX, startY + 8);
+                    this.ctx.lineTo(startX - 8, startY);
+                    break;
+                case "many-many":
+                    this.ctx.moveTo(startX, startY - 8);
+                    this.ctx.lineTo(startX - 8, startY);
+                    this.ctx.moveTo(startX, startY + 8);
+                    this.ctx.lineTo(startX - 8, startY);
+                    this.ctx.moveTo(endX, endY - 8);
+                    this.ctx.lineTo(endX - 8, endY);
+                    this.ctx.moveTo(endX, endY + 8);
+                    this.ctx.lineTo(endX - 8, endY);
+                    break;
             }
 
             // AABB hit detection
@@ -226,6 +295,33 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX, endY);
             }
 
+            switch(type){
+                case "one-one":
+                    break;
+                case "one-many":
+                    this.ctx.moveTo(endX, endY - 8);
+                    this.ctx.lineTo(endX + 8, endY);
+                    this.ctx.moveTo(endX, endY + 8);
+                    this.ctx.lineTo(endX + 8, endY);
+                    break;
+                case "many-one":
+                    this.ctx.moveTo(startX, startY - 8);
+                    this.ctx.lineTo(startX + 8, startY);
+                    this.ctx.moveTo(startX, startY + 8);
+                    this.ctx.lineTo(startX + 8, startY);
+                    break;
+                case "many-many":
+                    this.ctx.moveTo(startX, startY - 8);
+                    this.ctx.lineTo(startX + 8, startY);
+                    this.ctx.moveTo(startX, startY + 8);
+                    this.ctx.lineTo(startX + 8, startY);
+                    this.ctx.moveTo(endX, endY - 8);
+                    this.ctx.lineTo(endX + 8, endY);
+                    this.ctx.moveTo(endX, endY + 8);
+                    this.ctx.lineTo(endX + 8, endY);
+                    break;
+            }
+
             // AABB hit detection
             this.hitCTX.fillStyle = aabbColor;
             this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
@@ -265,6 +361,33 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX + 16, endY + 8);
                 this.ctx.arcTo(endX + 16, endY, endX - 8, endY, 8);
                 this.ctx.lineTo(endX, endY);
+            }
+
+            switch(type){
+                case "one-one":
+                    break;
+                case "one-many":
+                    this.ctx.moveTo(endX, endY - 8);
+                    this.ctx.lineTo(endX + 8, endY);
+                    this.ctx.moveTo(endX, endY + 8);
+                    this.ctx.lineTo(endX + 8, endY);
+                    break;
+                case "many-one":
+                    this.ctx.moveTo(startX, startY - 8);
+                    this.ctx.lineTo(startX - 8, startY);
+                    this.ctx.moveTo(startX, startY + 8);
+                    this.ctx.lineTo(startX - 8, startY);
+                    break;
+                case "many-many":
+                    this.ctx.moveTo(startX, startY - 8);
+                    this.ctx.lineTo(startX - 8, startY);
+                    this.ctx.moveTo(startX, startY + 8);
+                    this.ctx.lineTo(startX - 8, startY);
+                    this.ctx.moveTo(endX, endY - 8);
+                    this.ctx.lineTo(endX + 8, endY);
+                    this.ctx.moveTo(endX, endY + 8);
+                    this.ctx.lineTo(endX + 8, endY);
+                    break;
             }
 
             // AABB hit detection
@@ -311,6 +434,33 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(endX, endY);
             }
 
+            switch(type){
+                case "one-one":
+                    break;
+                case "one-many":
+                    this.ctx.moveTo(endX, endY - 8);
+                    this.ctx.lineTo(endX - 8, endY);
+                    this.ctx.moveTo(endX, endY + 8);
+                    this.ctx.lineTo(endX - 8, endY);
+                    break;
+                case "many-one":
+                    this.ctx.moveTo(startX, startY - 8);
+                    this.ctx.lineTo(startX + 8, startY);
+                    this.ctx.moveTo(startX, startY + 8);
+                    this.ctx.lineTo(startX + 8, startY);
+                    break;
+                case "many-many":
+                    this.ctx.moveTo(startX, startY - 8);
+                    this.ctx.lineTo(startX + 8, startY);
+                    this.ctx.moveTo(startX, startY + 8);
+                    this.ctx.lineTo(startX + 8, startY);
+                    this.ctx.moveTo(endX, endY - 8);
+                    this.ctx.lineTo(endX - 8, endY);
+                    this.ctx.moveTo(endX, endY + 8);
+                    this.ctx.lineTo(endX - 8, endY);
+                    break;
+            }
+
             // AABB hit detection
             this.hitCTX.fillStyle = aabbColor;
             this.hitCTX.fillRect(startX, startY - 8, Math.abs(startX - centerX), 16);
@@ -340,6 +490,33 @@ export default class CanvasComponent extends HTMLElement{
                 this.ctx.lineTo(centerX, startY);
                 this.ctx.lineTo(centerX, endY);
                 this.ctx.lineTo(endX, endY);
+            }
+
+            switch(type){
+                case "one-one":
+                    break;
+                case "one-many":
+                    this.ctx.moveTo(endX, endY - 8);
+                    this.ctx.lineTo(endX + offsetX, endY);
+                    this.ctx.moveTo(endX, endY + 8);
+                    this.ctx.lineTo(endX + offsetX, endY);
+                    break;
+                case "many-one":
+                    this.ctx.moveTo(startX, startY - 8);
+                    this.ctx.lineTo(startX - offsetX, startY);
+                    this.ctx.moveTo(startX, startY + 8);
+                    this.ctx.lineTo(startX - offsetX, startY);
+                    break;
+                case "many-many":
+                    this.ctx.moveTo(startX, startY - 8);
+                    this.ctx.lineTo(startX - offsetX, startY);
+                    this.ctx.moveTo(startX, startY + 8);
+                    this.ctx.lineTo(startX - offsetX, startY);
+                    this.ctx.moveTo(endX, endY - 8);
+                    this.ctx.lineTo(endX + offsetX, endY);
+                    this.ctx.moveTo(endX, endY + 8);
+                    this.ctx.lineTo(endX + offsetX, endY);
+                    break;
             }
 
             // AABB hit detection
@@ -677,6 +854,7 @@ export default class CanvasComponent extends HTMLElement{
                     endSide: endSide,
                     refs: this.lines[i].refs,
                     color: this.lines[i].color,
+                    type: this.lines[i].type,
                 });
             }
             catch (e){
@@ -702,7 +880,7 @@ export default class CanvasComponent extends HTMLElement{
                 const { x: startX, y: startY } = line.start;
                 const { x: endX, y: endY } = line.end;
                 this.ctx.strokeStyle = LINE_COLOUR;
-                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide, line.color);
+                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide, line.color, line.type);
             }
         }    
         
@@ -713,7 +891,7 @@ export default class CanvasComponent extends HTMLElement{
                 const { x: startX, y: startY } = line.start;
                 const { x: endX, y: endY } = line.end;
                 this.ctx.strokeStyle = LINE_HOVER_COLOUR;
-                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide, line.color);
+                this.drawLine(startX, startY, endX, endY, line.startSide, line.endSide, line.color, line.type);
             }
         }
 

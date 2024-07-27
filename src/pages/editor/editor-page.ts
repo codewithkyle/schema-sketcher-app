@@ -109,7 +109,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
 
     private handleMove:EventListener = (e:CustomEvent) => {
-        if (e.detail.isMoving){
+        if (e.detail?.isMoving){
             this.isMoving = true;
             this.forceMove = true;
             this.setCursor("hand");
