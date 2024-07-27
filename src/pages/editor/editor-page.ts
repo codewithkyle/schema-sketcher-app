@@ -32,9 +32,14 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
 
     override async connected(){
-        window.addEventListener("mousewheel", this.handleScroll.bind(this), { passive: false });
+        window.addEventListener("wheel", this.handleScroll, { passive: true, capture: true });
         window.addEventListener("keydown", this.handleKeyDown);
         window.addEventListener("keyup", this.handleKeyUp);
+        window.addEventListener("mousedown", this.handleMouseDown);
+        window.addEventListener("mouseup", this.handleMouseUp);
+        window.addEventListener("mousemove", this.handleMouseMove);
+        this.addEventListener("zoom", this.onScale);
+        this.addEventListener("move", this.handleMove);
         await env.css(["editor-page"]);
         const diagram = diagramController.createDiagram();
         this.uid = diagram.uid;
@@ -62,23 +67,19 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
 
     private handleScroll:EventListener = (e:WheelEvent) => {
-        const target = e.target as HTMLElement;
-        if (target.closest(".js-canvas") || target.classList.contains(".js-canvas")){
-            const delta = e.deltaY * -1;
-            const speed = 0.001;
-            const scroll = delta * speed;
-            const anchor = this.querySelector(".js-anchor") as HTMLElement;
-            let scale = parseFloat(anchor.dataset.scale) + scroll;
-            if (scale < 0.125){
-                scale = 0.125;
-            } else if (scale > 1){
-                scale = 1;
-            }
-            anchor.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${this.x}, ${this.y})`;
-            anchor.dataset.scale = `${scale}`;
-            this.scale = scale;
-            publish("zoom", scale);
+        const delta = e.deltaY * -1;
+        const speed = 0.001;
+        const scroll = delta * speed;
+        const anchor = this.querySelector(".anchor") as HTMLElement;
+        let scale = this.scale + scroll;
+        if (scale < 0.125){
+            scale = 0.125;
+        } else if (scale > 1){
+            scale = 1;
         }
+        anchor.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${this.x}, ${this.y})`;
+        this.scale = scale;
+        publish("zoom", scale);
     }
 
     private handleMouseDown:EventListener = (e:MouseEvent) => {
@@ -91,32 +92,30 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     private handleMouseUp:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent && this.isMoving){
             this.isMoving = false;
-            const anchor = this.querySelector(".js-anchor") as HTMLElement;
-            this.x = parseInt(anchor.dataset.left);
-            this.y = parseInt(anchor.dataset.top);
             this.setCursor("hand");
         }
     }
 
     private handleMouseMove:EventListener = (e:MouseEvent) => {
         if (e instanceof MouseEvent && this.isMoving && (this.canMove || this.forceMove)){
-            const anchor = this.querySelector(".js-anchor") as HTMLElement;
+            const anchor = this.querySelector(".anchor") as HTMLElement;
             this.setCursor("grabbing");
-            const x = parseInt(anchor.dataset.left) + e.movementX;
-            const y = parseInt(anchor.dataset.top) + e.movementY;
+            const x = this.x + e.movementX;
+            const y = this.y + e.movementY;
             anchor.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${x}, ${y})`;
-            anchor.dataset.top = `${y}`;
-            anchor.dataset.left = `${x}`;
+            this.x = x;
+            this.y = y;
         }
     }
 
     private handleMove:EventListener = (e:CustomEvent) => {
-        console.log(e.detail);
         if (e.detail.isMoving){
             this.isMoving = true;
+            this.forceMove = true;
             this.setCursor("hand");
         } else {
             this.isMoving = false;
+            this.forceMove = false;
             this.setCursor("auto");
         }
     }
@@ -186,11 +185,23 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         }
         return cursor;
     }
+
+    private onScale:EventListener = (e:CustomEvent) => {
+        const anchor = this.querySelector(".anchor") as HTMLElement;
+        let scale = e.detail;
+        if (scale < 0.125){
+            scale = 0.125;
+        } else if (scale > 1){
+            scale = 1;
+        }
+        anchor.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${this.x}, ${this.y})`;
+        this.scale = scale;
+    }
     
     override async render(){
         const view = html`
             <canvas-component @contextmenu=${this.handleContextMenu}></canvas-component>
-            <div class="anchor"></div>
+            <div class="anchor" style="transform: ${`matrix(${this.scale}, 0, 0, ${this.scale}, ${this.x}, ${this.y})`}"></div>
             <main-menu></main-menu>
             <editor-controls @move=${this.handleMove} data-is-moving="${this.isMoving}" data-scale="${this.scale}"></editor-controls>
         `;
