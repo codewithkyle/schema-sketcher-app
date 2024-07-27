@@ -1,6 +1,5 @@
 {
     "scripts": {
-        "install:ui": "install-ui --audio=./public/audio --framework=./src/framework",
         "install:brixi": "brixi && mv ./brixi ./src/styles/brixi",
         "bundle": "node ./build/bundle.js",
         "production": "npm run bundle && asset-manager",
@@ -20,7 +19,6 @@
         "@codewithkyle/twist": "^2.1.0",
         "@codewithkyle/uuid": "^1.0.1",
         "brixi": "^0.8.0",
-        "brixi-ui": "^0.10.3",
         "cssmonster": "^0.7.3",
         "dayjs": "^1.11.11",
         "esbuild": "^0.23.0",

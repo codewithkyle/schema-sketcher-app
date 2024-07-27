@@ -9,6 +9,7 @@ import TableComponent from "~components/table-component/table-component";
 import "~components/editor-controls/editor-controls";
 import { createSubscription, publish, subscribe } from "~lib/pubsub";
 import "~components/canvas-component/canvas-component";
+import ContextMenu from "~brixi/components/context-menu/context-menu";
 
 interface IEditorPage {
     diagram: Diagram,
@@ -145,16 +146,41 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
 
     private handleContextMenu:EventListener = (e:MouseEvent) => {
         e.preventDefault();
-        //if (e instanceof MouseEvent){
-            //const x = e.clientX;
-            //const y = e.clientY;
-            //const anchor = this.querySelector(".js-anchor");
-            //const bounds = anchor.getBoundingClientRect();
-            //this.placeX = x - bounds.x;
-            //this.placeY = y - bounds.y;
-            //const menu = new ContextMenu(x, y, this.spawn.bind(this));
-            //document.body.appendChild(menu);
-        //}
+        if (e instanceof MouseEvent){
+            const x = e.clientX;
+            const y = e.clientY;
+            const anchor = this.querySelector(".anchor");
+            const bounds = anchor.getBoundingClientRect();
+            this.placeX = x - bounds.x;
+            this.placeY = y - bounds.y;
+            new ContextMenu({
+                items: [
+                    {
+                        label: "Create table",
+                        callback: () => {
+                            this.spawn("table");
+                        }
+                    },
+                    null,
+                    {
+                        label: "Save",
+                        hotkey: "Ctrl+S",
+                        callback: () => {
+                            //diagramController.saveDiagram();
+                        },
+                    },
+                    {
+                        label: "Reload",
+                        hotkey: "Ctrl+R",
+                        callback: () => {
+                            location.reload();
+                        },
+                    },
+                ],
+                x: x, 
+                y: y,
+            });
+        }
     }
 
     private getCursorType(){
@@ -171,9 +197,10 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     override async render(){
         //const tables = diagramController.getTables();
         const view = html`
+            <canvas-component @contextmenu=${this.handleContextMenu}></canvas-component>
+            <div class="anchor"></div>
             <main-menu></main-menu>
             <editor-controls @move=${this.handleMove} data-is-moving="${this.isMoving}" data-scale="${this.scale}"></editor-controls>
-            <canvas-component></canvas-component>
         `;
         render(view, this);
         //setTimeout(()=>{

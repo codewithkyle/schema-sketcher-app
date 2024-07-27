@@ -39,6 +39,11 @@ class DiagramController {
             uid: uid,
             name: "UNTITLED",
             timestamp: Date.now(),
+            tables: {},
+            columns: {},
+            nodes: {},
+            connections: {},
+            types: types,
         };
         return this.diagram;
     }
@@ -51,8 +56,8 @@ class DiagramController {
             color: this.getRandomColor(),
             x: placeX,
             y: placeY,
-            diagramID: this.diagram.uid,
         };
+        this.diagram.tables[uid] = table;
         this.createColumn(uid);
     }
 
@@ -68,8 +73,8 @@ class DiagramController {
             weight: 0,
             uid: columnUid,
             tableID: tableID,
-            diagramID: this.diagram.uid,
         };
+        this.diagram.columns[columnUid] = column;
     }
     
     public async createNode(placeX:number, placeY:number){
@@ -81,8 +86,8 @@ class DiagramController {
             y: placeY,
             color: "grey",
             icon: "function",
-            diagramID: this.diagram.uid,
         };
+        this.diagram.nodes[uid] = node;
     }
 
     public createConnection(startNodeID:string, endNodeID:string, refs:Array<string>){
@@ -93,8 +98,8 @@ class DiagramController {
             endNodeID: endNodeID,
             type: "one-one",
             refs: refs,
-            diagramID: this.diagram.uid,
         };
+        this.diagram.connections[uid] = connection;
     }
 
     public getConnections():Array<Connection>{
@@ -113,7 +118,6 @@ class DiagramController {
         const type:ColumnType = {
             name: value,
             uid: uid,
-            diagramID: this.diagram.uid,
         };
     }
 
