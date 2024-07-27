@@ -1,5 +1,5 @@
 import { html, render } from "lit-html";
-import "./column-component/column-component";
+import ColumnComponent from "./column-component/column-component";
 import env from "~brixi/controllers/env";
 import { publish, subscribe } from "~lib/pubsub";
 import type { Column, Table } from "~types/diagram";
@@ -7,11 +7,12 @@ import diagramController from "~controllers/diagram-controller";
 import Component from "~brixi/component";
 import { parseDataset } from "~brixi/utils/general";
 import "~/brixi/components/overflow-button/overflow-button";
+import Sortable from "sortablejs";
 
 interface ITableComponent extends Table {
-    showAllColumnOptions: boolean;
 }
 export default class TableComponent extends Component<ITableComponent> {
+    private firstRender: boolean;
     private isMoving: boolean;
     private diagramID: string;
     private wasMoved: boolean;
@@ -23,6 +24,7 @@ export default class TableComponent extends Component<ITableComponent> {
 
     constructor() {
         super();
+        this.firstRender = true;
         this.zoom = 1;
         this.wasMoved = false;
         this.pos1 = 0;
@@ -36,7 +38,6 @@ export default class TableComponent extends Component<ITableComponent> {
             color: "",
             x: 0,
             y: 0,
-            showAllColumnOptions: false,
         };
         subscribe("move", this.moveInbox.bind(this));
         subscribe("zoom", this.zoomInbox.bind(this));
@@ -69,6 +70,7 @@ export default class TableComponent extends Component<ITableComponent> {
         this.pos2 = table.y;
         this.dataset.left = `${this.pos1}`;
         this.dataset.top = `${this.pos2}`;
+        this.firstRender = true;
         this.set(table);
     }
 
@@ -206,20 +208,6 @@ export default class TableComponent extends Component<ITableComponent> {
         }
     };
 
-    private toggleColumnSettings: EventListener = () => {
-        // @ts-ignore
-        document.activeElement?.blur();
-        if (this.model.showAllColumnOptions) {
-            this.set({
-                showAllColumnOptions: false,
-            });
-        } else {
-            this.set({
-                showAllColumnOptions: true,
-            });
-        }
-    };
-
     public focusLastColumn() {
         setTimeout(() => {
             const input = this.querySelector('column-component:last-of-type input') as HTMLInputElement;
@@ -233,17 +221,44 @@ export default class TableComponent extends Component<ITableComponent> {
 
     override async render() {
         this.style.transform = `translate(${this.dataset.left}px, ${this.dataset.top}px)`;
-        const view = html`
-            <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseenter=${this.handleMouseEnter} @mouseleave=${this.handleMouseLeave}>
-                <h4 @dblclick=${this.renameTable} title="${this.model.name}">${this.model.name}</h4>
-            </header>
-            <columns-container>
-                ${diagramController.getColumnsByTable(this.model.uid).map((column: Column) => {
-                    return html`<column-component data-uid="${column.uid}"></column-component>`;
-                })}
-            </columns-container>
-        `;
-        render(view, this);
+        if (this.firstRender) {
+            this.firstRender = false;
+            const view = html`
+                <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseenter=${this.handleMouseEnter} @mouseleave=${this.handleMouseLeave}>
+                    <h4 @dblclick=${this.renameTable} title="${this.model.name}">${this.model.name}</h4>
+                </header>
+                <columns-container></columns-container>
+            `;
+            render(view, this);
+            new Sortable(this.querySelector("columns-container"), {
+                animation: 150,
+                group: "columns",
+                ghostClass: "is-disabled",
+                onUpdate: (e) => {
+                    let columns = diagramController.getColumnsByTable(this.model.uid);
+                    const column = columns.splice(e.oldIndex, 1)[0];
+                    columns.splice(e.newIndex, 0, column);
+                    diagramController.reorderColumns(columns);
+                },
+                onAdd: (e) => {
+                    diagramController.moveColumn(e.item.dataset.uid, this.model.uid);
+                },
+                onRemove: (e) => {
+                    if (Array.from(this.querySelectorAll("column-component")).length === 0) {
+                        diagramController.deleteTable(this.model.uid);
+                        this.remove();
+                    }
+                }
+            });
+        }
+        const columnsContainer = this.querySelector("columns-container");
+        diagramController.getColumnsByTable(this.model.uid).map((column: Column) => {
+            const el:ColumnComponent = columnsContainer.querySelector(`column-component[data-uid="${column.uid}"]`) || new ColumnComponent();
+            if (!el.isConnected) {
+                el.dataset.uid = column.uid;
+                columnsContainer.appendChild(el);
+            }
+        })
     }
 }
 env.bind("table-component", TableComponent);

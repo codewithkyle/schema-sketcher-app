@@ -227,6 +227,20 @@ class DiagramController {
         return this.diagram.columns[uid];
     }
 
+    public reorderColumns(columns:Array<Column>){
+        columns.map((column, index) => {
+            this.diagram.columns[column.uid].weight = index;
+        });
+    }
+
+    public moveColumn(columnID:string, tableID:string){
+        this.diagram.columns[columnID].tableID = tableID;
+    }
+
+    public renameColumn(uid:string, value:string){
+        this.diagram.columns[uid].name = value;
+    }
+
     public renameTable(uid:string, value:string){
         this.diagram.tables[uid].name = value;
     }

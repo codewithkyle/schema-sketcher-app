@@ -29,6 +29,7 @@
         "npm-watch": "^0.13.0",
         "sass": "^1.77.8",
         "serve": "^14.2.3",
+        "sortablejs": "^1.15.2",
         "tooltipper": "^1.1.6"
     },
     "bundle": [
@@ -39,7 +40,8 @@
         "lit-html",
         "lit-html/directives/unsafe-html.js",
         "dayjs",
-        "tooltipper"
+        "tooltipper",
+        "sortablejs"
     ],
     "watch": {
         "build": {

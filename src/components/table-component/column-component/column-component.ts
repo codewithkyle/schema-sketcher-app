@@ -23,7 +23,6 @@ export default class ColumnComponent extends Component<IColumnComponent>{
             uid: "",
             tableID: "",
         };
-        this.style.order = `${this.model.weight}`;
     }
 
     static get observedAttributes() {
@@ -58,11 +57,11 @@ export default class ColumnComponent extends Component<IColumnComponent>{
         this.set({
             name: value,
         });
+        diagramController.renameColumn(this.model.uid, value);
     }
     private debounceName = this.debounce(this.updateName.bind(this), 300);
     private handleNameInput:EventListener = (e:Event) => {
         const target = e.currentTarget as HTMLInputElement;
-
         this.debounceName(target.value);
     }
 
@@ -180,7 +179,6 @@ export default class ColumnComponent extends Component<IColumnComponent>{
 
     override render(){
         this.dataset.uid = this.model.uid;
-        this.style.order = `${this.model.weight}`;
         const view = html`
             ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -6px;`, this.model.uid, "left", this.model.tableID, [this.model.tableID, this.model.uid])}
             <div @mouseup=${this.endDraw} tabindex="0" class="w-full" flex="row nowrap items-center">

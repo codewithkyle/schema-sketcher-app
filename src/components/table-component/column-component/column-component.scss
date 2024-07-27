@@ -44,26 +44,6 @@ column-component{
         }
     }
 
-    &:not(.is-disabled).is-drop-target{
-        background-color: var(--primary-50);
-        box-shadow: inset 0 0 0 1px var(--grey-50), inset 0 0 0 3px var(--primary-400);
-        user-select: none;
-        border-radius: 0.25rem;
-        
-        *{
-            color: var(--primary-500);
-        }
-
-        .drag-handle{
-            border-right-color: transparent;
-        }
-
-        connector-component{
-            opacity: 0;
-            visibility: hidden;
-        }
-    }
-
     &.is-disabled{
         background-color: var(--grey-50);
         user-select: none;
