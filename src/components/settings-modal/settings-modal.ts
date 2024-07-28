@@ -18,7 +18,7 @@ export default class SettingsModal extends SuperComponent<ISettingsModal>{
 
     override async connected(){
         window.addEventListener("wheel", this.noop, { passive: false, capture: true});
-        await env.css(["settings-modal", "tabs"]);
+        await env.css(["settings-modal"]);
         const types = diagramController.getTypes();
         this.set({
             types: types,
@@ -33,10 +33,6 @@ export default class SettingsModal extends SuperComponent<ISettingsModal>{
         e.stopImmediatePropagation();
     }
 
-    private close:EventListener = (e:Event) => {
-        this.closest("brixi-modal").remove();
-    }
-
     private addRow:EventListener = async (e:Event) => {
         diagramController.createType();
         const types = diagramController.getTypes();
@@ -45,8 +41,8 @@ export default class SettingsModal extends SuperComponent<ISettingsModal>{
         });
     }
 
-    private renderTabContent(){
-        return html`
+    override render(){
+        const view = html`
             <list-component>
                 <list-container>
                     <list-header>Column Types</list-header>
@@ -59,15 +55,6 @@ export default class SettingsModal extends SuperComponent<ISettingsModal>{
                     Add column type
                 </button>
             </list-component>
-        `;
-    }
-
-    override render(){
-        const view = html`
-            <button @click=${this.close} class="bttn absolute t-0 r-0" kind="text" icon="center" color="grey" shape="round">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-            ${this.renderTabContent()}
         `;
         render(view, this);
     }

@@ -56,6 +56,7 @@ interface FormSettings {
 interface RawSettings {
     view: TemplateResult | HTMLElement;
     width?: number;
+    closeable?: boolean;
 }
 
 class ModalMaker {
@@ -64,10 +65,11 @@ class ModalMaker {
             {
                 view: html``,
                 width: 512,
+                closeable: false,
             },
             settings
         );
-        const el = new ModalComponent(data.view, data.width);
+        const el = new ModalComponent(data.view, data.width, data.closeable);
         document.body.appendChild(el);
         return el;
     }
@@ -295,19 +297,25 @@ export default modals;
 class ModalComponent extends HTMLElement {
     private view: TemplateResult | HTMLElement;
     private width: number;
+    private closeable: boolean;
 
-    constructor(view: TemplateResult | HTMLElement, width: number) {
+    constructor(view: TemplateResult | HTMLElement, width: number, closeable = false) {
         super();
         this.view = view;
         this.width = width;
+        this.closeable = closeable;
         env.css(["modals", "button"]).then(() => this.render());
+    }
+
+    private onClose = (e: Event) => {
+        if (this.closeable) this.remove();
     }
 
     private render() {
         this.tabIndex = 0;
         this.focus();
         const view = html`
-            <div class="backdrop"></div>
+            <div @click=${this.onClose} class="backdrop"></div>
             <div class="modal" style="width:${this.width}px;">${this.view}</div>
         `;
         render(view, this);
