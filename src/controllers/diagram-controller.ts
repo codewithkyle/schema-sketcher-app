@@ -158,7 +158,6 @@ class DiagramController {
         });
         this.diagram = {
             uid: uid,
-            name: "UNTITLED",
             timestamp: Date.now(),
             tables: {},
             columns: {},
@@ -167,6 +166,11 @@ class DiagramController {
             types: types,
         };
         return this.diagram;
+    }
+
+    public reset(){
+        this.createDiagram();
+        publish("diagram", { type: "reset" });
     }
 
     public createTable(placeX:number, placeY:number){

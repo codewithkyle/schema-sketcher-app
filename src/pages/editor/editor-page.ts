@@ -29,6 +29,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         this.isMoving = false;
         this.forceMove = false;
         createSubscription("zoom");
+        subscribe("diagram", this.diagramInbox.bind(this));
     }
 
     override async connected(){
@@ -44,6 +45,15 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         const diagram = diagramController.createDiagram();
         this.uid = diagram.uid;
         this.render();
+    }
+
+    private diagramInbox({type,data}){
+        switch(type){
+            case "reset":
+                break;
+            default:
+                break;
+        }
     }
 
     private handleKeyDown:EventListener = (e:KeyboardEvent) => {

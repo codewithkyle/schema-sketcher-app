@@ -7,6 +7,7 @@ main-menu{
     z-index: 1000;
 
     & > button {
+        display: block;
         width: 42px;
         height: 42px;
         border-radius: 0.5rem;
@@ -44,6 +45,59 @@ main-menu{
         svg {
             width: 20px;
             height: 20px;
+        }
+    }
+
+    nav { 
+        display: block;
+        width: 200px;
+        padding: 0.5rem;
+        border-radius: 0.75rem;
+        background-color: var(--grey-200);
+        margin-top: 1rem;
+
+        @media (prefers-color-scheme: dark) {
+            background-color: var(--grey-800);
+        }
+
+        button {
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            height: 32px;
+            padding: 0 0.5rem;
+            border-radius: 0.5rem;
+            color: var(--grey-700);
+            font-size: var(--font-sm);
+            width: 100%;
+
+            &:hover,
+            &:focus-visible {
+                background-color: var(--grey-300);
+            }
+
+            &:active {
+                background-color: var(--grey-400);
+            }
+
+            @media (prefers-color-scheme: dark) {
+                color: var(--grey-300);
+
+                &:hover,
+                &:focus-visible {
+                    background-color: var(--grey-700);
+                }
+
+                &:active {
+                    background-color: var(--grey-600);
+                }
+            }
+
+            svg {
+                width: 18px;
+                height: 18px;
+                margin-right: 0.5rem;
+            }
         }
     }
 }

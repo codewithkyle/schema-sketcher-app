@@ -41,6 +41,17 @@ export default class TableComponent extends Component<ITableComponent> {
         };
         subscribe("move", this.moveInbox.bind(this));
         subscribe("zoom", this.zoomInbox.bind(this));
+        subscribe("diagram", this.diagramInbox.bind(this));
+    }
+
+    private diagramInbox({type,data}){
+        switch(type){
+            case "reset":
+                this.remove();
+                break;
+            default:
+                break;
+        }
     }
 
     static get observedAttributes() {
