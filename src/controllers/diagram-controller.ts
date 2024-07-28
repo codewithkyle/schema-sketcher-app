@@ -246,6 +246,30 @@ class DiagramController {
         this.diagram.tables[uid].x = x;
         this.diagram.tables[uid].y = y;
     }
+
+    public cloneTable(uid:string){
+        this.tableCount++;
+        const table = this.diagram.tables[uid];
+        const clone = JSON.parse(JSON.stringify(table));
+        const newUid = UUID();
+        clone.uid = newUid;
+        clone.name = `${table.name}_copy`;
+        clone.x += 100;
+        clone.y += 100;
+        clone.color = this.getRandomColor();
+        this.diagram.tables[newUid] = clone;
+        const columns = Object.values(this.diagram.columns).filter(column => {
+            return column.tableID === table.uid;
+        });
+        columns.map(column => {
+            const columnUid = UUID();
+            const clone = JSON.parse(JSON.stringify(column));
+            clone.uid = columnUid;
+            clone.tableID = newUid;
+            this.diagram.columns[columnUid] = clone;
+        });
+        publish("diagram", { type: "load" });
+    }
     
     public async createNode(placeX:number, placeY:number){
         const uid = UUID();

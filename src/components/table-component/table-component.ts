@@ -181,7 +181,7 @@ export default class TableComponent extends Component<ITableComponent> {
                     break;
                 case "d":
                     if (e.ctrlKey || e.metaKey) {
-                        console.log("Duplicate table");
+                        diagramController.cloneTable(this.model.uid);
                     }
                     break;
                 default:
@@ -247,19 +247,16 @@ export default class TableComponent extends Component<ITableComponent> {
                 group: "columns",
                 ghostClass: "is-disabled",
                 onUpdate: (e) => {
-                    console.log("update", e);
                     let columns = diagramController.getColumnsByTable(this.model.uid);
                     const column = columns.splice(e.oldIndex, 1)[0];
                     columns.splice(e.newIndex, 0, column);
                     diagramController.reorderColumns(columns);
                 },
                 onAdd: (e) => {
-                    console.log("add", e);
                     diagramController.moveColumn(e.item.dataset.uid, this.model.uid);
                     e.item.updateData();
                 },
                 onRemove: (e) => {
-                    console.log("remove", e);
                     if (Array.from(this.querySelectorAll("column-component")).length === 0) {
                         diagramController.deleteTable(this.model.uid);
                         this.remove();

@@ -85,6 +85,7 @@ column-component{
         padding: 0 0.25rem;
         transition: all 80ms var(--ease-in-out);
         background: transparent;
+        text-overflow: ellipsis;
 
         &:focus{
             box-shadow: var(--focus-ring);
