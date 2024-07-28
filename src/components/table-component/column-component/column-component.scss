@@ -109,8 +109,10 @@ column-component{
         text-align-last: right;
 
         &:focus{
-            box-shadow: var(--focus-ring);
             color: var(--primary-500);
+            outline: solid 4px var(--primary-400);
+            outline-offset: 6px;
+            transition: outline-offset 80ms var(--ease-out);
         }
     }
 
