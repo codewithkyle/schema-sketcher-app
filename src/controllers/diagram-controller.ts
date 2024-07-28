@@ -284,8 +284,17 @@ class DiagramController {
         return Object.values(this.diagram.types);
     }
 
+    public updateType(uid:string, value:string){
+        this.diagram.types[uid].name = value;
+    }
+
     public deleteType(uid:string){
         delete this.diagram.types[uid];
+        for (const columnID in this.diagram.columns){
+            if (this.diagram.columns[columnID].type === uid){
+                this.diagram.columns[columnID].type = Object.keys(this.diagram.types)[0];
+            }
+        }
     }
 
     public createType(value = ""){
@@ -294,6 +303,7 @@ class DiagramController {
             name: value,
             uid: uid,
         };
+        this.diagram.types[uid] = type;
     }
 
     public getTables():Array<Table>{

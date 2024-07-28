@@ -6,7 +6,12 @@ list-item-input{
 
     &:not(:last-of-type){
         border-bottom: 1px solid var(--grey-300);
+
+        @media (prefers-color-scheme: dark){
+            border-color: var(--grey-700);
+        }
     }
+
 
     input{
         width: 100%;
@@ -16,6 +21,12 @@ list-item-input{
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
+
+        @media (prefers-color-scheme: dark){
+            background-color: var(--grey-900);
+            color: var(--grey-300);
+            border-color: var(--grey-700);
+        }
     }
 
     button{
@@ -37,6 +48,20 @@ list-item-input{
 
         &:active{
             background-color: var(--grey-200);
+        }
+
+        @media (prefers-color-scheme: dark){
+            background-color: var(--grey-800);
+            color: var(--grey-300);
+            border-color: var(--grey-700);
+
+            &:hover{
+                background-color: var(--grey-700);
+            }
+
+            &:active{
+                background-color: var(--grey-600);
+            }
         }
 
         svg{
