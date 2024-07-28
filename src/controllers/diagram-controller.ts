@@ -157,6 +157,7 @@ class DiagramController {
             };
         });
         this.diagram = {
+            fileName: `Untitled-${Date.now()}`,
             uid: uid,
             timestamp: Date.now(),
             tables: {},
@@ -171,6 +172,22 @@ class DiagramController {
     public reset(){
         this.createDiagram();
         publish("diagram", { type: "reset" });
+    }
+
+    public export():[Diagram, string]{
+        return [this.diagram, JSON.stringify(this.diagram)];
+    }
+
+    public import(json:string){
+        publish("diagram", { type: "reset" });
+        this.diagram = JSON.parse(json);
+        setTimeout(() => {
+            publish("diagram", { type: "load" });
+        }, 80);
+    }
+
+    public setFileName(value:string){
+        this.diagram.fileName = value;
     }
 
     public createTable(placeX:number, placeY:number){
@@ -341,3 +358,4 @@ class DiagramController {
 }
 const diagramController = new DiagramController();
 export default diagramController;
+

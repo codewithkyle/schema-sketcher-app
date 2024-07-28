@@ -49,7 +49,8 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
 
     private diagramInbox({type,data}){
         switch(type){
-            case "reset":
+            case "load":
+                this.render();
                 break;
             default:
                 break;
@@ -217,6 +218,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         `;
         render(view, this);
         const anchor = this.querySelector(".anchor");
+        console.log(diagramController.getTables());
         diagramController.getTables().map(table => {
             const el:HTMLElement = anchor.querySelector(`[data-uid="${table.uid}"]`) || new TableComponent();
             if (!el.isConnected){

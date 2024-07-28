@@ -44,6 +44,7 @@ export interface Node {
 }
 
 export interface Diagram{
+    fileName: string,
     timestamp: number,
     uid: string,
     tables: {

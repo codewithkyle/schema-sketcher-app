@@ -41,7 +41,10 @@
         "lit-html/directives/unsafe-html.js",
         "dayjs",
         "tooltipper",
-        "sortablejs"
+        "sortablejs",
+        "@codewithkyle/notifyjs/notifications.js",
+        "@codewithkyle/notifyjs/toaster.js",
+        "@codewithkyle/notifyjs/snackbar.js"
     ],
     "watch": {
         "build": {
