@@ -63,6 +63,8 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
             if (key === " "){
                 this.canMove = true;
                 this.setCursor("hand");
+            } else if (key === "Escape"){
+                document.activeElement?.blur();
             }
         }
     }
