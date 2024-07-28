@@ -112,6 +112,7 @@ class DiagramController {
                 break;
         }
         this.diagram = {
+            version: 1,
             fileName: `Untitled-${Date.now()}`,
             uid: uid,
             timestamp: Date.now(),
