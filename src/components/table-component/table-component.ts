@@ -107,6 +107,7 @@ export default class TableComponent extends Component<ITableComponent> {
         this.style.transform = `translate(${x}px, ${y}px)`;
         this.dataset.top = `${y}`;
         this.dataset.left = `${x}`;
+        diagramController.updateTablePosition(this.model.uid, x, y);
     }
 
     private mouseDown: EventListener = (e: MouseEvent | TouchEvent) => {

@@ -241,6 +241,11 @@ class DiagramController {
     public renameTable(uid:string, value:string){
         this.diagram.tables[uid].name = value;
     }
+
+    public updateTablePosition(uid:string, x:number, y:number){
+        this.diagram.tables[uid].x = x;
+        this.diagram.tables[uid].y = y;
+    }
     
     public async createNode(placeX:number, placeY:number){
         const uid = UUID();
