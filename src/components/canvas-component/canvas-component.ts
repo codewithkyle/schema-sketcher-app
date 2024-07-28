@@ -93,6 +93,7 @@ export default class CanvasComponent extends HTMLElement{
             const lineId = this.activeLineId;
             const x = e.clientX;
             const y = e.clientY;
+            document.body.querySelectorAll("brixi-context-menu").forEach((el) => el.remove());
             new ContextMenu({
                 items: [
                     {
@@ -101,7 +102,6 @@ export default class CanvasComponent extends HTMLElement{
                             diagramController.updateConnectionType(lineId, "one-one");
                         }
                     },
-                    null,
                     {
                         label: "One-to-many",
                         callback: () => {
@@ -118,6 +118,13 @@ export default class CanvasComponent extends HTMLElement{
                         label: "Many-to-many",
                         callback: () => {
                             diagramController.updateConnectionType(lineId, "many-many");
+                        },
+                    },
+                    null,
+                    {
+                        label: "Delete",
+                        callback: () => {
+                            diagramController.deleteConnection(lineId);
                         },
                     },
                 ],

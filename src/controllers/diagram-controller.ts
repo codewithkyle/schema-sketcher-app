@@ -320,6 +320,10 @@ class DiagramController {
         this.diagram.connections[uid].type = type;
     }
 
+    public deleteConnection(uid:string){
+        delete this.diagram.connections[uid];
+    }
+
     public getTypes():Array<ColumnType>{
         return Object.values(this.diagram.types);
     }

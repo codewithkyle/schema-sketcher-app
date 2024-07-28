@@ -156,6 +156,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
             const bounds = anchor.getBoundingClientRect();
             this.placeX = x - bounds.x;
             this.placeY = y - bounds.y;
+            document.body.querySelectorAll("brixi-context-menu").forEach((el) => el.remove());
             new ContextMenu({
                 items: [
                     {
