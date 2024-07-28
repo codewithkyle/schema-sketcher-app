@@ -81,6 +81,7 @@ export default class MainMenu extends SuperComponent<IBasicHeader>{
                         data-required="true"
                     ></brixi-input>
                 `,
+                submit: "Save",
                 callbacks: {
                     submit: async (data, form, modal) => {
                         diagramController.setFileName(data.fileName);
@@ -102,7 +103,7 @@ export default class MainMenu extends SuperComponent<IBasicHeader>{
                         }
                         modal.remove();
                         notifications.toast("File saved");
-                    }
+                    },
                 }
             });
         }
