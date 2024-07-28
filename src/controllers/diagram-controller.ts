@@ -1,136 +1,24 @@
 import { UUID } from "@codewithkyle/uuid";
-import { Connection, Diagram, Node, Table, Column, ColumnType, ConnectionType } from "~types/diagram";
+import { Connection, Diagram, Node, Table, Column, ColumnType, ConnectionType, DatabaseType } from "~types/diagram";
 import { publish } from "@codewithkyle/pubsub";
-
-const TYPES = ["int", "bigint", "binary", "blob", "boolean", "char", "date", "datetime", "decimal", "double", "enum", "float", "geometry", "json", "bson", "longtext", "mediumint", "mediumtext", "multipoint", "point", "smallint", "time", "text", "timestamp", "tinyint", "uuid", "varchar"];
-const COLORS = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "indigo", "violet", "purple", "fuchsia", "pink", "rose"];
-const SHADES = ["200", "300", "400", "500", "600"];
-
-const COLOR_CODES = {
-    red: {
-        200: "#FECACA",
-        300: "#FCA5A5",
-        400: "#F87171",
-        500: "#EF4444",
-        600: "#DC2626",
-    },
-    orange: {
-        200: "#FED7AA",
-        300: "#FDBA74",
-        400: "#FB923C",
-        500: "#F97316",
-        600: "#EA580C",
-    },
-    amber: {
-        200: "#FDE68A",
-        300: "#FCD34D",
-        400: "#FBBF24",
-        500: "#F59E0B",
-        600: "#D97706",
-    },
-    yellow: {
-        200: "#FEF08A",
-        300: "#FDE047",
-        400: "#FACC15",
-        500: "#EAB308",
-        600: "#CA8A04",
-    },
-    lime: {
-        200: "#D9F99D",
-        300: "#BEF264",
-        400: "#A3E635",
-        500: "#84CC16",
-        600: "#65A30D",
-    },
-    green: {
-        200: "#BBF7D0",
-        300: "#86EFAC",
-        400: "#4ADE80",
-        500: "#22C55E",
-        600: "#16A34A",
-    },
-    emerald: {
-        200: "#A7F3D0",
-        300: "#6EE7B7",
-        400: "#34D399",
-        500: "#10B981",
-        600: "#059669",
-    },
-    teal: {
-        200: "#99F6E4",
-        300: "#5EEAD4",
-        400: "#2DD4BF",
-        500: "#14B8A6",
-        600: "#0D9488",
-    },
-    cyan: {
-        200: "#A5F3FC",
-        300: "#67E8F9",
-        400: "#22D3EE",
-        500: "#06B6D4",
-        600: "#0891B2",
-    },
-    sky: {
-        200: "#BAE6FD",
-        300: "#7DD3FC",
-        400: "#38BDF8",
-        500: "#0EA5E9",
-        600: "#0284C7",
-    },
-    indigo: {
-        200: "#C7D2FE",
-        300: "#A5B4FC",
-        400: "#818CF8",
-        500: "#6366F1",
-        600: "#4F46E5",
-    },
-    violet: {
-        200: "#DDD6FE",
-        300: "#C4B5FD",
-        400: "#A78BFA",
-        500: "#8B5CF6",
-        600: "#7C3AED",
-    },
-    purple: {
-        200: "#E9D5FF",
-        300: "#D8B4FE",
-        400: "#C084FC",
-        500: "#A855F7",
-        600: "#9333EA",
-    },
-    fuchsia: {
-        200: "#F5D0FE",
-        300: "#F0ABFC",
-        400: "#E879F9",
-        500: "#D946EF",
-        600: "#C026D3",
-    },
-    pink: {
-        200: "#FBCFE8",
-        300: "#F9A8D4",
-        400: "#F472B6",
-        500: "#EC4899",
-        600: "#DB2777",
-    },
-    rose: {
-        200: "#FECDD3",
-        300: "#FDA4AF",
-        400: "#FB7185",
-        500: "#F43F5E",
-        600: "#E11D48",
-    },
-};
+import { MYSQL_TYPES, POSTGRES_TYPES, SQLITE_TYPES, SQL_SERVER_TYPES } from "~utils/column-types";
+import modals from "~brixi/controllers/modals";
+import { html } from "lit-html";
+import { COLORS, SHADES, COLOR_CODES } from "~utils/colors";
 
 class DiagramController {
     private diagram:Diagram;
-    private movingColumnUID:string;
     public ID:string;
     private tableCount:number;
+    private type:DatabaseType;
+    private createDiagramCallback:Function;
 
     constructor(){
-        this.movingColumnUID = null;
-        this.ID = null;
+        this.ID = UUID();
+        this.type = null;
         this.tableCount = 0;
+        this.diagram = null;
+        this.createDiagramCallback = () => {};
     }
     
     private getRandomColor():string{
@@ -144,18 +32,85 @@ class DiagramController {
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
+
+    private onSelect:EventListener = (e:Event) => {
+        const target = e.currentTarget as HTMLElement;
+        const type = target.dataset.type as DatabaseType;
+        this.type = type;
+        this.createDiagramCallback(type);
+    }
     
-    public createDiagram():Diagram{
+    public async createDiagram():Promise<Diagram>{
+        let modal;
+        await new Promise((resolve) => {
+            this.createDiagramCallback = resolve;
+            modal = modals.raw({
+                view: html`
+                    <div class="databases">
+                        <button @mousedown=${this.onSelect} data-type="mysql">
+                            <img src="/assets/mysql.png" alt="MySQL" />
+                            <span>MySQL</span>
+                        </button>
+                        <button @mousedown=${this.onSelect} data-type="postgresql">
+                            <img src="/assets/postgresql.png" alt="PostgreSQL" />
+                            <span>PostgreSQL</span>
+                        </button>
+                        <button @mousedown=${this.onSelect} data-type="sqlite">
+                            <img src="/assets/sqlite.png" alt="SQLite" />
+                            <span>SQLite</span>
+                        </button>
+                        <button @mousedown=${this.onSelect} data-type="mssql">
+                            <img src="/assets/sql-server.png" alt="SQL Server" />
+                            <span>SQL Server</span>
+                        </button>
+                    </div>
+                `,
+            });
+        });
+        if (modal) modal.remove();
         const uid = UUID();
         this.ID = uid;
         const types = {};
-        TYPES.map(type => {
-            const uid = UUID();
-            types[uid] = {
-                name: type,
-                uid: uid,
-            };
-        });
+        switch (this.type){
+            case "mysql":
+                MYSQL_TYPES.map(type => {
+                    const uid = UUID();
+                    types[uid] = {
+                        name: type,
+                        uid: uid,
+                    };
+                });
+                break;
+            case "postgresql":
+                POSTGRES_TYPES.map(type => {
+                    const uid = UUID();
+                    types[uid] = {
+                        name: type,
+                        uid: uid,
+                    };
+                });
+                break;
+            case "sqlite":
+                SQLITE_TYPES.map(type => {
+                    const uid = UUID();
+                    types[uid] = {
+                        name: type,
+                        uid: uid,
+                    };
+                });
+                break;
+            case "mssql":
+                SQL_SERVER_TYPES.map(type => {
+                    const uid = UUID();
+                    types[uid] = {
+                        name: type,
+                        uid: uid,
+                    };
+                });
+                break;
+            default:
+                break;
+        }
         this.diagram = {
             fileName: `Untitled-${Date.now()}`,
             uid: uid,
@@ -169,8 +124,8 @@ class DiagramController {
         return this.diagram;
     }
 
-    public reset(){
-        this.createDiagram();
+    public async reset(){
+        await this.createDiagram();
         publish("diagram", { type: "reset" });
     }
 

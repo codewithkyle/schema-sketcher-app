@@ -68,3 +68,5 @@ export interface Point {
     x:number,
     y:number,
 }
+
+export type DatabaseType = "sqlite" | "postgresql" | "mysql" | "mssql";
