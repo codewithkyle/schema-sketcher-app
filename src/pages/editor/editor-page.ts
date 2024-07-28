@@ -33,7 +33,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
 
     override async connected(){
-        window.addEventListener("wheel", this.handleScroll, { passive: true, capture: true });
+        window.addEventListener("wheel", this.handleScroll, { passive: true });
         window.addEventListener("keydown", this.handleKeyDown);
         window.addEventListener("keyup", this.handleKeyUp);
         window.addEventListener("mousedown", this.handleMouseDown);

@@ -17,11 +17,20 @@ export default class SettingsModal extends SuperComponent<ISettingsModal>{
     }
 
     override async connected(){
+        window.addEventListener("wheel", this.noop, { passive: false, capture: true});
         await env.css(["settings-modal", "tabs"]);
         const types = diagramController.getTypes();
         this.set({
             types: types,
         });
+    }
+
+    override disconnected(){
+        window.removeEventListener("wheel", this.noop, { capture: true});
+    }
+
+    private noop:EventListener = (e:Event) => {
+        e.stopImmediatePropagation();
     }
 
     private close:EventListener = (e:Event) => {
