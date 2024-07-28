@@ -262,6 +262,26 @@ class DiagramController {
         this.diagram.columns[uid].name = value;
     }
 
+    public changeColumnType(uid:string, type:string){
+        this.diagram.columns[uid].type = type;
+    }
+
+    public changeColumnNullable(uid:string, value:boolean){
+        this.diagram.columns[uid].isNullable = value;
+    }
+
+    public changeColumnUnique(uid:string, value:boolean){
+        this.diagram.columns[uid].isUnique = value;
+    }
+
+    public changeColumnIndex(uid:string, value:boolean){
+        this.diagram.columns[uid].isIndex = value;
+    }
+
+    public changeColumnPrimaryKey(uid:string, value:boolean){
+        this.diagram.columns[uid].isPrimaryKey = value;
+    }
+
     public renameTable(uid:string, value:string){
         this.diagram.tables[uid].name = value;
     }

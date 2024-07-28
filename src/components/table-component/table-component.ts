@@ -232,29 +232,33 @@ export default class TableComponent extends Component<ITableComponent> {
 
     override async render() {
         this.style.transform = `translate(${this.dataset.left}px, ${this.dataset.top}px)`;
+        const view = html`
+            <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseenter=${this.handleMouseEnter} @mouseleave=${this.handleMouseLeave}>
+            <h4 @dblclick=${this.renameTable} title="${this.model.name}">${this.model.name}</h4>
+            </header>
+            <columns-container></columns-container>
+        `;
+        render(view, this);
         if (this.firstRender) {
             this.firstRender = false;
-            const view = html`
-                <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseenter=${this.handleMouseEnter} @mouseleave=${this.handleMouseLeave}>
-                    <h4 @dblclick=${this.renameTable} title="${this.model.name}">${this.model.name}</h4>
-                </header>
-                <columns-container></columns-container>
-            `;
-            render(view, this);
             new Sortable(this.querySelector("columns-container"), {
                 animation: 150,
                 group: "columns",
                 ghostClass: "is-disabled",
                 onUpdate: (e) => {
+                    console.log("update", e);
                     let columns = diagramController.getColumnsByTable(this.model.uid);
                     const column = columns.splice(e.oldIndex, 1)[0];
                     columns.splice(e.newIndex, 0, column);
                     diagramController.reorderColumns(columns);
                 },
                 onAdd: (e) => {
+                    console.log("add", e);
                     diagramController.moveColumn(e.item.dataset.uid, this.model.uid);
+                    e.item.updateData();
                 },
                 onRemove: (e) => {
+                    console.log("remove", e);
                     if (Array.from(this.querySelectorAll("column-component")).length === 0) {
                         diagramController.deleteTable(this.model.uid);
                         this.remove();

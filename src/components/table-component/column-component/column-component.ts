@@ -84,6 +84,7 @@ export default class ColumnComponent extends Component<IColumnComponent>{
                 case "p":
                     e.preventDefault();
                     const isPrimaryKey = this.model.isPrimaryKey ? false : true;
+                    diagramController.changeColumnPrimaryKey(this.model.uid, isPrimaryKey);
                     this.set({
                         isPrimaryKey: isPrimaryKey,
                     });
@@ -91,6 +92,7 @@ export default class ColumnComponent extends Component<IColumnComponent>{
                 case "u":
                     e.preventDefault();
                     const isUnique = this.model.isUnique ? false : true;
+                    diagramController.changeColumnUnique(this.model.uid, isUnique);
                     this.set({
                         isUnique: isUnique,
                     });
@@ -98,6 +100,7 @@ export default class ColumnComponent extends Component<IColumnComponent>{
                 case "i":
                     e.preventDefault();
                     const isIndex = this.model.isIndex ? false : true;
+                    diagramController.changeColumnIndex(this.model.uid, isIndex);
                     this.set({
                         isIndex: isIndex,
                     });
@@ -105,6 +108,7 @@ export default class ColumnComponent extends Component<IColumnComponent>{
                 case "k":
                     e.preventDefault();
                     const isNullable = this.model.isNullable ? false : true;
+                    diagramController.changeColumnNullable(this.model.uid, isNullable);
                     this.set({
                         isNullable: isNullable,
                     });
@@ -163,6 +167,7 @@ export default class ColumnComponent extends Component<IColumnComponent>{
     private changeType:EventListener = (e:Event) => {
         const target = e.currentTarget as HTMLSelectElement;
         const value = target.value;
+        diagramController.changeColumnType(this.model.uid, value);
         this.set({
             type: value,  
         });
@@ -175,6 +180,11 @@ export default class ColumnComponent extends Component<IColumnComponent>{
             tableID: this.model.tableID,
             refs: [this.model.tableID, this.model.uid],
         });
+    }
+
+    public updateData(){
+        const col = diagramController.getColumn(this.model.uid);
+        this.set(col);
     }
 
     override render(){

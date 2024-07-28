@@ -218,7 +218,6 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         `;
         render(view, this);
         const anchor = this.querySelector(".anchor");
-        console.log(diagramController.getTables());
         diagramController.getTables().map(table => {
             const el:HTMLElement = anchor.querySelector(`[data-uid="${table.uid}"]`) || new TableComponent();
             if (!el.isConnected){
