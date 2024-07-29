@@ -247,6 +247,10 @@ class DiagramController {
         this.diagram.tables[uid].y = y;
     }
 
+    public changeTableColor(uid:string, color:string){
+        this.diagram.tables[uid].color = color;
+    }
+
     public cloneTable(uid:string){
         this.tableCount++;
         const table = this.diagram.tables[uid];

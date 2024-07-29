@@ -62,7 +62,7 @@ export default class MainMenu extends SuperComponent<IBasicHeader>{
         });
     }
 
-    private onSave:EventListener = async (e:Event) => {
+    public async save() {
         const [diagram, json] = diagramController.export();
         const fileName = diagram.fileName || "untitled";
         if (this.file !== null) {
@@ -109,6 +109,10 @@ export default class MainMenu extends SuperComponent<IBasicHeader>{
                 }
             });
         }
+    }
+
+    private onSave:EventListener = (e:Event) => {
+        this.save();
     }
 
     private onOpen:EventListener = (e:Event) => {

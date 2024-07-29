@@ -8,6 +8,7 @@ import Component from "~brixi/component";
 import { parseDataset } from "~brixi/utils/general";
 import "~/brixi/components/overflow-button/overflow-button";
 import Sortable from "sortablejs";
+import ContextMenu from "~brixi/components/context-menu/context-menu";
 
 interface ITableComponent extends Table {
 }
@@ -220,6 +221,72 @@ export default class TableComponent extends Component<ITableComponent> {
         }
     };
 
+    private handleContextMenu:EventListener = (e:MouseEvent) => {
+        e.preventDefault();
+        if (e instanceof MouseEvent){
+            const x = e.clientX;
+            const y = e.clientY;
+            document.body.querySelectorAll("brixi-context-menu").forEach((el) => el.remove());
+            new ContextMenu({
+                items: [
+                    {
+                        label: "Rename",
+                        callback: () => {
+                            const newName = prompt(`New name for table ${this.model.name}?`);
+                            if (newName.length) {
+                                this.set({
+                                    name: newName,
+                                });
+                                diagramController.renameTable(this.model.uid, newName);
+                            }
+                        }
+                    },
+                    {
+                        label: "Duplicate",
+                        hotkey: "Ctrl+d",
+                        callback: () => {
+                            diagramController.cloneTable(this.model.uid);
+                        },
+                    },
+                    {
+                        label: "Add column",
+                        callback: () => {
+                            diagramController.createColumn(this.model.uid);
+                            this.render();
+                            this.focusLastColumn();
+                        },
+                    },
+                    {
+                        label: "Change color",
+                        callback: () => {
+                            const colorInput = document.createElement("input");
+                            colorInput.type = "color";
+                            colorInput.value = this.model.color;
+                            colorInput.onchange = (e) => {
+                                this.set({
+                                    color: colorInput.value,
+                                });
+                                diagramController.changeTableColor(this.model.uid, colorInput.value);
+                            };
+                            colorInput.click();
+                        },
+                    },
+                    null,
+                    {
+                        label: "Delete",
+                        hotkey: "delete",
+                        callback: () => {
+                            diagramController.deleteTable(this.model.uid);
+                            this.remove();
+                        },
+                    },
+                ],
+                x: x, 
+                y: y,
+            });
+        }
+    }
+
     public focusLastColumn() {
         setTimeout(() => {
             const input = this.querySelector('column-component:last-of-type input') as HTMLInputElement;
@@ -234,7 +301,7 @@ export default class TableComponent extends Component<ITableComponent> {
     override async render() {
         this.style.transform = `translate(${this.dataset.left}px, ${this.dataset.top}px)`;
         const view = html`
-            <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseenter=${this.handleMouseEnter} @mouseleave=${this.handleMouseLeave}>
+            <header style="border-top-color: ${this.model.color};" @mousedown=${this.mouseDown} @mouseenter=${this.handleMouseEnter} @mouseleave=${this.handleMouseLeave} @contextmenu=${this.handleContextMenu}>
             <h4 @dblclick=${this.renameTable} title="${this.model.name}">${this.model.name}</h4>
             </header>
             <columns-container></columns-container>

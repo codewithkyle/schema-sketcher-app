@@ -8,6 +8,7 @@ import "~components/editor-controls/editor-controls";
 import { createSubscription, publish, subscribe } from "~lib/pubsub";
 import "~components/canvas-component/canvas-component";
 import ContextMenu from "~brixi/components/context-menu/context-menu";
+import modals from "~brixi/controllers/modals";
 
 interface IEditorPage {}
 export default class EditorPage extends SuperComponent<IEditorPage>{
@@ -172,14 +173,24 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                         label: "Save",
                         hotkey: "Ctrl+S",
                         callback: () => {
-                            //diagramController.saveDiagram();
+                            const el = document.querySelector("main-menu");
+                            if (el) el.save();
                         },
                     },
                     {
-                        label: "Reload",
-                        hotkey: "Ctrl+R",
+                        label: "Reset",
                         callback: () => {
-                            location.reload();
+                            modals.dangerous({
+                                title: "Reset the canvas?",
+                                message: "This will remove all of your work and cannot be undone.",
+                                confirm: "Reset",
+                                cancel: "Cancel",
+                                callbacks: {
+                                    confirm: () => {
+                                        diagramController.reset();
+                                    }
+                                }
+                            });
                         },
                     },
                 ],
