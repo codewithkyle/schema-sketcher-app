@@ -32,6 +32,7 @@ export default class MainMenu extends SuperComponent<IBasicHeader>{
 
     override async connected(){
         window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
             this.deferredInstallPrompt = e;
         });
         await env.css(["main-menu", "button", "modals"]).then(() => {
