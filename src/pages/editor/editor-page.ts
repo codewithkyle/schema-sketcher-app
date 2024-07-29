@@ -228,15 +228,18 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
     }
     
     override async render(){
+        const tables = diagramController.getTables();
         const view = html`
             <canvas-component @contextmenu=${this.handleContextMenu}></canvas-component>
-            <div class="anchor" style="transform: ${`matrix(${this.scale}, 0, 0, ${this.scale}, ${this.x}, ${this.y})`}"></div>
+            <div class="anchor" style="transform: ${`matrix(${this.scale}, 0, 0, ${this.scale}, ${this.x}, ${this.y})`}">
+                <span class="${tables.length ? 'none' : ''} absolute center text-center whitespace-nowrap select-none font-sm font-grey-500">Right click to create your first table</span>
+            </div>
             <main-menu></main-menu>
             <editor-controls @move=${this.handleMove} data-is-moving="${this.isMoving}" data-scale="${this.scale}"></editor-controls>
         `;
         render(view, this);
         const anchor = this.querySelector(".anchor");
-        diagramController.getTables().map(table => {
+        tables.map(table => {
             const el:HTMLElement = anchor.querySelector(`[data-uid="${table.uid}"]`) || new TableComponent();
             if (!el.isConnected){
                 el.dataset.uid = table.uid;
