@@ -11,6 +11,10 @@ body{
     overflow-x: hidden;
     overflow-y: auto;
     position: relative;
+
+    @media (prefers-color-scheme: dark){
+        background-color: var(--grey-900);
+    }
 }
 
 button{
