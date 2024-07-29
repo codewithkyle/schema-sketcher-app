@@ -1,6 +1,6 @@
 
 self.manifest = {
-    "version": "961c372572091172a2f76a2a13af3fab",
+    "version": "7c0e951328682cbafc58e045cc506717",
     "assets": [
 		"/js/alerts.js",
 		"/js/bootstrap.js",
@@ -77,6 +77,7 @@ self.manifest = {
 		"/css/overflow-button.css",
 		"/css/overflow-menu.css",
 		"/css/settings-modal.css",
+		"/css/snackbar.css",
 		"/css/spinner.css",
 		"/css/submit-button.css",
 		"/css/table-component.css",
