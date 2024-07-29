@@ -12,6 +12,11 @@ body {
   overflow-y: auto;
   position: relative;
 }
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: var(--grey-900);
+  }
+}
 
 button {
   padding: 0;
