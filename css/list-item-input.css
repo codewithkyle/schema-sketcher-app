@@ -1,0 +1,66 @@
+list-item-input {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  width: 100%;
+}
+list-item-input:not(:last-of-type) {
+  border-bottom: 1px solid var(--grey-300);
+}
+@media (prefers-color-scheme: dark) {
+  list-item-input:not(:last-of-type) {
+    border-color: var(--grey-700);
+  }
+}
+list-item-input input {
+  width: 100%;
+  flex: 1;
+  height: 36px;
+  padding: 0 1rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+@media (prefers-color-scheme: dark) {
+  list-item-input input {
+    background-color: var(--grey-900);
+    color: var(--grey-300);
+    border-color: var(--grey-700);
+  }
+}
+list-item-input button {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-left: 1px solid var(--grey-300);
+  background-color: var(--grey-50);
+  color: var(--grey-600);
+  cursor: pointer;
+  transition: all 80ms var(--ease-in-out);
+  border-radius: 0;
+}
+list-item-input button:hover {
+  background-color: var(--grey-100);
+}
+list-item-input button:active {
+  background-color: var(--grey-200);
+}
+@media (prefers-color-scheme: dark) {
+  list-item-input button {
+    background-color: var(--grey-800);
+    color: var(--grey-300);
+    border-color: var(--grey-700);
+  }
+  list-item-input button:hover {
+    background-color: var(--grey-700);
+  }
+  list-item-input button:active {
+    background-color: var(--grey-600);
+  }
+}
+list-item-input button svg {
+  width: 14px;
+  height: 14px;
+}

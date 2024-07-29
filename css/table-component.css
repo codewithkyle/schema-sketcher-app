@@ -1,0 +1,73 @@
+table-component {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: var(--white);
+  box-shadow: var(--shadow-black-sm);
+  width: 380px;
+  border-radius: 0.25rem;
+  transition: box-shadow 80ms var(--ease-in-out);
+  outline-offset: 0px;
+}
+table-component:hover, table-component:focus-within {
+  z-index: 1000;
+}
+table-component:hover {
+  box-shadow: var(--shadow-black-md);
+}
+table-component:focus {
+  box-shadow: var(--shadow-black-lg);
+  outline: solid 4px var(--primary-400);
+  outline-offset: 6px;
+  transition: outline-offset 80ms var(--ease-out);
+}
+@media (prefers-color-scheme: dark) {
+  table-component {
+    background-color: var(--grey-800);
+  }
+}
+.canvas:not([cursor=auto]) table-component {
+  pointer-events: none;
+}
+table-component header {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  flex-flow: row nowrap;
+  height: 48px;
+  padding: 0 0 0 1rem;
+  background-color: var(--grey-50);
+  border-radius: 0.25rem 0.25rem 0 0;
+  border-top: 0.5rem solid var(--grey-400);
+  border-bottom: 1px solid var(--grey-300);
+  cursor: move;
+}
+@media (prefers-color-scheme: dark) {
+  table-component header {
+    background-color: var(--grey-800);
+    border-top-color: var(--grey-700);
+    border-bottom-color: var(--grey-700);
+  }
+}
+table-component header h4 {
+  user-select: none;
+  font-size: var(--font-md);
+  font-weight: var(--font-medium);
+  width: 100%;
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding-right: 0.5rem;
+}
+@media (prefers-color-scheme: dark) {
+  table-component header h4 {
+    color: var(--grey-300);
+  }
+}
+table-component columns-container {
+  display: flex;
+  flex-flow: column wrap;
+  width: 100%;
+}

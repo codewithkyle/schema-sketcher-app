@@ -1,0 +1,129 @@
+editor-controls {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  flex-flow: row nowrap;
+  z-index: 5000;
+}
+editor-controls .move {
+  width: 36px;
+  height: 36px;
+  background-color: var(--grey-200);
+  color: var(--grey-600);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.75rem;
+  box-shadow: var(--shadow-md);
+  border-radius: 0.5rem;
+  transition: all 80ms var(--ease-in-out);
+}
+editor-controls .move.is-active {
+  background-color: var(--primary-500);
+  color: var(--white) !important;
+}
+editor-controls .move.is-active:hover {
+  background-color: var(--primary-400);
+}
+editor-controls .move.is-active:active {
+  background-color: var(--primary-500);
+}
+editor-controls .move:hover {
+  background-color: var(--grey-200);
+  color: var(--grey-700);
+}
+editor-controls .move:active {
+  background-color: var(--grey-400);
+  color: var(--grey-700);
+}
+@media (prefers-color-scheme: dark) {
+  editor-controls .move {
+    background-color: var(--grey-800);
+    color: var(--grey-300);
+  }
+  editor-controls .move:hover {
+    background-color: var(--grey-700);
+    color: var(--white);
+  }
+  editor-controls .move:active {
+    background-color: var(--grey-600);
+    color: var(--white);
+  }
+}
+editor-controls .move svg {
+  width: 18px;
+  height: 18px;
+}
+editor-controls .scale {
+  display: inline-flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  box-shadow: var(--shadow-md);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+editor-controls .scale button {
+  width: 36px;
+  height: 36px;
+  background-color: var(--grey-200);
+  color: var(--grey-600);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 80ms var(--ease-in-out);
+}
+editor-controls .scale button:first-of-type {
+  border-radius: 0.5rem 0 0 0.5rem;
+}
+editor-controls .scale button:last-of-type {
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+editor-controls .scale button:hover {
+  background-color: var(--grey-200);
+  color: var(--grey-700);
+}
+editor-controls .scale button:active {
+  background-color: var(--grey-400);
+  color: var(--grey-700);
+}
+@media (prefers-color-scheme: dark) {
+  editor-controls .scale button {
+    background-color: var(--grey-800);
+    color: var(--grey-300);
+  }
+  editor-controls .scale button:hover {
+    background-color: var(--grey-700);
+    color: var(--white);
+  }
+  editor-controls .scale button:active {
+    background-color: var(--grey-600);
+    color: var(--white);
+  }
+}
+editor-controls .scale button svg {
+  width: 18px;
+  height: 18px;
+}
+editor-controls .scale span {
+  height: 36px;
+  width: 96px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  color: var(--grey-700);
+  text-align: center;
+  font-weight: var(--font-medium);
+  font-size: var(--font-base);
+  background-color: var(--grey-200);
+  cursor: default;
+  user-select: none;
+}
+@media (prefers-color-scheme: dark) {
+  editor-controls .scale span {
+    background-color: var(--grey-800);
+    color: var(--grey-300);
+  }
+}

@@ -1,0 +1,19 @@
+editor-page {
+  display: grid;
+  grid-template-rows: 64px 1fr;
+  gap: 0;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background-color: var(--grey-50);
+}
+@media (prefers-color-scheme: dark) {
+  editor-page {
+    background-color: var(--grey-900);
+  }
+}
+editor-page .anchor {
+  position: absolute;
+  width: 0px;
+  height: 0px;
+}

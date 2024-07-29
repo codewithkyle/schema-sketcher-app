@@ -1,0 +1,119 @@
+column-component {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  flex-flow: row nowrap;
+  height: 36px;
+  padding: 0 0.5rem 0 0.5rem;
+  transition: background-color 80ms var(--ease-in-out), color 80ms var(--ease-in-out);
+  color: var(--grey-700);
+  overflow: visible;
+}
+column-component:last-of-type {
+  border-radius: 0 0 0.25rem 0.25rem;
+}
+column-component:hover {
+  background-color: var(--grey-50);
+}
+column-component:hover * {
+  color: var(--primary-500);
+}
+column-component:hover connector-component {
+  opacity: 1;
+  visibility: visible;
+}
+column-component:focus-within {
+  background-color: var(--grey-100);
+}
+column-component:focus-within * {
+  color: var(--primary-500);
+}
+column-component:focus-within connector-component {
+  opacity: 1;
+  visibility: visible;
+}
+column-component.is-disabled {
+  background-color: var(--grey-50);
+  user-select: none;
+}
+column-component.is-disabled * {
+  color: var(--grey-300);
+  box-shadow: none !important;
+}
+@media (prefers-color-scheme: dark) {
+  column-component:hover {
+    background-color: var(--grey-700);
+  }
+  column-component:hover * {
+    color: var(--primary-400);
+  }
+  column-component:focus-within {
+    background-color: var(--grey-800);
+  }
+  column-component:focus-within * {
+    color: var(--primary-400);
+  }
+  column-component.is-disabled {
+    background-color: var(--grey-900);
+  }
+}
+column-component input {
+  width: 100%;
+  flex: 1;
+  height: 24px;
+  line-height: 1;
+  border-radius: 0.25rem;
+  padding: 0 0.25rem;
+  transition: all 80ms var(--ease-in-out);
+  background: transparent;
+  text-overflow: ellipsis;
+}
+column-component input:focus {
+  box-shadow: var(--focus-ring);
+}
+@media (prefers-color-scheme: dark) {
+  column-component input {
+    color: var(--grey-300);
+  }
+}
+column-component select {
+  height: 24px;
+  appearance: none;
+  background-color: transparent;
+  padding: 0 0.5rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: var(--font-base);
+  transition: all 80ms var(--ease-in-out);
+  color: var(--grey-500);
+  text-align: right;
+  text-align-last: right;
+}
+column-component select:focus {
+  color: var(--primary-500);
+  outline: solid 4px var(--primary-400);
+  outline-offset: 6px;
+  transition: outline-offset 80ms var(--ease-out);
+}
+column-component i {
+  width: 28px;
+  height: 28px;
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 80ms var(--ease-in-out);
+  color: var(--grey-500);
+}
+@media (prefers-color-scheme: dark) {
+  column-component i {
+    color: var(--grey-300);
+  }
+}
+column-component i svg {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  position: absolute;
+}

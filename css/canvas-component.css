@@ -1,0 +1,35 @@
+canvas-component {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+canvas-component[cursor=hand] {
+  cursor: grab;
+}
+canvas-component[cursor=grabbing] {
+  cursor: grabbing;
+}
+canvas-component[cursor=zoom] {
+  cursor: zoom-in;
+}
+canvas-component .diagram {
+  position: relative;
+  width: 0;
+  height: 0;
+  display: inline-block;
+  overflow: visible;
+}
+canvas-component canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+canvas-component canvas.hit {
+  visibility: hidden;
+  opacity: 0;
+}

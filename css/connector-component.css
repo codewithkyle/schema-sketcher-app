@@ -1,0 +1,28 @@
+connector-component {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--white);
+  border: 2px solid var(--grey-500);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 80ms var(--ease-in-out);
+  cursor: crosshair;
+  z-index: 10;
+}
+connector-component:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-500);
+  background-color: var(--primary-200);
+}
+@media (prefers-color-scheme: dark) {
+  connector-component {
+    border-color: var(--grey-500);
+    background-color: var(--grey-500);
+  }
+  connector-component:hover {
+    border-color: var(--primary-300);
+    background-color: var(--primary-400);
+  }
+}

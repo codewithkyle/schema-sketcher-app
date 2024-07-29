@@ -1,0 +1,45 @@
+.modal .databases {
+  display: grid;
+  gird-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  place-items: center;
+  padding: 2rem 2.5rem 2.5rem;
+}
+@media (min-width: 768px) {
+  .modal .databases {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.modal .databases button:hover img, .modal .databases button:focus-visible img {
+  filter: none;
+}
+.modal .databases button:hover span, .modal .databases button:focus-visible span {
+  color: var(--grey-700);
+}
+@media (prefers-color-scheme: dark) {
+  .modal .databases button:hover span, .modal .databases button:focus-visible span {
+    color: var(--white);
+  }
+}
+.modal .databases img {
+  width: 64px;
+  height: 64px;
+  display: block;
+  margin: 0 auto 0.5rem;
+  object-fit: contain;
+  filter: grayscale(100%);
+  transition: filter 150ms var(--ease-in-out);
+}
+.modal .databases span {
+  display: block;
+  text-align: center;
+  font-size: var(--font-sm);
+  font-weight: var(--font-medium);
+  color: var(--grey-400);
+  transition: color 150ms var(--ease-in-out);
+}
+@media (prefers-color-scheme: dark) {
+  .modal .databases span {
+    color: var(--grey-600);
+  }
+}

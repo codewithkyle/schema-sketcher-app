@@ -1,0 +1,89 @@
+main-menu {
+  display: inline-block;
+  padding: 1rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+main-menu > button {
+  display: block;
+  width: 42px;
+  height: 42px;
+  border-radius: 0.5rem;
+  background-color: var(--grey-200);
+  color: var(--grey-700);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 150ms var(--ease-in-out);
+}
+main-menu > button:hover, main-menu > button:focus {
+  background-color: var(--grey-300);
+}
+main-menu > button:active {
+  background-color: var(--grey-400);
+  transition: background-color 80ms var(--ease-in-out);
+}
+@media (prefers-color-scheme: dark) {
+  main-menu > button {
+    background-color: var(--grey-800);
+    color: var(--grey-300);
+  }
+  main-menu > button:hover, main-menu > button:focus {
+    background-color: var(--grey-700);
+  }
+  main-menu > button:active {
+    background-color: var(--grey-600);
+  }
+}
+main-menu > button svg {
+  width: 20px;
+  height: 20px;
+}
+main-menu nav {
+  display: block;
+  width: 200px;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  background-color: var(--grey-200);
+  margin-top: 1rem;
+}
+@media (prefers-color-scheme: dark) {
+  main-menu nav {
+    background-color: var(--grey-800);
+  }
+}
+main-menu nav button {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  height: 32px;
+  padding: 0 0.5rem;
+  border-radius: 0.5rem;
+  color: var(--grey-700);
+  font-size: var(--font-sm);
+  width: 100%;
+}
+main-menu nav button:hover, main-menu nav button:focus-visible {
+  background-color: var(--grey-300);
+}
+main-menu nav button:active {
+  background-color: var(--grey-400);
+}
+@media (prefers-color-scheme: dark) {
+  main-menu nav button {
+    color: var(--grey-300);
+  }
+  main-menu nav button:hover, main-menu nav button:focus-visible {
+    background-color: var(--grey-700);
+  }
+  main-menu nav button:active {
+    background-color: var(--grey-600);
+  }
+}
+main-menu nav button svg {
+  width: 18px;
+  height: 18px;
+  margin-right: 0.5rem;
+}

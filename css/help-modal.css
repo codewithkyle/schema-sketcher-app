@@ -1,0 +1,86 @@
+help-modal {
+  display: block;
+  width: 100%;
+  padding: 2rem;
+}
+help-modal .sections {
+  display: grid;
+  width: 100%;
+  position: relative;
+  grid-template-columns: minmax(0px, 1fr);
+  gap: 2rem;
+}
+@media (min-width: 768px) {
+  help-modal .sections {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+help-modal .sections .section {
+  display: block;
+  width: 100%;
+  position: relative;
+}
+help-modal .sections .section h4 {
+  display: block;
+  width: 100%;
+  padding-left: 0.25rem;
+  margin-bottom: 1rem;
+  font-weight: var(--font-medium);
+  color: var(--grey-700);
+}
+@media (prefers-color-scheme: dark) {
+  help-modal .sections .section h4 {
+    color: var(--grey-100);
+  }
+}
+help-modal .sections .section .hotkeys {
+  display: block;
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--grey-300);
+}
+@media (prefers-color-scheme: dark) {
+  help-modal .sections .section .hotkeys {
+    border-color: var(--grey-700);
+  }
+}
+help-modal .sections .section .hotkeys .hotkey {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid var(--grey-300);
+}
+help-modal .sections .section .hotkeys .hotkey:last-child {
+  border-bottom: none;
+}
+@media (prefers-color-scheme: dark) {
+  help-modal .sections .section .hotkeys .hotkey {
+    border-color: var(--grey-700);
+  }
+}
+help-modal .sections .section .hotkeys .hotkey h5 {
+  display: block;
+  color: var(--grey-600);
+  font-size: var(--font-sm);
+}
+@media (prefers-color-scheme: dark) {
+  help-modal .sections .section .hotkeys .hotkey h5 {
+    color: var(--grey-300);
+  }
+}
+help-modal .sections .section .hotkeys .hotkey code {
+  display: block;
+  color: var(--grey-500);
+  font-size: var(--font-xs);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  background-color: var(--grey-100);
+  margin-left: 0.5rem;
+}
+@media (prefers-color-scheme: dark) {
+  help-modal .sections .section .hotkeys .hotkey code {
+    color: var(--grey-300);
+    background-color: var(--grey-700);
+  }
+}
