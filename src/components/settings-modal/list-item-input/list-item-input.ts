@@ -3,6 +3,7 @@ import env from "~brixi/controllers/env";
 import { html, render } from "lit-html";
 import { ColumnType } from "~types/diagram";
 import diagramController from "~controllers/diagram-controller";
+import notifications from "~brixi/controllers/alerts";
 
 interface IListItemInput extends ColumnType {}
 export default class ListItemInput extends SuperComponent<IListItemInput>{
@@ -19,6 +20,7 @@ export default class ListItemInput extends SuperComponent<IListItemInput>{
 
     private updateValue(value:string){
         diagramController.updateType(this.model.uid, value);
+        notifications.toast(`Updated column type '${this.model.name}'`);
     }
     private debounceInput = this.debounce(this.updateValue.bind(this), 300);
     private handleInput:EventListener = (e:Event) => {
@@ -32,6 +34,7 @@ export default class ListItemInput extends SuperComponent<IListItemInput>{
         const uid = target.dataset.uid;
         diagramController.deleteType(uid);
         this.remove();
+        notifications.toast(`Deleted column type '${this.model.name}'`);
     }
 
     override render(){
