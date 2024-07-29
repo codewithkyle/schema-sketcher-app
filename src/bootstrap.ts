@@ -1,5 +1,8 @@
+import notifications from "~brixi/controllers/alerts";
+
 (async () => {
     if (window.location.hostname !== "localhost" && "serviceWorker" in navigator) {
+        let updated = false;
         await new Promise<void>(resolve => {
             navigator.serviceWorker.register("/service-worker.js", { scope: "/" });
             navigator.serviceWorker.addEventListener("message", (e) => {
@@ -11,6 +14,7 @@
                     // @ts-expect-error
                     if (self.manifest.version !== localStorage.getItem("version")) {
                         localStorage.removeItem("version");
+                        updated = true;
                     } else {
                         // @ts-expect-error
                         delete self.manifest.assets;
@@ -25,6 +29,9 @@
                 resolve();
             });
         });
+        if (updated) {
+            notifications.snackbar("Schema Sketcher is ready to work offline");
+        }
     }
 
     //@ts-ignore
