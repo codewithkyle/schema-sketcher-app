@@ -68,6 +68,7 @@ export default class CanvasComponent extends HTMLElement{
         this.ctx = this.canvas.getContext("2d");
         this.hitCTX = this.hitCanvas.getContext("2d");
         window.addEventListener("mousemove", this.handleMouseMove);
+        window.addEventListener("keydown", this.handleKeyboard);
         window.addEventListener("mousedown", this.endMouseMove);
         window.addEventListener("contextmenu", this.onContextMenu);
         window.addEventListener("resize", debounce(()=>{
@@ -136,6 +137,14 @@ export default class CanvasComponent extends HTMLElement{
 
     private endMouseMove:EventListener = (e:MouseEvent) => {
         this.openStartPoint = null;
+    }
+
+    private handleKeyboard:EventListener = (e:KeyboardEvent) => {
+        if (e.key === "Escape"){
+            this.openStartPoint = null;
+        } else if (e.key === "Delete" && this.activeLineId !== null){
+            diagramController.deleteConnection(this.activeLineId);
+        }
     }
 
     private handleMouseMove:EventListener = (e:MouseEvent) => {

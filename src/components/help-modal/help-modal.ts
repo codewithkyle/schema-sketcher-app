@@ -147,6 +147,23 @@ export default class HelpModal extends SuperComponent<IHelpModal>{
                         </div>
                     </div>
                 </div>
+                <div class="section">
+                    <h4>Connections</h4>
+                    <div class="hotkeys">
+                        <div class="hotkey">
+                            <h5>Change type</h5>
+                            <div flex="row nowrap items-center">
+                                <code>Right click</code>
+                            </div>
+                        </div>
+                        <div class="hotkey">
+                            <h5>Delete</h5>
+                            <div flex="row nowrap items-center">
+                                <code>Delete</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
         render(view, this);
