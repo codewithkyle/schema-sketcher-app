@@ -144,8 +144,10 @@ export default class CanvasComponent extends HTMLElement{
     private handleKeyboard:EventListener = (e:KeyboardEvent) => {
         if (e.key === "Escape"){
             this.openStartPoint = null;
+            this.isDirty = true;
         } else if (e.key === "Delete" && this.activeLineId !== null){
             diagramController.deleteConnection(this.activeLineId);
+            this.isDirty = true;
         }
     }
 
