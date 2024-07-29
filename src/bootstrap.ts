@@ -16,13 +16,13 @@ import notifications from "~brixi/controllers/alerts";
                     if (self.manifest.version !== localStorage.getItem("version")) {
                         localStorage.removeItem("version");
                         updated = true;
-                    } 
-                    //else {
-                        //// @ts-expect-error
-                        //delete self.manifest.assets;
-                    //}
-                    //registration.active.postMessage(self.manifest);
+                        // @ts-expect-error
+                        registration.active.postMessage(self.manifest);
+                    } else {
+                        resolve();
+                    }
                 } catch (e) {
+                    resolve();
                     //registration.active.postMessage({
                         //version: localStorage.getItem("version") || "init",
                     //});

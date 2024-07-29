@@ -12,7 +12,7 @@
         "deploy": "node ./build/deploy.js"
     },
     "devDependencies": {
-        "@codewithkyle/asset-manager": "^1.0.2",
+        "@codewithkyle/asset-manager": "^1.1.0",
         "@codewithkyle/notifyjs": "^4.1.0",
         "@codewithkyle/pubsub": "^1.1.1",
         "@codewithkyle/router": "^2.1.3",
