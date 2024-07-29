@@ -68,7 +68,7 @@ export default class CanvasComponent extends HTMLElement{
         this.hitCanvas.width = window.innerWidth;
         this.hitCanvas.height = window.innerHeight;
         this.ctx = this.canvas.getContext("2d");
-        this.hitCTX = this.hitCanvas.getContext("2d");
+        this.hitCTX = this.hitCanvas.getContext("2d", { willReadFrequently: true });
         window.addEventListener("mousemove", this.handleMouseMove);
         window.addEventListener("keydown", this.handleKeyboard);
         window.addEventListener("mousedown", this.endMouseMove);
