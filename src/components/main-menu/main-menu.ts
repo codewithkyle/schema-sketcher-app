@@ -17,12 +17,10 @@ interface IBasicHeader {
 }
 export default class MainMenu extends SuperComponent<IBasicHeader>{
     private file:FileSystemFileHandle;
-    private deferredInstallPrompt: any;
 
     constructor(){
         super();
         this.file = null;
-        this.deferredInstallPrompt = null;
         this.model = {
             open: false,
             unsaved: false,
@@ -31,10 +29,6 @@ export default class MainMenu extends SuperComponent<IBasicHeader>{
     }
 
     override async connected(){
-        window.addEventListener('beforeinstallprompt', e => {
-            e.preventDefault();
-            this.deferredInstallPrompt = e;
-        });
         await env.css(["main-menu", "button", "modals"]).then(() => {
             this.render();
         });
@@ -199,10 +193,11 @@ export default class MainMenu extends SuperComponent<IBasicHeader>{
     }
 
     private onInstall:EventListener = (e:Event) => {
-        if (this.deferredInstallPrompt) {
-            this.deferredInstallPrompt.prompt();
-            this.deferredInstallPrompt.userChoice.then(() => {
-                this.deferredInstallPrompt = null;
+        console.log(window?.deferredInstallPrompt);
+        if (window?.deferredInstallPrompt) {
+            window.deferredInstallPrompt.prompt();
+            window.deferredInstallPrompt.userChoice.then(() => {
+                window.deferredInstallPrompt = null;
             });
         } else {
             notifications.snackbar("Your browser does not support installation of web applications.");
