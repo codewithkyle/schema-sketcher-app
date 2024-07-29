@@ -60,7 +60,21 @@ main-menu{
             background-color: var(--grey-800);
         }
 
-        button {
+        hr {
+            display: block;
+            width: 100%;
+            height: 1px;
+            border: none;
+            background-color: var(--grey-300);
+            margin: 0.5rem 0;
+
+            @media (prefers-color-scheme: dark) {
+                background-color: var(--grey-700);
+            }
+        }
+
+        button,
+        a{
             display: flex;
             flex-flow: row nowrap;
             align-items: center;
