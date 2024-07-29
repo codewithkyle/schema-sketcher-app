@@ -100,4 +100,39 @@ main-menu{
             }
         }
     }
+
+    .unsaved-warning {
+        position: fixed;
+        left: calc(42px + 2rem);
+        top: calc(1rem + ((42px - 32px) / 2));
+        padding: 0 0.75rem 0 0.5rem;
+        border-radius: 15px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        flex-flow: row nowrap;
+        background-color: hsl(var(--warning-400-hsl) / 0.15);
+        color: var(--warning-600);
+        font-size: var(--font-xs);
+        font-weight: var(--font-medium);
+        opacity: 0;
+        visibility: hidden;
+
+        &.visible {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 150ms var(--ease-in-out), visibility 150ms var(--ease-in-out);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            background-color: hsl(var(--warning-400-hsl) / 0.1);
+            color: var(--warning-400);
+        }
+
+        svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.5rem;
+        }
+    }
 }

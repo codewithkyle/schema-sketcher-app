@@ -158,6 +158,7 @@ class DiagramController {
         };
         this.diagram.tables[uid] = table;
         this.createColumn(uid, "id", true);
+        publish("diagram", { type: "dirty" });
     }
 
     public createColumn(tableID:string, name = "", primaryKey = false){
@@ -174,6 +175,7 @@ class DiagramController {
             tableID: tableID,
         };
         this.diagram.columns[columnUid] = column;
+        publish("diagram", { type: "dirty" });
     }
 
     public deleteColumn(columnID:string){
@@ -189,6 +191,7 @@ class DiagramController {
         publish("canvas", {
             type: "reload",
         });
+        publish("diagram", { type: "dirty" });
     }
 
     public getColumnsByTable(tableID:string):Array<Column>{
@@ -209,47 +212,58 @@ class DiagramController {
         columns.map((column, index) => {
             this.diagram.columns[column.uid].weight = index;
         });
+        publish("diagram", { type: "dirty" });
     }
 
     public moveColumn(columnID:string, tableID:string){
         this.diagram.columns[columnID].tableID = tableID;
+        publish("diagram", { type: "dirty" });
     }
 
     public renameColumn(uid:string, value:string){
         this.diagram.columns[uid].name = value;
+        publish("diagram", { type: "dirty" });
     }
 
     public changeColumnType(uid:string, type:string){
         this.diagram.columns[uid].type = type;
+        publish("diagram", { type: "dirty" });
     }
 
     public changeColumnNullable(uid:string, value:boolean){
         this.diagram.columns[uid].isNullable = value;
+        publish("diagram", { type: "dirty" });
     }
 
     public changeColumnUnique(uid:string, value:boolean){
         this.diagram.columns[uid].isUnique = value;
+        publish("diagram", { type: "dirty" });
     }
 
     public changeColumnIndex(uid:string, value:boolean){
         this.diagram.columns[uid].isIndex = value;
+        publish("diagram", { type: "dirty" });
     }
 
     public changeColumnPrimaryKey(uid:string, value:boolean){
         this.diagram.columns[uid].isPrimaryKey = value;
+        publish("diagram", { type: "dirty" });
     }
 
     public renameTable(uid:string, value:string){
         this.diagram.tables[uid].name = value;
+        publish("diagram", { type: "dirty" });
     }
 
     public updateTablePosition(uid:string, x:number, y:number){
         this.diagram.tables[uid].x = x;
         this.diagram.tables[uid].y = y;
+        publish("diagram", { type: "dirty" });
     }
 
     public changeTableColor(uid:string, color:string){
         this.diagram.tables[uid].color = color;
+        publish("diagram", { type: "dirty" });
     }
 
     public cloneTable(uid:string){
@@ -274,6 +288,7 @@ class DiagramController {
             this.diagram.columns[columnUid] = clone;
         });
         publish("diagram", { type: "load" });
+        publish("diagram", { type: "dirty" });
     }
     
     public async createNode(placeX:number, placeY:number){
@@ -300,6 +315,7 @@ class DiagramController {
             color: this.randomRGBColor(),
         };
         this.diagram.connections[uid] = connection;
+        publish("diagram", { type: "dirty" });
     }
 
     public getConnections():Array<Connection>{
@@ -308,10 +324,12 @@ class DiagramController {
 
     public updateConnectionType(uid:string, type:ConnectionType){
         this.diagram.connections[uid].type = type;
+        publish("diagram", { type: "dirty" });
     }
 
     public deleteConnection(uid:string){
         delete this.diagram.connections[uid];
+        publish("diagram", { type: "dirty" });
     }
 
     public getTypes():Array<ColumnType>{
@@ -320,6 +338,7 @@ class DiagramController {
 
     public updateType(uid:string, value:string){
         this.diagram.types[uid].name = value;
+        publish("diagram", { type: "dirty" });
     }
 
     public deleteType(uid:string){
@@ -329,6 +348,7 @@ class DiagramController {
                 this.diagram.columns[columnID].type = Object.keys(this.diagram.types)[0];
             }
         }
+        publish("diagram", { type: "dirty" });
     }
 
     public createType(value = ""){
@@ -338,6 +358,7 @@ class DiagramController {
             uid: uid,
         };
         this.diagram.types[uid] = type;
+        publish("diagram", { type: "dirty" });
     }
 
     public getTables():Array<Table>{
@@ -364,6 +385,7 @@ class DiagramController {
         publish("canvas", {
             type: "reload",
         });
+        publish("diagram", { type: "dirty" });
     }
 
     public deleteNode(nodeID:string){
