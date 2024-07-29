@@ -118,7 +118,6 @@ class ModalMaker {
                             data-kind="solid"
                             class="mr-0.5"
                             @click=${() => {
-                                console.log("cancel");
                                 if ("cancel" in data.callbacks && typeof data.callbacks.cancel === "function") {
                                     data.callbacks.cancel();
                                 }

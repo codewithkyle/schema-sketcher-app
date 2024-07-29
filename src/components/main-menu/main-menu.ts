@@ -193,7 +193,6 @@ export default class MainMenu extends SuperComponent<IBasicHeader>{
     }
 
     private onInstall:EventListener = (e:Event) => {
-        console.log(window?.deferredInstallPrompt);
         if (window?.deferredInstallPrompt) {
             window.deferredInstallPrompt.prompt();
             window.deferredInstallPrompt.userChoice.then(() => {
