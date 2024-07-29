@@ -1,46 +1,22 @@
-self.importScripts('./service-worker-assets.js');
-
-self.addEventListener('install', event => event.waitUntil(onInstall(event)));
-self.addEventListener('activate', event => event.waitUntil(onActivate(event)));
-self.addEventListener('fetch', event => event.respondWith(onFetch(event)));
-
-const cacheNamePrefix = 'resource-cache-';
-const cacheName = `${cacheNamePrefix}${self.manifest.version}`;
-
-const STATIC_ASSETS = ["/", "/static/schema.json", "/config.js", "/static/stream.worker.js", "/static/jsql.worker.js"];
-
-// Cache files when the service worker is installed or updated
-async function onInstall(event) {
+self.addEventListener("install", function (e) {
     self.skipWaiting();
-    const assets = [...STATIC_ASSETS, ...self.manifest.assets];
-    const assetsRequests = assets.map(asset => {
-        return new Request(asset, {
-            cache: "reload",
-        });
+});
+
+self.addEventListener("activate", (e) => {
+    caches.keys().then((cacheNames) => {
+        return Promise.all(
+            cacheNames.map((cacheName) => {
+                caches.delete(cacheName);
+            })
+        );
     });
-    for (const request of assetsRequests){
-        await caches.open(cacheName).then(cache => cache.add(request)).catch(error => {
-            console.error("Failed to cache:", request, error);
+    self.registration
+        .unregister()
+        .then(function () {
+            return self.clients.matchAll();
+        })
+        .then(function (clients) {
+            clients.forEach((client) => client.navigate(client.url));
         });
-    }
-}
+});
 
-// Cleanup old caches
-async function onActivate(event) {
-    const cacheKeys = await caches.keys();
-    await Promise.all(cacheKeys
-        .filter(key => key.startsWith(cacheNamePrefix) && key !== cacheName)
-        .map(key => caches.delete(key)));
-}
-
-// Try to respond with cached files
-async function onFetch(event) {
-    if (event.request.method === 'GET' && event.request.url.indexOf(self.origin) === 0) {
-        const cache = await caches.open(cacheName);
-        const cachedResponse = await cache.match(event.request);
-        if (cachedResponse){
-            return cachedResponse;
-        }
-    }
-    return fetch(event.request);
-}
