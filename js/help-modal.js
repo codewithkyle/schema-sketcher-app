@@ -120,5 +120,22 @@ import i from"./supercomponent.js";import{html as c,render as t}from"./lit-html.
                         </div>
                     </div>
                 </div>
+                <div class="section">
+                    <h4>Connections</h4>
+                    <div class="hotkeys">
+                        <div class="hotkey">
+                            <h5>Change type</h5>
+                            <div flex="row nowrap items-center">
+                                <code>Right click</code>
+                            </div>
+                        </div>
+                        <div class="hotkey">
+                            <h5>Delete</h5>
+                            <div flex="row nowrap items-center">
+                                <code>Delete</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;t(e,this)}}d.bind("help-modal",o);export{o as default};
