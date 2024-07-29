@@ -105,6 +105,19 @@ import i from"./supercomponent.js";import{html as c,render as t}from"./lit-html.
                                 <code>Scroll</code>
                             </div>
                         </div>
+                        <div class="hotkey">
+                            <h5>Create table</h5>
+                            <div flex="row nowrap items-center">
+                                <code>Right click</code>
+                            </div>
+                        </div>
+                        <div class="hotkey">
+                            <h5>Save</h5>
+                            <div flex="row nowrap items-center">
+                                <code>Ctrl</code>
+                                <code>s</code>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

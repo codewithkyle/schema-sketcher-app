@@ -1,6 +1,6 @@
 
 self.manifest = {
-    "version": "07e581dc545c935810ce342b0174802c",
+    "version": "9e5a7f57d59d65ebe70f1da09bc1ccc8",
     "assets": [
 		"/js/alerts.js",
 		"/js/bootstrap.js",

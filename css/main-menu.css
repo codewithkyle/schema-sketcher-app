@@ -87,3 +87,36 @@ main-menu nav button svg {
   height: 18px;
   margin-right: 0.5rem;
 }
+main-menu .unsaved-warning {
+  position: fixed;
+  left: calc(42px + 2rem);
+  top: calc(1rem + 5px);
+  padding: 0 0.75rem 0 0.5rem;
+  border-radius: 15px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  flex-flow: row nowrap;
+  background-color: hsl(var(--warning-400-hsl)/0.15);
+  color: var(--warning-600);
+  font-size: var(--font-xs);
+  font-weight: var(--font-medium);
+  opacity: 0;
+  visibility: hidden;
+}
+main-menu .unsaved-warning.visible {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 150ms var(--ease-in-out), visibility 150ms var(--ease-in-out);
+}
+@media (prefers-color-scheme: dark) {
+  main-menu .unsaved-warning {
+    background-color: hsl(var(--warning-400-hsl)/0.1);
+    color: var(--warning-400);
+  }
+}
+main-menu .unsaved-warning svg {
+  width: 20px;
+  height: 20px;
+  margin-right: 0.5rem;
+}
