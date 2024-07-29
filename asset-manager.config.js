@@ -18,4 +18,5 @@ module.exports = {
         },
     ],
     output: "./public/service-worker-assets.js",
+    static: ["/"]
 };
