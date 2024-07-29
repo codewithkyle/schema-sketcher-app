@@ -1,6 +1,6 @@
 
 self.manifest = {
-    "version": "7acea614687860b3d7bb07dc0a1e279e",
+    "version": "8e8936f3fa2f7d53498bc5cbc78340ff",
     "assets": [
 		"/js/alerts.js",
 		"/js/bootstrap.js",
@@ -81,6 +81,12 @@ self.manifest = {
 		"/css/submit-button.css",
 		"/css/table-component.css",
 		"/css/toast.css",
-		"/css/tooltip.css"
+		"/css/tooltip.css",
+		"/assets/mysql.png",
+		"/assets/postgresql.png",
+		"/assets/sql-server.png",
+		"/assets/sqlite.png",
+		"/404.html",
+		"/index.html"
 	]
 }
