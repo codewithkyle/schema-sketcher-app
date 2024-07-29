@@ -7,7 +7,15 @@ module.exports = {
         {
             files: "./public/css/*.css",
             publicDir: "/css"
-        }
+        },
+        {
+            files: "./public/assets/*.png",
+            publicDir: "/assets"
+        },
+        {
+            files: "./public/*.html",
+            publicDir: "/"
+        },
     ],
     output: "./public/service-worker-assets.js",
 };
