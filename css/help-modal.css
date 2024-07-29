@@ -1,7 +1,7 @@
 help-modal {
   display: block;
   width: 100%;
-  padding: 2rem;
+  padding: 3rem 4rem;
 }
 help-modal .sections {
   display: grid;
