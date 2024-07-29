@@ -46,6 +46,7 @@ class DiagramController {
             this.createDiagramCallback = resolve;
             modal = modals.raw({
                 view: html`
+                    <h1 class="block text-center font-sm font-grey-500 mt-1.5">Select a database to begin</h1>
                     <div class="databases">
                         <button @mousedown=${this.onSelect} data-type="mysql">
                             <img src="/assets/mysql.png" alt="MySQL" />

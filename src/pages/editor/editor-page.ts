@@ -35,7 +35,7 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
 
     override async connected(){
         window.addEventListener("wheel", this.handleScroll, { passive: true });
-        window.addEventListener("keydown", this.handleKeyDown);
+        window.addEventListener("keydown", this.handleKeyDown, { passive: false, capture: true});
         window.addEventListener("keyup", this.handleKeyUp);
         window.addEventListener("mousedown", this.handleMouseDown);
         window.addEventListener("mouseup", this.handleMouseUp);
@@ -66,6 +66,10 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
                 this.setCursor("hand");
             } else if (key === "Escape"){
                 document.activeElement?.blur();
+            } else if (key === "s" && e.ctrlKey){
+                e.preventDefault();
+                const el = document.querySelector("main-menu");
+                if (el) el.save();
             }
         }
     }
