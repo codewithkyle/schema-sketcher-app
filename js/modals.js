@@ -14,7 +14,7 @@ import{html as a,render as f}from"./lit-html.js";import{unsafeHTML as o}from"./u
                             data-color="grey"
                             data-kind="solid"
                             class="mr-0.5"
-                            @click=${()=>{console.log("cancel"),"cancel"in e.callbacks&&typeof e.callbacks.cancel=="function"&&e.callbacks.cancel(),t.remove()}}
+                            @click=${()=>{"cancel"in e.callbacks&&typeof e.callbacks.cancel=="function"&&e.callbacks.cancel(),t.remove()}}
                         ></brixi-button>
                         <brixi-submit-button data-label="${e.submit}"></brixi-submit-button>
                     </div>

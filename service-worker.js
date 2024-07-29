@@ -10,12 +10,10 @@ let cacheName = "";
 // Cache files when the service worker is installed or updated
 async function onInstall(event) {
     self.skipWaiting();
-    console.log("SW Installed");
 }
 
 // Cleanup old caches
 async function onActivate(event) {
-    console.log("SW Activated");
 }
 
 // Try to respond with cached files
