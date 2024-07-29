@@ -7,6 +7,7 @@ import notifications from "~brixi/controllers/alerts";
             navigator.serviceWorker.register("/service-worker.js", { scope: "/" });
             navigator.serviceWorker.addEventListener("message", (e) => {
                 localStorage.setItem("version", e.data);
+                resolve();
             });
             navigator.serviceWorker.ready.then(async (registration) => {
                 try {
@@ -15,18 +16,17 @@ import notifications from "~brixi/controllers/alerts";
                     if (self.manifest.version !== localStorage.getItem("version")) {
                         localStorage.removeItem("version");
                         updated = true;
-                    } else {
-                        // @ts-expect-error
-                        delete self.manifest.assets;
-                    }
-                    // @ts-expect-error
-                    registration.active.postMessage(self.manifest);
+                    } 
+                    //else {
+                        //// @ts-expect-error
+                        //delete self.manifest.assets;
+                    //}
+                    //registration.active.postMessage(self.manifest);
                 } catch (e) {
-                    registration.active.postMessage({
-                        version: localStorage.getItem("version") || "init",
-                    });
+                    //registration.active.postMessage({
+                        //version: localStorage.getItem("version") || "init",
+                    //});
                 }
-                resolve();
             });
         });
         if (updated) {

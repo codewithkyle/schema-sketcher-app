@@ -12,11 +12,7 @@ module.exports = {
             files: "./public/assets/*.png",
             publicDir: "/assets"
         },
-        {
-            files: "./public/*.html",
-            publicDir: "/"
-        },
     ],
     output: "./public/service-worker-assets.js",
-    static: ["/"]
+    static: ["/", "/404"]
 };
