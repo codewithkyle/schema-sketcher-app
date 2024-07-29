@@ -1,6 +1,6 @@
 toaster-component {
     position: fixed;
-    z-index: 3000;
+    z-index: 5000;
     width: 300px;
     bottom: 0;
     left: 0;

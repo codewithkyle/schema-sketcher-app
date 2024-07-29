@@ -132,7 +132,6 @@ export default class TableComponent extends Component<ITableComponent> {
     private mouseMove: EventListener = (e: MouseEvent | TouchEvent) => {
         if (this.isMoving) {
             e.preventDefault();
-            e.stopImmediatePropagation();
             if (e instanceof MouseEvent) {
                 this.pos1 = this.pos3 - e.clientX;
                 this.pos2 = this.pos4 - e.clientY;

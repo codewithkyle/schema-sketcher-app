@@ -14,6 +14,7 @@ tool-tip {
     display: inline-block;
     user-select: none;
     border: 1px solid var(--grey-300);
+    z-index: 9999;
 
     @media (prefers-color-scheme: dark) {
         backdrop-filter: blur(4px);
