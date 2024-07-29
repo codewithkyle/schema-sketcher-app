@@ -33,6 +33,7 @@ export default class CanvasComponent extends HTMLElement{
         [key:string]: string,
     }
     private activeLineId: string;
+    private isDirty: boolean;
 
     constructor(){
         super();
@@ -46,6 +47,7 @@ export default class CanvasComponent extends HTMLElement{
         this.forceHighlight = null;
         this.activeLineId = null;
         this.colorRef = {};
+        this.isDirty = false;
         env.css(["canvas-component"]);
         createSubscription("canvas");
         this.ticketID = subscribe("canvas", this.inbox.bind(this));
@@ -148,6 +150,7 @@ export default class CanvasComponent extends HTMLElement{
     }
 
     private handleMouseMove:EventListener = (e:MouseEvent) => {
+        this.isDirty = true;
         this.mousePos = {
             x: e.clientX,
             y: e.clientY,
@@ -659,9 +662,15 @@ export default class CanvasComponent extends HTMLElement{
     }
 
     private async eventLoop() {
-        const newTime = performance.now();
-        const deltaTime = (newTime - this.oldTime) / 1000;
-        this.oldTime = newTime;
+        //const newTime = performance.now();
+        //const deltaTime = (newTime - this.oldTime) / 1000;
+        //this.oldTime = newTime;
+
+        if (!this.isDirty){
+            window.requestAnimationFrame(this.eventLoop.bind(this));
+            return;
+        }
+
         this.lines = diagramController.getConnections();
         const highlightedLines = [];
 
@@ -669,6 +678,7 @@ export default class CanvasComponent extends HTMLElement{
         this.hitCTX.clearRect(0,0,this.canvas.width,this.canvas.height);
         const bounds = this.canvas.getBoundingClientRect();
         this.ctx.lineWidth = 1;
+        this.isDirty = false;
         
         try {
             if (this.openStartPoint !== null){
