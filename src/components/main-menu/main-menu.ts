@@ -24,11 +24,21 @@ export default class MainMenu extends SuperComponent<IBasicHeader>{
         this.model = {
             open: false,
             unsaved: false,
-        };
-        env.css(["main-menu", "button", "modals"]).then(() => {
+        }; 
+        subscribe("diagram", this.diagramInbox.bind(this));
+    }
+
+    override async connected(){
+        await env.css(["main-menu", "button", "modals"]).then(() => {
             this.render();
         });
-        subscribe("diagram", this.diagramInbox.bind(this));
+        window.addEventListener("beforeunload",  (e) => {
+            if (this.model.unsaved) {
+                var confirmationMessage = 'Are you sure you want to exit? You have unsaved changes.';
+                (e || window.event).returnValue = confirmationMessage; //Gecko + IE
+                return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+            }
+        });
     }
 
     private diagramInbox({type,data}){
