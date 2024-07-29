@@ -7,7 +7,7 @@
             });
             navigator.serviceWorker.ready.then(async (registration) => {
                 try {
-                    await import("/static/service-worker-assets.js?t=" + Date.now());
+                    await import("/service-worker-assets.js?t=" + Date.now());
                     // @ts-expect-error
                     if (self.manifest.version !== localStorage.getItem("version")) {
                         localStorage.removeItem("version");
