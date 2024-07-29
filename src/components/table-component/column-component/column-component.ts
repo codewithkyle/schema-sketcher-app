@@ -190,15 +190,15 @@ export default class ColumnComponent extends Component<IColumnComponent>{
     override render(){
         this.dataset.uid = this.model.uid;
         const view = html`
-            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -6px;`, this.model.uid, "left", this.model.tableID, [this.model.tableID, this.model.uid])}
-            <div @mouseup=${this.endDraw} tabindex="0" class="w-full" flex="row nowrap items-center">
+            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -7px;`, this.model.uid, "left", this.model.tableID, [this.model.tableID, this.model.uid])}
+            <div @mouseup=${this.endDraw} tabindex="0" class="w-full h-full" flex="row nowrap items-center">
                 <div flex="row nowrap items-center" style="flex:1;width:100%">
                     ${this.renderPrimaryKey()}
                     ${this.renderIndex()}
                     ${this.renderUnique()}
                     <input type="text" .value="${this.model.name}" @input=${this.handleNameInput}>
                 </div>
-                <div flex="row nowrap items-center">
+                <div flex="row nowrap items-center" class="h-full">
                     <select @change=${this.changeType}>
                         ${diagramController.getTypes().map(type => {
                             return html`<option value="${type.uid}" ?selected=${this.model.type === type.uid}>${type.name}${this.model.isNullable ? "?" : ""}</option>`;
@@ -206,7 +206,7 @@ export default class ColumnComponent extends Component<IColumnComponent>{
                     </select>
                 </div>
             </div>
-            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 6px);`, this.model.uid, "right", this.model.tableID, [this.model.tableID, this.model.uid])}
+            ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: calc(100% - 5px);`, this.model.uid, "right", this.model.tableID, [this.model.tableID, this.model.uid])}
         `;
         render(view, this);
     }

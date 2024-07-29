@@ -18,11 +18,17 @@ table-component{
         box-shadow: var(--shadow-black-md);
     }
 
-    &:focus{
+    &:focus,
+    &:focus-within{
         box-shadow: var(--shadow-black-lg);
-        outline: solid 4px var(--primary-400);
-        outline-offset: 6px;
+        outline: solid 3px var(--primary-400);
+        //outline-offset: 6px;
         transition: outline-offset 80ms var(--ease-out);
+
+        connector-component{
+            opacity: 1;
+            visibility: visible;
+        }
     }
 
     @media (prefers-color-scheme: dark){

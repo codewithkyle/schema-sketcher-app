@@ -3,27 +3,16 @@ connector-component{
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background-color: var(--white);
-    border: 2px solid var(--grey-500);
+    background-color: var(--primary-400);
+    //border: 2px solid var(--grey-500);
     opacity: 0;
     visibility: hidden;
     transition: all 80ms var(--ease-in-out);
     cursor: crosshair;
     z-index: 10;
 
-    &:hover{
-        box-shadow: var(--shadow-md);
-        border-color: var(--primary-500);
-        background-color: var(--primary-200);
-    }
-
     @media (prefers-color-scheme: dark){
-        border-color: var(--grey-500);
-        background-color: var(--grey-500);
-
-        &:hover{
-            border-color: var(--primary-300);
-            background-color: var(--primary-400);
-        }
+        //border-color: var(--grey-500);
+        //background-color: var(--grey-500);
     }
 }

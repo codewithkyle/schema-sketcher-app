@@ -5,7 +5,7 @@ column-component{
     justify-content: space-between;
     flex-flow: row nowrap;
     height: 36px;
-    padding: 0 0.5rem 0 0.5rem;
+    padding: 0 0 0 0.5rem;
     transition: background-color 80ms var(--ease-in-out), color 80ms var(--ease-in-out);
     color: var(--grey-700);
     overflow: visible;
@@ -97,7 +97,7 @@ column-component{
     }
 
     select{
-        height: 24px;
+        height: 100%;
         appearance: none;
         background-color: transparent;
         padding: 0 0.5rem;
@@ -109,12 +109,20 @@ column-component{
         text-align: right;
         text-align-last: right;
 
+        &:hover{
+            background-color: var(--grey-100);
+
+            @media (prefers-color-scheme: dark){
+                background-color: var(--grey-600);
+            }
+        }
+
         &:focus{
             color: var(--primary-500);
-            outline: solid 4px var(--primary-400);
-            outline-offset: 6px;
+            outline: solid 3px var(--primary-400);
+            //outline-offset: 6px;
             transition: outline-offset 80ms var(--ease-out);
-        }
+        } 
     }
 
     i{
