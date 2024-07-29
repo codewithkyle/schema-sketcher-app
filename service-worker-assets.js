@@ -1,6 +1,6 @@
 
 self.manifest = {
-    "version": "ab045684b6955591f32ab69923c59853",
+    "version": "2148bb042f4cd188941ffbedc75decf7",
     "assets": [
 		"/js/alerts.js",
 		"/js/bootstrap.js",
@@ -86,6 +86,8 @@ self.manifest = {
 		"/assets/mysql.png",
 		"/assets/postgresql.png",
 		"/assets/sql-server.png",
-		"/assets/sqlite.png"
+		"/assets/sqlite.png",
+		"/",
+		"/404"
 	]
 }
