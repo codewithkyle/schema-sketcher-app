@@ -15,11 +15,14 @@ table-component:hover, table-component:focus-within {
 table-component:hover {
   box-shadow: var(--shadow-black-md);
 }
-table-component:focus {
+table-component:focus, table-component:focus-within {
   box-shadow: var(--shadow-black-lg);
-  outline: solid 4px var(--primary-400);
-  outline-offset: 6px;
+  outline: solid 3px var(--primary-400);
   transition: outline-offset 80ms var(--ease-out);
+}
+table-component:focus connector-component, table-component:focus-within connector-component {
+  opacity: 1;
+  visibility: visible;
 }
 @media (prefers-color-scheme: dark) {
   table-component {
