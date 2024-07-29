@@ -34,6 +34,13 @@
         })();
     </script>
 
+    <script>
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            window.deferredInstallPrompt = e;
+        });
+    </script>
+
     <script type="module" src="/js/bootstrap.js"></script>
     <script type="module" src="/js/tooltipper.js"></script>
 </head>
