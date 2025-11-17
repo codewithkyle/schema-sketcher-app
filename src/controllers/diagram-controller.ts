@@ -198,9 +198,6 @@ class DiagramController {
         const columns = Object.values(this.diagram.columns).filter(column => {
             return column.tableID === tableID;
         });
-        columns.sort((a, b) => {
-            return a.weight - b.weight;
-        });
         return columns;
     }
 
@@ -208,11 +205,15 @@ class DiagramController {
         return this.diagram.columns[uid];
     }
 
-    public reorderColumns(columns:Array<Column>){
-        columns.map((column, index) => {
-            this.diagram.columns[column.uid].weight = index;
-        });
-        publish("diagram", { type: "dirty" });
+    public reorderColumns(tableId:string){
+        const tableEl = document.body.querySelector(`table-component[data-uid="${tableId}"]`);
+        const columns:Array<HTMLElement> = Array.from(tableEl.querySelectorAll("column-component"));
+        for (let i = 0; i < columns.length; i++) {
+            const uid = columns[i].dataset.uid;
+            const column = this.getColumn(uid);
+            column.weight = i;
+        }
+        //publish("diagram", { type: "dirty" });
     }
 
     public moveColumn(columnID:string, tableID:string){

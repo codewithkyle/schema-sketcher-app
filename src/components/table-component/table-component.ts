@@ -313,10 +313,10 @@ export default class TableComponent extends Component<ITableComponent> {
                 group: "columns",
                 ghostClass: "is-disabled",
                 onUpdate: (e) => {
-                    let columns = diagramController.getColumnsByTable(this.model.uid);
-                    const column = columns.splice(e.oldIndex, 1)[0];
-                    columns.splice(e.newIndex, 0, column);
-                    diagramController.reorderColumns(columns);
+                    //let columns = diagramController.getColumnsByTable(this.model.uid);
+                    //const column = columns.splice(e.oldIndex, 1)[0];
+                    //columns.splice(e.newIndex, 0, column);
+                    diagramController.reorderColumns(this.model.uid);
                 },
                 onAdd: (e) => {
                     diagramController.moveColumn(e.item.dataset.uid, this.model.uid);
@@ -337,7 +337,7 @@ export default class TableComponent extends Component<ITableComponent> {
                 el.dataset.uid = column.uid;
                 columnsContainer.appendChild(el);
             }
-        })
+        });
     }
 }
 env.bind("table-component", TableComponent);
