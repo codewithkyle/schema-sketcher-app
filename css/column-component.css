@@ -118,6 +118,9 @@ column-component i {
     color: var(--grey-300);
   }
 }
+column-component i.handle {
+  cursor: grab;
+}
 column-component i svg {
   width: 14px;
   height: 14px;
