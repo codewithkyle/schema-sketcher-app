@@ -198,6 +198,9 @@ class DiagramController {
         const columns = Object.values(this.diagram.columns).filter(column => {
             return column.tableID === tableID;
         });
+        columns.sort((a, b) => {
+            return a.weight - b.weight;
+        });
         return columns;
     }
 
@@ -213,7 +216,7 @@ class DiagramController {
             const column = this.getColumn(uid);
             column.weight = i;
         }
-        //publish("diagram", { type: "dirty" });
+        publish("diagram", { type: "dirty" });
     }
 
     public moveColumn(columnID:string, tableID:string){
