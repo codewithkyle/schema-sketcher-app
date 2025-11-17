@@ -193,6 +193,9 @@ export default class ColumnComponent extends Component<IColumnComponent>{
             ${new ConnectorComponent(`top: 50%;transform: translateY(-50%);left: -7px;`, this.model.uid, "left", this.model.tableID, [this.model.tableID, this.model.uid])}
             <div @mouseup=${this.endDraw} tabindex="0" class="w-full h-full" flex="row nowrap items-center">
                 <div flex="row nowrap items-center" style="flex:1;width:100%">
+                    <i class="handle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 8l16 0" /><path d="M4 16l16 0" /></svg>
+                    </i>
                     ${this.renderPrimaryKey()}
                     ${this.renderIndex()}
                     ${this.renderUnique()}

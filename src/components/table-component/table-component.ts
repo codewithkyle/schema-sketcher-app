@@ -309,9 +309,12 @@ export default class TableComponent extends Component<ITableComponent> {
         if (this.firstRender) {
             this.firstRender = false;
             new Sortable(this.querySelector("columns-container"), {
-                animation: 150,
+                animation: 125,
                 group: "columns",
+                handle: ".handle",
                 ghostClass: "is-disabled",
+                swapThreshold: 0.4,
+                easing: "cubic-bezier(1, 0, 0, 1)",
                 onUpdate: (e) => {
                     //let columns = diagramController.getColumnsByTable(this.model.uid);
                     //const column = columns.splice(e.oldIndex, 1)[0];
