@@ -437,7 +437,8 @@ class DiagramController {
         publish("diagram", { type: "dirty" });
     }
 
-    public deleteType(uid:string){
+    public deleteType(uid:string):boolean{
+        if (Object.keys(this.diagram.types).length <= 1) return false;
         delete this.diagram.types[uid];
         for (const columnID in this.diagram.columns){
             if (this.diagram.columns[columnID].type === uid){
@@ -445,6 +446,7 @@ class DiagramController {
             }
         }
         publish("diagram", { type: "dirty" });
+        return true;
     }
 
     public createType(value = ""){

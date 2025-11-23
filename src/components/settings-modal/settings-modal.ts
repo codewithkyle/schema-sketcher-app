@@ -20,9 +20,13 @@ export default class SettingsModal extends SuperComponent<ISettingsModal>{
         window.addEventListener("wheel", this.noop, { passive: false, capture: true});
         await env.css(["settings-modal"]);
         const types = diagramController.getTypes();
-        this.set({
-            types: types,
-        });
+        if (types.length < 1) {
+            this.addRow();
+        } else {
+            this.set({
+                types: types,
+            });
+        }
     }
 
     override disconnected(){
@@ -33,7 +37,11 @@ export default class SettingsModal extends SuperComponent<ISettingsModal>{
         e.stopImmediatePropagation();
     }
 
-    private addRow:EventListener = async (e:Event) => {
+    private onAddRow:EventListener = async (e:Event) => {
+        this.addRow();
+    }
+
+    public addRow() {
         diagramController.createType();
         const types = diagramController.getTypes();
         this.set({
@@ -47,10 +55,10 @@ export default class SettingsModal extends SuperComponent<ISettingsModal>{
                 <list-container>
                     <list-header>Column Types</list-header>
                     ${this.model.types.map(type => {
-                        return new ListItemInput(type);
+                        return new ListItemInput(type, this);
                     })}
                 </list-container>
-                <button @click=${this.addRow} class="add-item">
+                <button @click=${this.onAddRow} class="add-item">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                     Add column type
                 </button>
