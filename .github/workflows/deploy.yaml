@@ -22,9 +22,6 @@ jobs:
             - name: Install NPM Packages
               run: npm ci
 
-            - name: Bundle Packages
-              run: npm run bundle
-
             - name: Compile
               run: npm run production
 

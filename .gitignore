@@ -9,9 +9,6 @@ server/diagrams
 # Logs
 /server/404.log
 
-# Source files
-src/lib
-
 # Public
 public/js
 public/css
