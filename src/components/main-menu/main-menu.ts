@@ -282,6 +282,15 @@ export default class MainMenu extends SuperComponent<IBasicHeader>{
             </div>
         `;
         render(view, this);
+        if (
+            diagramController.type === "custom" && 
+            diagramController.getTypes().length === 0
+        ) {
+            modals.raw({
+                view: html`${new SettingsModal()}`,
+                closeable: true,
+            });
+        }
     }
 }
 env.bind("main-menu", MainMenu);
