@@ -1,7 +1,8 @@
 
 self.manifest = {
-    "version": "07f43e114199fb8aae9a740838b62a58",
+    "version": "95481d600f3189a838409f8179be4f91",
     "assets": [
+		"/js/_commonjsHelpers-eb5a497e.js",
 		"/js/alerts.js",
 		"/js/bootstrap.js",
 		"/js/button.js",
@@ -28,6 +29,7 @@ self.manifest = {
 		"/js/input.js",
 		"/js/list-item-input.js",
 		"/js/lit-html.js",
+		"/js/lz-string.js",
 		"/js/main-menu.js",
 		"/js/missing-page.js",
 		"/js/modals.js",
