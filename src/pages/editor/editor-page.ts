@@ -43,6 +43,15 @@ export default class EditorPage extends SuperComponent<IEditorPage>{
         this.addEventListener("zoom", this.onScale);
         this.addEventListener("move", this.handleMove);
         await env.css(["editor-page"]);
+        let data = sessionStorage.getItem("data");
+        if (data) {
+            const diagram = diagramController.importFromURI(data);
+            if (diagram) {
+                sessionStorage.removeItem("data");
+                this.uid = diagram.uid;
+                return;
+            }
+        }
         const diagram = await diagramController.createDiagram();
         this.uid = diagram.uid;
         this.render();

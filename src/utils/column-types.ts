@@ -8,8 +8,13 @@ export const MYSQL_TYPES = [
   "BIGINT",
   "FLOAT",
   "DOUBLE",
+  "DOUBLE PRECISION",
+  "REAL",
   "DECIMAL",
   "NUMERIC",
+  "BIT",
+  "BOOL",
+  "BOOLEAN",
 
   // Date and Time Types
   "DATE",
@@ -18,7 +23,7 @@ export const MYSQL_TYPES = [
   "TIME",
   "YEAR",
 
-  // String Types
+  // String / Character / Binary Types
   "CHAR",
   "VARCHAR",
   "BINARY",
@@ -45,7 +50,10 @@ export const MYSQL_TYPES = [
   "GEOMETRYCOLLECTION",
 
   // JSON Type
-  "JSON"
+  "JSON",
+
+  // Vector / AI-embedding Types
+  "VECTOR"
 ];
 
 export const POSTGRES_TYPES = [
@@ -59,6 +67,7 @@ export const POSTGRES_TYPES = [
   "DOUBLE PRECISION",
   "SERIAL",
   "BIGSERIAL",
+  "SMALLSERIAL",
 
   // Monetary Types
   "MONEY",
@@ -74,8 +83,9 @@ export const POSTGRES_TYPES = [
   // Date/Time Types
   "DATE",
   "TIME",
+  "TIMETZ",
   "TIMESTAMP",
-  "TIMESTAMPTZ", // timestamp with time zone
+  "TIMESTAMPTZ",
   "INTERVAL",
 
   // Boolean Type
@@ -101,7 +111,7 @@ export const POSTGRES_TYPES = [
 
   // Bit String Types
   "BIT",
-  "VARBIT", // variable length bit string
+  "VARBIT",
 
   // Text Search Types
   "TSVECTOR",
@@ -115,27 +125,52 @@ export const POSTGRES_TYPES = [
 
   // JSON Types
   "JSON",
-  "JSONB"
+  "JSONB",
+
+  // Range Types
+  "INT4RANGE",
+  "INT8RANGE",
+  "NUMRANGE",
+  "TSRANGE",
+  "TSTZRANGE",
+  "DATERANGE"
 ];
 
 export const SQLITE_TYPES = [
-  // Numeric Types
+  // Storage classes / affinities
   "INTEGER",
   "REAL",
   "NUMERIC",
-
-  // Text Type
   "TEXT",
-
-  // Blob Type
   "BLOB",
+  "NULL",
 
-  // Special Type
-  "NULL"
+  // Common declared types
+  "INT",
+  "SMALLINT",
+  "TINYINT",
+  "MEDIUMINT",
+  "BIGINT",
+  "UNSIGNED BIG INT",
+  "INT2",
+  "INT8",
+  "DOUBLE",
+  "DOUBLE PRECISION",
+  "FLOAT",
+  "DECIMAL",
+  "BOOLEAN",
+  "DATE",
+  "DATETIME",
+  "CHARACTER",
+  "VARCHAR",
+  "VARYING CHARACTER",
+  "NCHAR",
+  "NVARCHAR",
+  "CLOB"
 ];
 
 export const SQL_SERVER_TYPES = [
-  // Exact Numeric Types
+  // Numeric Types
   "BIT",
   "TINYINT",
   "SMALLINT",
@@ -145,8 +180,6 @@ export const SQL_SERVER_TYPES = [
   "NUMERIC",
   "SMALLMONEY",
   "MONEY",
-
-  // Approximate Numeric Types
   "FLOAT",
   "REAL",
 
@@ -161,23 +194,30 @@ export const SQL_SERVER_TYPES = [
   // Character String Types
   "CHAR",
   "VARCHAR",
-  "TEXT",
+  "VARCHAR(MAX)",// large-variant
+  "TEXT",// deprecated
 
   // Unicode Character String Types
   "NCHAR",
   "NVARCHAR",
-  "NTEXT",
+  "NVARCHAR(MAX)",// large‐variant
+  "NTEXT",// deprecated
 
   // Binary String Types
   "BINARY",
   "VARBINARY",
-  "IMAGE",
+  "VARBINARY(MAX)",// large‐variant
+  "IMAGE",// deprecated
 
   // Other Data Types
   "CURSOR",
   "TABLE",
   "UNIQUEIDENTIFIER",
   "XML",
+  "SQL_VARIANT",
+  "ROWVERSION",
+  "HIERARCHYID",
+  "VECTOR",
 
   // Spatial Data Types
   "GEOGRAPHY",
@@ -186,9 +226,6 @@ export const SQL_SERVER_TYPES = [
   // JSON Type
   "JSON",
 
-  // Rowversion Type
-  "ROWVERSION",
-
-  // SQL_VARIANT Type
-  "SQL_VARIANT"
+  // Timestamp alias / legacy
+  "TIMESTAMP"
 ];

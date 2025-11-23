@@ -70,4 +70,4 @@ export interface Point {
     y:number,
 }
 
-export type DatabaseType = "sqlite" | "postgresql" | "mysql" | "mssql";
+export type DatabaseType = "sqlite" | "postgresql" | "mysql" | "mssql" | "custom" | "file";

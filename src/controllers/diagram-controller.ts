@@ -5,12 +5,14 @@ import { MYSQL_TYPES, POSTGRES_TYPES, SQLITE_TYPES, SQL_SERVER_TYPES } from "~ut
 import modals from "~brixi/controllers/modals";
 import { html } from "lit-html";
 import { COLORS, SHADES, COLOR_CODES } from "~utils/colors";
+import * as LZString from "lz-string";
+import notifications from "~brixi/controllers/alerts";
 
 class DiagramController {
     private diagram:Diagram;
     public ID:string;
     private tableCount:number;
-    private type:DatabaseType;
+    public type:DatabaseType;
     private createDiagramCallback:Function;
 
     constructor(){
@@ -20,7 +22,28 @@ class DiagramController {
         this.diagram = null;
         this.createDiagramCallback = () => {};
     }
-    
+
+    public importFromURI(data:string):Diagram|null {
+        try{
+            const json = JSON.parse(LZString.decompressFromEncodedURIComponent(data));
+            this.type = "file";
+            this.diagram = json;
+            setTimeout(() => {
+                publish("diagram", { type: "load" });
+            }, 80);
+            return this.diagram;
+        } catch (e) {
+            console.error(e);
+            notifications.toast("Failed to import diagram from URL");
+            return null;
+        }
+    }
+
+    public exportAsURI():[Diagram, string]{
+        const encoded = LZString.compressToEncodedURIComponent(JSON.stringify(this.diagram));
+        return [this.diagram, encoded];
+    }
+
     private getRandomColor():string{
         const color = this.getRandomInt(0, COLORS.length - 1);
         const shade = this.getRandomInt(0, SHADES.length - 1);
@@ -39,7 +62,47 @@ class DiagramController {
         this.type = type;
         this.createDiagramCallback(type);
     }
-    
+
+    private onOpen:EventListener = (e:Event) => {
+        if (window?.showOpenFilePicker) {
+            openFile({
+                description: "Schema Sketcher Diagram",
+                mimeTypes: ["application/json"],
+                extensions: [".json"],
+            }).then((file) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const json = e.target.result as string;
+                    this.type = "file";
+                    this.createDiagramCallback("file");
+                    setTimeout(()=>{
+                        this.import(json);
+                        notifications.toast("File opened");
+                    }, 80);
+                };
+                reader.readAsText(file);
+            });
+        } else {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = ".json";
+            input.onchange = (e) => {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const json = e.target.result as string;
+                    this.type = "file";
+                    this.createDiagramCallback("file");
+                    setTimeout(()=>{
+                        this.import(json);
+                        notifications.toast("File opened");
+                    }, 80);
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+    }
     public async createDiagram():Promise<Diagram>{
         let modal;
         await new Promise((resolve) => {
@@ -63,6 +126,34 @@ class DiagramController {
                         <button @mousedown=${this.onSelect} data-type="mssql">
                             <img src="/assets/sql-server.png" alt="SQL Server" />
                             <span>SQL Server</span>
+                        </button>
+                    </div>
+                    <div class="divider">
+                        <i></i>
+                        <span>OR</span>
+                        <i></i>
+                    </div>
+                    <div class="actions">
+                        <button
+                            @mousedown=${this.onSelect}
+                            data-type="custom"
+                            class="bttn"
+                            kind="solid"
+                            color="grey"
+                            icon="left"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-database-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6c0 1.657 3.582 3 8 3s8 -1.343 8 -3s-3.582 -3 -8 -3s-8 1.343 -8 3" /><path d="M4 6v6c0 1.657 3.582 3 8 3c.478 0 .947 -.016 1.402 -.046" /><path d="M20 12v-6" /><path d="M4 12v6c0 1.526 3.04 2.786 6.972 2.975" /><path d="M18.42 15.61a2.1 2.1 0 0 1 2.97 2.97l-3.39 3.42h-3v-3l3.42 -3.39z" /></svg>
+                            <span>Custom schema</span>
+                        </button>
+                        <button
+                            class="bttn"
+                            kind="solid"
+                            color="grey"
+                            icon="left"
+                            @mousedown=${this.onOpen}
+                        >
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2" /></svg>
+                            <span>Open diagram</span>
                         </button>
                     </div>
                 `,
@@ -137,6 +228,7 @@ class DiagramController {
 
     public import(json:string){
         publish("diagram", { type: "reset" });
+        this.type = "file";
         this.diagram = JSON.parse(json);
         setTimeout(() => {
             publish("diagram", { type: "load" });
@@ -345,7 +437,8 @@ class DiagramController {
         publish("diagram", { type: "dirty" });
     }
 
-    public deleteType(uid:string){
+    public deleteType(uid:string):boolean{
+        if (Object.keys(this.diagram.types).length <= 1) return false;
         delete this.diagram.types[uid];
         for (const columnID in this.diagram.columns){
             if (this.diagram.columns[columnID].type === uid){
@@ -353,6 +446,7 @@ class DiagramController {
             }
         }
         publish("diagram", { type: "dirty" });
+        return true;
     }
 
     public createType(value = ""){
