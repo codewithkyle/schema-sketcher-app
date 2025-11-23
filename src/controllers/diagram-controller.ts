@@ -5,6 +5,8 @@ import { MYSQL_TYPES, POSTGRES_TYPES, SQLITE_TYPES, SQL_SERVER_TYPES } from "~ut
 import modals from "~brixi/controllers/modals";
 import { html } from "lit-html";
 import { COLORS, SHADES, COLOR_CODES } from "~utils/colors";
+import * as LZString from "lz-string";
+import notifications from "~brixi/controllers/alerts";
 
 class DiagramController {
     private diagram:Diagram;
@@ -20,7 +22,27 @@ class DiagramController {
         this.diagram = null;
         this.createDiagramCallback = () => {};
     }
-    
+
+    public importFromURI(data:string):Diagram|null {
+        try{
+            const json = JSON.parse(LZString.decompressFromEncodedURIComponent(data));
+            this.diagram = json;
+            setTimeout(() => {
+                publish("diagram", { type: "load" });
+            }, 80);
+            return this.diagram;
+        } catch (e) {
+            console.error(e);
+            notifications.toast("Failed to import diagram from URL");
+            return null;
+        }
+    }
+
+    public exportAsURI():[Diagram, string]{
+        const encoded = LZString.compressToEncodedURIComponent(JSON.stringify(this.diagram));
+        return [this.diagram, encoded];
+    }
+
     private getRandomColor():string{
         const color = this.getRandomInt(0, COLORS.length - 1);
         const shade = this.getRandomInt(0, SHADES.length - 1);

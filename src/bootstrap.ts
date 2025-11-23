@@ -37,6 +37,13 @@ import notifications from "~brixi/controllers/alerts";
         });
     }
 
+    const hash = location.hash;
+    if (hash.indexOf("#data:") === 0) {
+        const data = hash.slice("#data:".length);
+        sessionStorage.setItem("data", data);
+    }
+    history.replaceState(null, "", "/");
+
     //@ts-ignore
     import("/js/routes.js");
 })();
